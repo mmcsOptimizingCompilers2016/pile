@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BF58DB3C-8BB1-483D-B987-8BD769F7EC93}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OptimizingCompilers2016.Library</RootNamespace>
+    <AssemblyName>OptimizingCompilers2016.Library</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LinearCode\Boolean.cs" />
+    <Compile Include="LinearCode\Identificator.cs" />
+    <Compile Include="LinearCode\Base\InstructionTerm.cs" />
+    <Compile Include="LinearCode\Label.cs" />
+    <Compile Include="Visitors\LinearCode.cs" />
+    <Compile Include="LinearCode\LinearRepresentation.cs" />
+    <Compile Include="LinearCode\Number.cs" />
+    <Compile Include="LinearCode\Operation.cs" />
+    <Compile Include="LinearCode\Value.cs" />
+    <Compile Include="Nodes\AssignNode.cs" />
+    <Compile Include="Nodes\AssignType.cs" />
+    <Compile Include="Nodes\BinExprNode.cs" />
+    <Compile Include="Nodes\BinSign.cs" />
+    <Compile Include="Nodes\BlockNode.cs" />
+    <Compile Include="Nodes\BoolNode.cs" />
+    <Compile Include="Nodes\CycleNode.cs" />
+    <Compile Include="Nodes\EmptyNode.cs" />
+    <Compile Include="Nodes\ExprNode.cs" />
+    <Compile Include="Nodes\ForNode.cs" />
+    <Compile Include="Nodes\IdNode.cs" />
+    <Compile Include="Nodes\IfNode.cs" />
+    <Compile Include="Nodes\IntNumNode.cs" />
+    <Compile Include="Nodes\Base\Node.cs" />
+    <Compile Include="Nodes\RepUntNode.cs" />
+    <Compile Include="Nodes\StatementNode.cs" />
+    <Compile Include="Nodes\WhileNode.cs" />
+    <Compile Include="Helpers\ParserHelper.cs" />
+    <Compile Include="Helpers\PrinterHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShiftReduceParserCode.cs" />
+    <Compile Include="SimpleLex.cs" />
+    <Compile Include="SimpleYacc.cs" />
+    <Compile Include="Visitors\IVisitor.cs" />
+    <Compile Include="Visitors\PrettyPrintVisitor.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
