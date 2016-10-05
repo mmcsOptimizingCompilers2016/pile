@@ -51,9 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OptimizingCompilers2016.Library\OptimizingCompilers2016.Library.csproj">
+    <ProjectReference Include="..\Library\Library.csproj">
       <Project>{bf58db3c-8bb1-483d-b987-8bd769f7ec93}</Project>
-      <Name>OptimizingCompilers2016.Library</Name>
+      <Name>Library</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
