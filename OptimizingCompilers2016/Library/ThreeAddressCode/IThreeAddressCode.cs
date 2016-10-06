@@ -1,6 +1,6 @@
 ﻿namespace OptimizingCompilers2016.Library.ThreeAddressCode
 {
-    interface IThreeAddressCode
+    public interface IThreeAddressCode
     {
         Operation Operation { get; set; }
         object LeftOperand { get; set; }
