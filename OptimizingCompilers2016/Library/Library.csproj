@@ -46,7 +46,7 @@
     <Compile Include="LinearCode\Identificator.cs" />
     <Compile Include="LinearCode\Base\InstructionTerm.cs" />
     <Compile Include="LinearCode\Label.cs" />
-    <Compile Include="ThreeAddressCode\Base\BaseThreeAddressCode.cs" />
+    <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
     <Compile Include="ThreeAddressCode\Values\Base\BaseValue.cs" />
@@ -85,7 +85,9 @@
     <Compile Include="Visitors\IVisitor.cs" />
     <Compile Include="Visitors\PrettyPrintVisitor.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ThreeAddressCode\Base\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
