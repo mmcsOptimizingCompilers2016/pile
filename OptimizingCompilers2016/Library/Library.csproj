@@ -45,6 +45,7 @@
     <Compile Include="LinearCode\Identificator.cs" />
     <Compile Include="LinearCode\Base\InstructionTerm.cs" />
     <Compile Include="LinearCode\Label.cs" />
+    <Compile Include="Transformations\CommonExpressions.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
     <Compile Include="LinearCode\Number.cs" />

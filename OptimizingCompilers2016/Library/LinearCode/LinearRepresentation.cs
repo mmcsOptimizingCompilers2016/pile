@@ -22,26 +22,32 @@ namespace OptimizingCompilers2016.Library.LinearCode
             { Operation.GreatOrEq, "{0} := {1} >= {2}" },
             { Operation.Goto, "goto {0}" },
             { Operation.CondGoto, "if {1} goto {0}" },
-            { Operation.LabelOp, "{0}:" }
         };
 
+        public Label label;
         public Operation operation;
         public InstructionTerm destination;
         public Value leftOperand;
         public Value rightOperand;
 
-        public LinearRepresentation(Operation op, InstructionTerm dst = null,
+        public LinearRepresentation(Label l, Operation op, InstructionTerm dst = null,
             Value lOp = null, Value rOp = null)
         {
+            label = l;
             operation = op;
             destination = dst;
             leftOperand = lOp;
             rightOperand = rOp;
         }
 
-        public String ToString()
+        public LinearRepresentation(Operation op, InstructionTerm dst = null,
+            Value lOp = null, Value rOp = null) : this(null, op, dst, lOp, rOp)
+        { }
+
+        public override String ToString()
         {
             return String.Format(s_opToStringDic[operation],
+                label == null ? "" : label.ToString(),
                 destination == null ? "" : destination.ToString(),
                 leftOperand == null ? "" : leftOperand.ToString(),
                 rightOperand == null ? "" : rightOperand.ToString());

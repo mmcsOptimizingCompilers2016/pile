@@ -137,7 +137,7 @@ namespace OptimizingCompilers2016.Library.Visitors
 
             // l1:  
             var conditionLabel = new Label(s_labelPrefix + labelCounter++);
-            code.Add(new LinearRepresentation(Operation.LabelOp, conditionLabel));
+            code.Add(new LinearRepresentation(conditionLabel, Operation.NoOp));
 
             // t2 := t1 GT cycNode.Expr
             var varIdentNode = new IdNode(varIdent.ToString());
@@ -171,7 +171,7 @@ namespace OptimizingCompilers2016.Library.Visitors
 
             // for initialization
             forNode.LeftLimit.Accept(this);
-            code.Add(new LinearRepresentation(Operation.LabelOp, beginLabel));
+            code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             ExprNode condition = new BinExprNode(forNode.LeftLimit.Id, BinSign.LS, forNode.RightLimit);
             
             branchCondition(condition, forNode.BodyStatement, null, beforeEnd);

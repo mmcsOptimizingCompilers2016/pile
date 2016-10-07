@@ -14,7 +14,6 @@ namespace OptimizingCompilers2016.Library.LinearCode
         Great,
         GreatOrEq,
         Goto,
-        CondGoto,
-        LabelOp
+        CondGoto
     };
 }
