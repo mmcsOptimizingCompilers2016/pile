@@ -4,6 +4,7 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.BaseBlock;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -25,12 +26,20 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //  if (!b)
                 //Console.WriteLine("Ошибка");
                 //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
-                var linearCode = new LinearCodeVisitor();
-                parser.root.Accept(linearCode);
-                Console.WriteLine(linearCode.ToString());
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
+                //var linearCode = new LinearCodeVisitor();
+                //parser.root.Accept(linearCode);
+                //Console.WriteLine(linearCode.ToString());
+
+                //var blocks = BaseBlockDivider.divide(linearCode.code);
+                //Console.WriteLine("Blocks:");
+                //foreach (var block in blocks)
+                //{
+                //    Console.WriteLine(block.ToString());
+                //    Console.WriteLine("-------");
+                //}
             }
             catch (FileNotFoundException)
             {
