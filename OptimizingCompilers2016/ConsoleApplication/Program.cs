@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using OptimizingCompilers2016.Library;
+using OptimizingCompilers2016.Library.Analysis;
+using OptimizingCompilers2016.Library.BaseBlock;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
-using OptimizingCompilers2016.Library.BaseBlock;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
