@@ -2,9 +2,9 @@
 {
     using Base;
 
-    public class IndentificatorValue: BaseValue<string>
+    public class IdentificatorValue: BaseValue<string>
     {
-        public IndentificatorValue(string value) : base(value)
+        public IdentificatorValue(string value) : base(value)
         {
         }
     }

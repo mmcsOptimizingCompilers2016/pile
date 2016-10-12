@@ -4,7 +4,7 @@
 
     public abstract class ThreeAddressCode : IThreeAddressCode
     {
-        public IndentificatorValue Destination { get; set; }
+        public IdentificatorValue Destination { get; set; }
         public LabelValue Label { get; set; }
         public IValue LeftOperand { get; set; }
         public Operation Operation { get; set; }
