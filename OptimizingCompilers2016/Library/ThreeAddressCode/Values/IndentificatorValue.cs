@@ -4,5 +4,8 @@
 
     public class IndentificatorValue: BaseValue<string>
     {
+        public IndentificatorValue(string value) : base(value)
+        {
+        }
     }
 }
