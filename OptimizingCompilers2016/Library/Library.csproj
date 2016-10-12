@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseBlock\BaseBlock.cs" />
+    <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="LinearCode\Boolean.cs" />
     <Compile Include="LinearCode\Identificator.cs" />
     <Compile Include="LinearCode\Base\InstructionTerm.cs" />
