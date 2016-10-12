@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Nodes;
-using Boolean = OptimizingCompilers2016.Library.LinearCode.Boolean;
 
 namespace OptimizingCompilers2016.Library.Visitors
 {
@@ -36,7 +37,7 @@ namespace OptimizingCompilers2016.Library.Visitors
         private int valueCounter = 0;
         private int labelCounter = 0;
 
-        private Value idOrNum; // LinearCode saves result in this value
+        private IValue idOrNum; // LinearCode saves result in this value
 
         public List<LinearRepresentation> code = new List<LinearRepresentation>();
         private List<LinearRepresentation> evaluatedExpression = new List<LinearRepresentation>();
@@ -51,15 +52,16 @@ namespace OptimizingCompilers2016.Library.Visitors
             code.AddRange(evaluatedExpression);
             evaluatedExpression.Clear();
         }
+
         // combines if and loop statements
         private void branchCondition(ExprNode condition, StatementNode trueBranch, StatementNode falseBranch,
             List<LinearRepresentation> addBeforeEndLabel = null)
         {
             condition.Accept(this);
-            Label trueCond = new Label(s_labelPrefix + labelCounter++);
-            Label endCond = new Label(s_labelPrefix + labelCounter++);
-
-            LinearRepresentation gotoCond = new LinearRepresentation(Operation.CondGoto, trueCond, idOrNum);
+            LabelValue trueCond = new LabelValue(s_labelPrefix + labelCounter++);
+            LabelValue endCond = new LabelValue(s_labelPrefix + labelCounter++);
+            // TODO: fix this
+            LinearRepresentation gotoCond = new LinearRepresentation(Operation.CondGoto, new LabelValue(s_labelPrefix + labelCounter++), null, trueCond, idOrNum);
             evaluatedExpression.Add(gotoCond);
             moveExpressionToCode();
             if (falseBranch != null)
@@ -81,26 +83,26 @@ namespace OptimizingCompilers2016.Library.Visitors
 
         public void Visit(IdNode id)
         {
-            idOrNum = new Identificator(id.Name);
+            idOrNum = new IdentificatorValue(id.Name);
         }
         public void Visit(IntNumNode num)
         {
-            idOrNum = new Number(num.Num);
+            idOrNum = new NumericValue(num.Num);
         }
         public void Visit(BoolNode bNode)
         {
-            idOrNum = new Boolean(bNode.Bool);
+            idOrNum = new BooleanValue(bNode.Bool);
         }
         public void Visit(BinExprNode binop)
         {
-            LinearRepresentation result = new LinearRepresentation(binSignToOp(binop.BinSign));
+            LinearRepresentation result = new LinearRepresentation(binSignToOp(binop.BinSign), new LabelValue(s_labelPrefix + labelCounter++));
             binop.ExprLeft.Accept(this);
-            result.leftOperand = idOrNum;
+            result.LeftOperand = idOrNum;
             binop.ExprRight.Accept(this);
-            result.rightOperand = idOrNum;
-            var identificator = new Identificator(s_constantPrefix + valueCounter++.ToString());
+            result.RightOperand = idOrNum;
+            var identificator = new IdentificatorValue(s_constantPrefix + valueCounter++.ToString());
             idOrNum = identificator;
-            result.destination = identificator;
+            result.Destination = identificator;
             evaluatedExpression.Add(result);
         }
         public void Visit(AssignNode assNode)
@@ -120,11 +122,11 @@ namespace OptimizingCompilers2016.Library.Visitors
             }
             else
             {
-                resultantAssign = new LinearRepresentation(Operation.Assign, null, idOrNum);
+                resultantAssign = new LinearRepresentation(Operation.Assign, new LabelValue(s_labelPrefix + labelCounter++), null, idOrNum);
             }
 
             assNode.Id.Accept(this);
-            resultantAssign.destination = idOrNum;
+            resultantAssign.Destination = (IdentificatorValue)idOrNum;
             evaluatedExpression.Add(resultantAssign);
 
             moveExpressionToCode();
@@ -132,11 +134,11 @@ namespace OptimizingCompilers2016.Library.Visitors
         public void Visit(CycleNode cycNode)
         {
             // t1:=1
-            var varIdent = new Identificator(s_constantPrefix + valueCounter++.ToString());
-            code.Add(new LinearRepresentation(Operation.Assign, varIdent, new Number(1)));
+            var varIdent = new IdentificatorValue(s_constantPrefix + valueCounter++.ToString());
+            code.Add(new LinearRepresentation(Operation.Assign, new LabelValue(s_labelPrefix + labelCounter++), varIdent, new NumericValue(1)));
 
             // l1:  
-            var conditionLabel = new Label(s_labelPrefix + labelCounter++);
+            var conditionLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(Operation.LabelOp, conditionLabel));
 
             // t2 := t1 GT cycNode.Expr
@@ -145,7 +147,7 @@ namespace OptimizingCompilers2016.Library.Visitors
 
             // t1 := t1 + 1
             var beforeEnd = new List<LinearRepresentation>();
-            beforeEnd.Add(new LinearRepresentation(Operation.Plus, varIdent, varIdent, new Number(1)));
+            beforeEnd.Add(new LinearRepresentation(Operation.Plus, new LabelValue(s_labelPrefix + labelCounter++), varIdent, varIdent, new NumericValue(1)));
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, conditionLabel));
 
             branchCondition(condition, cycNode.Stat, null, beforeEnd);
@@ -163,10 +165,10 @@ namespace OptimizingCompilers2016.Library.Visitors
         }
         public void Visit(ForNode forNode)
         {
-            Label beginLabel = new Label(s_labelPrefix + labelCounter++);
+            LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
             var beforeEnd = new List<LinearRepresentation>();
             forNode.LeftLimit.Id.Accept(this);
-            beforeEnd.Add(new LinearRepresentation(Operation.Plus, idOrNum, idOrNum, new Number(1)));
+            beforeEnd.Add(new LinearRepresentation(Operation.Plus, new LabelValue(s_labelPrefix + labelCounter++), (IdentificatorValue)idOrNum, idOrNum, new NumericValue(1)));
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
 
             // for initialization
@@ -182,14 +184,14 @@ namespace OptimizingCompilers2016.Library.Visitors
         }
         public void Visit(WhileNode whNode) 
         {
-            Label beginLabel = new Label(s_labelPrefix + labelCounter++);
+            LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(Operation.LabelOp, beginLabel));
             var beforeEnd = new List<LinearRepresentation>();
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
             branchCondition(whNode.Condition, whNode.Stat, null, beforeEnd);
         }
 
-        public String ToString()
+        public override String ToString()
         {
             String text = "";
             foreach (LinearRepresentation lr in code)

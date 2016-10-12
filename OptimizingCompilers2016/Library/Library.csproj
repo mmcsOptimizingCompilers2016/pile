@@ -89,6 +89,7 @@
     <Compile Include="Visitors\PrettyPrintVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="LinearCode\Base\" />
     <Folder Include="ThreeAddressCode\Base\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
