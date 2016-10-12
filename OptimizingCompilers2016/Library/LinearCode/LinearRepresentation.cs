@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using OptimizingCompilers2016.Library.LinearCode.Base;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 
 namespace OptimizingCompilers2016.Library.LinearCode
 {
-    public struct LinearRepresentation
+    public class LinearRepresentation: ThreeAddressCode.ThreeAddressCode
     {
-        private static readonly Dictionary<Operation, string> s_opToStringDic = new Dictionary<Operation, string>
+        private static readonly Dictionary<Operation, String> s_opToStringDic = new Dictionary<Operation, String>
         {
             { Operation.NoOp, "nop" },
             { Operation.Assign, "{0} := {1}" },
@@ -25,26 +26,26 @@ namespace OptimizingCompilers2016.Library.LinearCode
             { Operation.LabelOp, "{0}:" }
         };
 
-        public Operation operation;
-        public InstructionTerm destination;
-        public Value leftOperand;
-        public Value rightOperand;
-
-        public LinearRepresentation(Operation op, InstructionTerm dst = null,
-            Value lOp = null, Value rOp = null)
+        public LinearRepresentation(Operation operation, 
+                                    LabelValue label,
+                                    IdentificatorValue destination = null,
+                                    IValue leftOperand = null, 
+                                    IValue rightOperand = null)
         {
-            operation = op;
-            destination = dst;
-            leftOperand = lOp;
-            rightOperand = rOp;
+            Operation = operation;
+            Destination = destination;
+            LeftOperand = leftOperand;
+            RightOperand = rightOperand;
+            Label = label;
         }
 
-        public String ToString()
+        public override String ToString()
         {
-            return String.Format(s_opToStringDic[operation],
-                destination == null ? "" : destination.ToString(),
-                leftOperand == null ? "" : leftOperand.ToString(),
-                rightOperand == null ? "" : rightOperand.ToString());
+            return String.Format(s_opToStringDic[Operation],
+                Label == null ? "" : Label.ToString(),
+                Destination == null ? "" : Destination.ToString(),
+                LeftOperand == null ? "" : LeftOperand.ToString(),
+                RightOperand == null ? "" : RightOperand.ToString());
         }
     }
 }
