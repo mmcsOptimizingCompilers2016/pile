@@ -55,7 +55,7 @@
     <Compile Include="ThreeAddressCode\Values\BooleanValue.cs" />
     <Compile Include="ThreeAddressCode\Values\IValue.cs" />
     <Compile Include="ThreeAddressCode\Values\LabelValue.cs" />
-    <Compile Include="ThreeAddressCode\Values\IndentificatorValue.cs" />
+    <Compile Include="ThreeAddressCode\Values\IdentificatorValue.cs" />
     <Compile Include="ThreeAddressCode\Values\NumericValue.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />

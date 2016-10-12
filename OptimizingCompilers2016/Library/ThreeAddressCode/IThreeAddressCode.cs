@@ -6,7 +6,7 @@
         Operation Operation { get; set; }
         IValue LeftOperand { get; set; }
         IValue RightOperand { get; set; }
-        IndentificatorValue Destination { get; set; }
+        IdentificatorValue Destination { get; set; }
         LabelValue Label { get; set; }
     }
 }
