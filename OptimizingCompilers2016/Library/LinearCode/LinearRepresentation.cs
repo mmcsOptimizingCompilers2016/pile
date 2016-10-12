@@ -6,6 +6,7 @@ namespace OptimizingCompilers2016.Library.LinearCode
 {
     public struct LinearRepresentation
     {
+        private static readonly int s_labelIntentSize = 10;
         private static readonly Dictionary<Operation, string> s_opToStringDic = new Dictionary<Operation, string>
         {
             { Operation.NoOp, "nop" },
@@ -44,10 +45,19 @@ namespace OptimizingCompilers2016.Library.LinearCode
             Value lOp = null, Value rOp = null) : this(null, op, dst, lOp, rOp)
         { }
 
+        private string labelIntent(string label)
+        {
+            string auxil = new string(' ', Math.Max(0, s_labelIntentSize - label.Length) - 1);
+            string result = label + ':' + auxil;
+            return result;
+        }
+
         public override String ToString()
         {
-            return String.Format(s_opToStringDic[operation],
-                label == null ? "" : label.ToString(),
+            string labelIntentString = label == null ?
+                new string(' ', s_labelIntentSize) :
+                labelIntent(label.label);
+            return labelIntentString + String.Format(s_opToStringDic[operation],
                 destination == null ? "" : destination.ToString(),
                 leftOperand == null ? "" : leftOperand.ToString(),
                 rightOperand == null ? "" : rightOperand.ToString());

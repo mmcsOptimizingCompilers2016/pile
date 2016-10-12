@@ -67,7 +67,7 @@ namespace OptimizingCompilers2016.Library.Visitors
                 falseBranch.Accept(this);
             }
             evaluatedExpression.Add(new LinearRepresentation(Operation.Goto, endCond));
-            evaluatedExpression.Add(new LinearRepresentation(Operation.LabelOp, trueCond));
+            evaluatedExpression.Add(new LinearRepresentation(trueCond, Operation.NoOp));
             moveExpressionToCode();
 
             trueBranch.Accept(this);
@@ -75,7 +75,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             {
                 evaluatedExpression.AddRange(addBeforeEndLabel);
             }
-            evaluatedExpression.Add(new LinearRepresentation(Operation.LabelOp, endCond));
+            evaluatedExpression.Add(new LinearRepresentation(endCond, Operation.NoOp));
             moveExpressionToCode();
         }
 
@@ -183,13 +183,13 @@ namespace OptimizingCompilers2016.Library.Visitors
         public void Visit(WhileNode whNode) 
         {
             Label beginLabel = new Label(s_labelPrefix + labelCounter++);
-            code.Add(new LinearRepresentation(Operation.LabelOp, beginLabel));
+            code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             var beforeEnd = new List<LinearRepresentation>();
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
             branchCondition(whNode.Condition, whNode.Stat, null, beforeEnd);
         }
 
-        public String ToString()
+        public override String ToString()
         {
             String text = "";
             foreach (LinearRepresentation lr in code)
