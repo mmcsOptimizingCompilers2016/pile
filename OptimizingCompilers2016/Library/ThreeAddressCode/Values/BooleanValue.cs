@@ -4,5 +4,8 @@
 
     public class BooleanValue: BaseValue<bool>
     {
+        public BooleanValue(bool value) : base(value)
+        {
+        }
     }
 }

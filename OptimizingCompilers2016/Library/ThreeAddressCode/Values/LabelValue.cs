@@ -4,5 +4,8 @@
 
     public class LabelValue: BaseValue<string>
     {
+        public LabelValue(string value) : base(value)
+        {
+        }
     }
 }
