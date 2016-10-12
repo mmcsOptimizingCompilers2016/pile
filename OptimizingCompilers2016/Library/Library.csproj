@@ -44,10 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseBlock\BaseBlock.cs" />
-    <Compile Include="LinearCode\Boolean.cs" />
-    <Compile Include="LinearCode\Identificator.cs" />
-    <Compile Include="LinearCode\Base\InstructionTerm.cs" />
-    <Compile Include="LinearCode\Label.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
@@ -59,9 +55,6 @@
     <Compile Include="ThreeAddressCode\Values\NumericValue.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
-    <Compile Include="LinearCode\Number.cs" />
-    <Compile Include="LinearCode\Operation.cs" />
-    <Compile Include="LinearCode\Value.cs" />
     <Compile Include="Nodes\AssignNode.cs" />
     <Compile Include="Nodes\AssignType.cs" />
     <Compile Include="Nodes\BinExprNode.cs" />
