@@ -53,6 +53,7 @@
     <Compile Include="ThreeAddressCode\Values\LabelValue.cs" />
     <Compile Include="ThreeAddressCode\Values\IdentificatorValue.cs" />
     <Compile Include="ThreeAddressCode\Values\NumericValue.cs" />
+    <Compile Include="Transformations\CommonExpressions.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
     <Compile Include="Nodes\AssignNode.cs" />

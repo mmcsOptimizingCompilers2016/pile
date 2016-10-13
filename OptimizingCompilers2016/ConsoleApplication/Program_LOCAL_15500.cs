@@ -4,7 +4,6 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
-using OptimizingCompilers2016.Library.Transformations;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -13,7 +12,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
-
             try
             {
                 string text = File.ReadAllText(FileName);
@@ -32,19 +30,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(prettyVisitor.Text);
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                var opt = new CommonExpressions();
-                var optCode = opt.optimize(linearCode.code);
-
-                Console.WriteLine("Before:");
-                
                 Console.WriteLine(linearCode.ToString());
-                Console.WriteLine("After:");
-                foreach (var item in optCode)
-                {
-                    Console.WriteLine(item.ToString());
-                }
-                
-
             }
             catch (FileNotFoundException)
             {

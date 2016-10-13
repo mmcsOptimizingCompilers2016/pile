@@ -30,4 +30,10 @@
   }
   for i:=1 to 10 do
 	a := a + i;
+	c := a + b;
+	e := c - b;
+	a := a + b;
+	z := c - b;
+	b := a + b;
+	d := a + b;
 }
