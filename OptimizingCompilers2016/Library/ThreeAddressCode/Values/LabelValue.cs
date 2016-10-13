@@ -2,7 +2,7 @@
 {
     using Base;
 
-    public class LabelValue: BaseValue<string>
+    public class LabelValue: StringValue
     {
         public LabelValue(string value) : base(value)
         {
