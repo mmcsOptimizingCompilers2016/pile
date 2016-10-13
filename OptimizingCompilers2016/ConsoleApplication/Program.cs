@@ -24,9 +24,9 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
+                //if (!b)
+                //    Console.WriteLine("Ошибка");
+                //else Console.WriteLine("Программа распознана");
                 //var prettyVisitor = new PrettyPrintVisitor();
                 //parser.root.Accept(prettyVisitor);
                 //Console.WriteLine(prettyVisitor.Text);
@@ -36,14 +36,14 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 var optCode = opt.optimize(linearCode.code);
 
                 Console.WriteLine("Before:");
-                
+
                 Console.WriteLine(linearCode.ToString());
                 Console.WriteLine("After:");
                 foreach (var item in optCode)
                 {
                     Console.WriteLine(item.ToString());
                 }
-                
+
 
             }
             catch (FileNotFoundException)
