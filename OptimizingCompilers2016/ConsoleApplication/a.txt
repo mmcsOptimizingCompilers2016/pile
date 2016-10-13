@@ -1,4 +1,8 @@
 {
+  repeat
+    a := 2;
+	b := 3;
+  until a != 3
   b := 2;
   a := 3;
   a := b;
