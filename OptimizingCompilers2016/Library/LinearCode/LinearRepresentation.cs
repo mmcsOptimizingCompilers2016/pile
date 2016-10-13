@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
 
 namespace OptimizingCompilers2016.Library.LinearCode
 {
@@ -22,8 +23,8 @@ namespace OptimizingCompilers2016.Library.LinearCode
             { Operation.NotEq, "{0} := {1} != {2}" },
             { Operation.Great, "{0} := {1} > {2}" },
             { Operation.GreatOrEq, "{0} := {1} >= {2}" },
-            { Operation.Goto, "goto {1}" },
-            { Operation.CondGoto, "if {2} goto {1}" }
+            { Operation.Goto, "goto {0}" },
+            { Operation.CondGoto, "if {1} goto {0}" }
         };
 
         private string labelIntent(string label)
@@ -35,7 +36,7 @@ namespace OptimizingCompilers2016.Library.LinearCode
 
         public LinearRepresentation(LabelValue label,
                                     Operation operation,
-                                    IdentificatorValue destination = null,
+                                    StringValue destination = null,
                                     IValue leftOperand = null, 
                                     IValue rightOperand = null)
         {
@@ -46,7 +47,7 @@ namespace OptimizingCompilers2016.Library.LinearCode
             Label = label;
         }
         public LinearRepresentation(Operation operation,
-                                    IdentificatorValue destination = null,
+                                    StringValue destination = null,
                                     IValue leftOperand = null,
                                     IValue rightOperand = null)
             : this(null, operation, destination, leftOperand, rightOperand)

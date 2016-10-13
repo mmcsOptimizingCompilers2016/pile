@@ -61,14 +61,14 @@ namespace OptimizingCompilers2016.Library.Visitors
             LabelValue trueCond = new LabelValue(s_labelPrefix + labelCounter++);
             LabelValue endCond = new LabelValue(s_labelPrefix + labelCounter++);
 
-            LinearRepresentation gotoCond = new LinearRepresentation(Operation.CondGoto, null, trueCond, idOrNum);
+            LinearRepresentation gotoCond = new LinearRepresentation(Operation.CondGoto, trueCond, idOrNum);
             evaluatedExpression.Add(gotoCond);
             moveExpressionToCode();
             if (falseBranch != null)
             {
                 falseBranch.Accept(this);
             }
-            evaluatedExpression.Add(new LinearRepresentation(Operation.Goto, null, endCond));
+            evaluatedExpression.Add(new LinearRepresentation(Operation.Goto, endCond));
             evaluatedExpression.Add(new LinearRepresentation(trueCond, Operation.NoOp));
             moveExpressionToCode();
 
@@ -148,7 +148,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             // t1 := t1 + 1
             var beforeEnd = new List<LinearRepresentation>();
             beforeEnd.Add(new LinearRepresentation(Operation.Plus, varIdent, varIdent, new NumericValue(1)));
-            beforeEnd.Add(new LinearRepresentation(Operation.Goto, null, conditionLabel));
+            beforeEnd.Add(new LinearRepresentation(Operation.Goto, conditionLabel));
 
             branchCondition(condition, cycNode.Stat, null, beforeEnd);
         }
@@ -170,7 +170,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             forNode.LeftLimit.Id.Accept(this);
             beforeEnd.Add(new LinearRepresentation(Operation.Plus, 
                 (IdentificatorValue)idOrNum, idOrNum, new NumericValue(1)));
-            beforeEnd.Add(new LinearRepresentation(Operation.Goto, null, beginLabel));
+            beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
 
             // for initialization
             forNode.LeftLimit.Accept(this);
@@ -186,8 +186,8 @@ namespace OptimizingCompilers2016.Library.Visitors
 
             ruNode.StNode.Accept(this);
             ruNode.UntilExpr.Accept(this);
-
-            var gotoCond = new LinearRepresentation(Operation.CondGoto, null, beginLabel, idOrNum);
+            // idOrNum ~ condition
+            var gotoCond = new LinearRepresentation(Operation.CondGoto, beginLabel, idOrNum);
             evaluatedExpression.Add(gotoCond);
             moveExpressionToCode();
         }
@@ -196,7 +196,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             var beforeEnd = new List<LinearRepresentation>();
-            beforeEnd.Add(new LinearRepresentation(Operation.Goto, null, beginLabel));
+            beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
             branchCondition(whNode.Condition, whNode.Stat, null, beforeEnd);
         }
 
