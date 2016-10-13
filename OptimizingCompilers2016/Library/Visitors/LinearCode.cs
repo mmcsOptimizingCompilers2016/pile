@@ -60,7 +60,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             condition.Accept(this);
             LabelValue trueCond = new LabelValue(s_labelPrefix + labelCounter++);
             LabelValue endCond = new LabelValue(s_labelPrefix + labelCounter++);
-            // TODO: fix this
+
             LinearRepresentation gotoCond = new LinearRepresentation(Operation.CondGoto, null, trueCond, idOrNum);
             evaluatedExpression.Add(gotoCond);
             moveExpressionToCode();
@@ -179,9 +179,17 @@ namespace OptimizingCompilers2016.Library.Visitors
             
             branchCondition(condition, forNode.BodyStatement, null, beforeEnd);
         }
-        public void Visit(RepUntNode ruNode)  //TODO: implement me
+        public void Visit(RepUntNode ruNode)
         {
-            
+            var beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
+            code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
+
+            ruNode.StNode.Accept(this);
+            ruNode.UntilExpr.Accept(this);
+
+            var gotoCond = new LinearRepresentation(Operation.CondGoto, null, beginLabel, idOrNum);
+            evaluatedExpression.Add(gotoCond);
+            moveExpressionToCode();
         }
         public void Visit(WhileNode whNode) 
         {
