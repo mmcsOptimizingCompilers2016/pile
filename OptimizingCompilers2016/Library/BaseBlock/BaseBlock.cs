@@ -59,11 +59,14 @@ namespace OptimizingCompilers2016.Library.BaseBlock
         {
             foreach (var block in blocks )
             {
-                if ( block.Commands.Count == 0)
+                if ( block.Commands.Count == 0 && block.Predecessors.Count > 0)
                 {
-                    block.Predecessors[0].Output = block.Output;
+                    foreach ( var pred in block.Predecessors )
+                    {
+                        pred.Output = block.Output;
+                        block.Output.Predecessors.Add(pred);
+                    }
                     block.Output.Predecessors.Remove(block);
-                    block.Output.Predecessors.Add(block.Predecessors[0]);
                 }
             }
 
