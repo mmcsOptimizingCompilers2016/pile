@@ -4,21 +4,27 @@
     {
         protected BaseValue(T value)
         {
-            _value = value;
+            Value = value;
         }
 
-        private T _value;
+        public T Value { get; }
 
-        public object Value
-        {
-            get { return _value; }
-
-            set { _value = (T) value; }
-        }
+        object IValue.Value => Value;
 
         public override string ToString()
         {
-            return _value.ToString();
+            return Value.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            var baseValue = obj as BaseValue<T>;
+            return baseValue != null && Value.Equals(baseValue.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     using Base;
 
-    public class IdentificatorValue: BaseValue<string>
+    public class IdentificatorValue: StringValue
     {
         public IdentificatorValue(string value) : base(value)
         {
