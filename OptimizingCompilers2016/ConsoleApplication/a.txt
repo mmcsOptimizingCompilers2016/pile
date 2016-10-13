@@ -1,7 +1,8 @@
 {
 	c := a + b;
-	e := a - b;
+	e := c - b;
 	a := a + b;
+	z := c - b;
 	b := a + b;
 	d := a + b;
 }
