@@ -25,12 +25,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //  if (!b)
                 //Console.WriteLine("Ошибка");
                 //  else Console.WriteLine("Программа распознана");
-                var prettyVisitor = new PrettyPrintVisitor();
-                parser.root.Accept(prettyVisitor);
-                Console.WriteLine(prettyVisitor.Text);
-                //var linearCode = new LinearCodeVisitor();
-                //parser.root.Accept(linearCode);
-                //Console.WriteLine(linearCode.ToString());
+                //var prettyVisitor = new PrettyPrintVisitor();
+                //parser.root.Accept(prettyVisitor);
+                //Console.WriteLine(prettyVisitor.Text);
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+                Console.WriteLine(linearCode.ToString());
             }
             catch (FileNotFoundException)
             {

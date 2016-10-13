@@ -14,7 +14,6 @@ namespace OptimizingCompilers2016.Library.ThreeAddressCode
         Great,
         GreatOrEq,
         Goto,
-        CondGoto,
-        LabelOp
+        CondGoto
     };
 }
