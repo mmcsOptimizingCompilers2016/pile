@@ -1,12 +1,12 @@
 ﻿using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.LinearCode.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.LinearCode.Identificator>;
-using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.LinearCode.Identificator, System.Tuple<int, OptimizingCompilers2016.Library.LinearCode.Identificator>>;
+using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -16,7 +16,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         Dictionary<Occurrence, HashSet<Occurrence>> result = new Dictionary<Occurrence, HashSet<Occurrence>>();
         DefsMap lastDef = new DefsMap();
 
-        private void setLastDef(Identificator variable, Occurrence occurrence)
+        private void setLastDef(IdentificatorValue variable, Occurrence occurrence)
         {
             if ( !lastDef.ContainsKey(variable) )
             {
@@ -29,7 +29,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             result.Add(lastDef[variable], new HashSet<Occurrence>());
         }
 
-        private bool checkLastDefs(Identificator occ)
+        private bool checkLastDefs(IdentificatorValue occ)
         {
             if (!lastDef.ContainsKey(occ))
             {
@@ -40,12 +40,12 @@ namespace OptimizingCompilers2016.Library.Analysis
                 return true;
         }
 
-        private void addUse(InstructionTerm term, int index)
+        private void addUse(IValue term, int index)
         {
-            if (!(term is Identificator))
+            if (!(term is IdentificatorValue))
                 return;
 
-            var variable = term as Identificator;
+            var variable = term as IdentificatorValue;
 
             if ( checkLastDefs(variable))
             {
@@ -60,11 +60,11 @@ namespace OptimizingCompilers2016.Library.Analysis
             int index = 0;
             foreach ( var line in code )
             {
-                addUse(line.leftOperand, index);
-                addUse(line.rightOperand, index);
+                addUse(line.LeftOperand, index);
+                addUse(line.RightOperand, index);
 
-                if (line.destination is Identificator)
-                    setLastDef(line.destination as Identificator, new Occurrence(index, line.destination as Identificator));
+                if (line.Destination is IdentificatorValue)
+                    setLastDef(line.Destination as IdentificatorValue, new Occurrence(index, line.Destination as IdentificatorValue));
 
                 index++;
             }
