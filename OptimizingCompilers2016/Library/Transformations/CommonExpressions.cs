@@ -12,7 +12,10 @@ namespace OptimizingCompilers2016.Library.Transformations
 {
 
 
-    /// for right side of expression
+
+    /// <summary>
+    /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
+    /// </summary>
     struct BinaryExpression
     {
         Operation Operation;
@@ -39,34 +42,28 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         public override int GetHashCode()
         {
-            return Operation.ToString().GetHashCode() + LeftOperand.ToString().GetHashCode() +
-                RightOperand.ToString().GetHashCode();
+            return Operation.GetHashCode() + LeftOperand.GetHashCode() +
+                RightOperand.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
             if (obj is BinaryExpression)
             {
-                return (BinaryExpression)obj == this;
+                BinaryExpression expression = (BinaryExpression)obj;
+                return  expression.LeftOperand.Equals(this.LeftOperand) &&
+                        expression.Operation.Equals(this.Operation) &&
+                        expression.RightOperand.Equals(this.RightOperand);
             }
             return false;
         }
-
-        public static bool operator ==(BinaryExpression b1, BinaryExpression b2)
-        {
-            return b1.Operation.ToString() == b2.Operation.ToString() &&
-                b1.LeftOperand.ToString() == b2.LeftOperand.ToString() &&
-                b1.RightOperand.ToString() == b2.RightOperand.ToString();
-        }
-        public static bool operator !=(BinaryExpression b1, BinaryExpression b2)
-        {
-            return b1.Operation.ToString() != b2.Operation.ToString() ||
-                b1.LeftOperand.ToString() != b2.LeftOperand.ToString() ||
-                b1.RightOperand.ToString() != b2.RightOperand.ToString();
-        }
     }
 
-
+    /// <summary>
+    /// Structure, that keeps number of instructions, that are using the same evaluated expression
+    /// isValid is not used in block expression
+    /// It is supposed to help in interblock CSE, answering whether expression is still alive at the end of the block
+    /// </summary>
     struct RelevantCSEWatcher
     {
         public bool isValid;
@@ -89,7 +86,8 @@ namespace OptimizingCompilers2016.Library.Transformations
     // possible solution: create global class with method, returning serial number for naming variables
     /// <summary>
     /// Transformation consists of two passes
-    /// First pass finds all common sequences, that could be not calculated
+    /// First pass finds all common sequences and split it into the sets of subexpressions,
+    /// that could be calculated once
     /// Second pass inserts additional variables, used for common subexpressions
     /// </summary>
     public class CommonExpressions
@@ -157,7 +155,6 @@ namespace OptimizingCompilers2016.Library.Transformations
                 createOrAdd(ref resultDependency, (IdentificatorValue)instruction.RightOperand, currentExpression);
             }
             
-
             // remove operaions, where have current result as an operand
 
             Debug.Assert(instruction.Destination != null);
@@ -172,19 +169,6 @@ namespace OptimizingCompilers2016.Library.Transformations
             }
 
         }
-
-        //private void removeOperation(int number, LinearRepresentation instruction,
-        //    ref List<RelevantCSEWatcher> firstPassResult,
-        //    ref Dictionary<BinaryExpression, int> nodeIndex,
-        //    ref Dictionary<Identificator, List<BinaryExpression>> resultDependency)
-        //{
-
-        //    foreach (var item in collection)
-        //    {
-
-        //    }
-        //}
-
 
         private List<LinearRepresentation> secondPass(List<LinearRepresentation> original,
             List<RelevantCSEWatcher> equalInstructions)
@@ -231,11 +215,9 @@ namespace OptimizingCompilers2016.Library.Transformations
             return result;
         }
 
-        //static private Dictionary<>
         public List<LinearRepresentation> optimize(List<LinearRepresentation> list)
         {
-            var result = new List<LinearRepresentation>();
-
+            
             var firstPassResult = new List<RelevantCSEWatcher>();
             // int is an index in firstPassResult
             var nodeIndex = new Dictionary<BinaryExpression, int>();
