@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
@@ -10,9 +7,6 @@ using OptimizingCompilers2016.Library.ThreeAddressCode;
 
 namespace OptimizingCompilers2016.Library.Transformations
 {
-
-
-
     /// <summary>
     /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
     /// </summary>
@@ -51,7 +45,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             if (obj is BinaryExpression)
             {
                 BinaryExpression expression = (BinaryExpression)obj;
-                return  expression.LeftOperand.Equals(this.LeftOperand) &&
+                return expression.LeftOperand.Equals(this.LeftOperand) &&
                         expression.Operation.Equals(this.Operation) &&
                         expression.RightOperand.Equals(this.RightOperand);
             }
@@ -154,7 +148,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             {
                 createOrAdd(ref resultDependency, (IdentificatorValue)instruction.RightOperand, currentExpression);
             }
-            
+
             // remove operaions, where have current result as an operand
 
             Debug.Assert(instruction.Destination != null);
@@ -217,7 +211,7 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         public List<LinearRepresentation> optimize(List<LinearRepresentation> list)
         {
-            
+
             var firstPassResult = new List<RelevantCSEWatcher>();
             // int is an index in firstPassResult
             var nodeIndex = new Dictionary<BinaryExpression, int>();
