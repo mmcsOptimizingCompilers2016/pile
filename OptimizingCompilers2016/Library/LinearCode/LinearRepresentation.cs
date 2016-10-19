@@ -9,7 +9,7 @@ namespace OptimizingCompilers2016.Library.LinearCode
     public class LinearRepresentation: ThreeAddressCode.ThreeAddressCode
     {
         private static readonly int s_labelIntentSize = 10;
-        private static readonly Dictionary<Operation, string> s_opToStringDic = new Dictionary<Operation, string>
+        private static readonly Dictionary<Operation, String> s_opToStringDic = new Dictionary<Operation, String>
         {
             { Operation.NoOp, "nop" },
             { Operation.Assign, "{0} := {1}" },
@@ -45,7 +45,6 @@ namespace OptimizingCompilers2016.Library.LinearCode
             LeftOperand = leftOperand;
             RightOperand = rightOperand;
             Label = label;
-            
         }
         public LinearRepresentation(Operation operation,
                                     StringValue destination = null,
