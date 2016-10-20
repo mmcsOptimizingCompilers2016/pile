@@ -34,13 +34,15 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
                 var opt = new CommonExpressions();
-                var optCode = opt.optimize(linearCode.code);
+                BaseBlock block = new BaseBlock();
+                block.Commands.AddRange(linearCode.code);
+                var optCode = opt.optimize(block);
 
                 Console.WriteLine("Before:");
 
                 Console.WriteLine(linearCode.ToString());
                 Console.WriteLine("After:");
-                foreach (var item in optCode)
+                foreach (var item in optCode.Commands)
                 {
                     Console.WriteLine(item.ToString());
                 }

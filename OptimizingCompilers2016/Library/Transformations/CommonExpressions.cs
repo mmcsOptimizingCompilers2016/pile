@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
+﻿using OptimizingCompilers2016.Library.BaseBlock;
 using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
-using OptimizingCompilers2016.Library.BaseBlock;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
 
 namespace OptimizingCompilers2016.Library.Transformations
 {
+    using BaseBlock = BaseBlock.BaseBlock;
     /** DEF: equivalence class of right side expression 
          right side expressions form equivalence class when:
         1) operation and operands are the same
@@ -38,7 +40,7 @@ namespace OptimizingCompilers2016.Library.Transformations
         IValue LeftOperand;
         IValue RightOperand;
 
-        public BinaryExpression(LinearRepresentation instruction)
+        public BinaryExpression(IThreeAddressCode instruction)
         {
             Debug.Assert(isModifiableOperation(instruction.Operation));
             Debug.Assert(instruction.LeftOperand != null);
@@ -122,10 +124,9 @@ namespace OptimizingCompilers2016.Library.Transformations
                 lst.Add(expr);
                 container.Add(id, lst);
             }
-
         }
 
-        private void firstPassStep(int number, LinearRepresentation instruction,
+        private void firstPassStep(int number, IThreeAddressCode instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
             ref EquivalenceClassIndex expressionToEqClass,
             ref VariableOccurrence resultDependency)
@@ -174,7 +175,7 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         }
 
-        private List<LinearRepresentation> secondPass(List<LinearRepresentation> original,
+        private List<IThreeAddressCode> secondPass(List<IThreeAddressCode> original,
             List<RelevantCSEWatcher> commonExpressions)
         {
             var insertedTmps = new HashSet<int>();
@@ -193,7 +194,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             }
 
             // start implementing code generation
-            var result = new List<LinearRepresentation>();
+            var result = new List<IThreeAddressCode>();
 
             for (int i = 0; i < original.Count; ++i)
             {
@@ -219,8 +220,9 @@ namespace OptimizingCompilers2016.Library.Transformations
             return result;
         }
 
-        public List<LinearRepresentation> optimize(List<LinearRepresentation> list)
+        public BaseBlock optimize(BaseBlock block)
         {
+            List<IThreeAddressCode> list = block.Commands;
             var firstPassResult = new List<RelevantCSEWatcher>();
             // int is an index in firstPassResult
             var nodeIndex = new EquivalenceClassIndex();
@@ -230,8 +232,9 @@ namespace OptimizingCompilers2016.Library.Transformations
             {
                 firstPassStep(i, list[i], ref firstPassResult, ref nodeIndex, ref resultDependency);
             }
-
-            return secondPass(list, firstPassResult);
+            BaseBlock result = new BaseBlock();
+            result.Commands.AddRange(secondPass(list, firstPassResult));
+            return result;
         }
     }
 }
