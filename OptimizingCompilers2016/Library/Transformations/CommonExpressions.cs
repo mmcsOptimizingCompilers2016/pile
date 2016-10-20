@@ -7,6 +7,11 @@ using OptimizingCompilers2016.Library.ThreeAddressCode;
 
 namespace OptimizingCompilers2016.Library.Transformations
 {
+ 
+    /// Maps equivalence class of right side expression to its index in 
+    /// firstPassResult list. If this equivalence class is invalidated, index equals -1
+    using EquivalenceClassIndex = Dictionary<BinaryExpression, int>;
+
     /// <summary>
     /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
     /// </summary>
@@ -82,7 +87,7 @@ namespace OptimizingCompilers2016.Library.Transformations
     /// Transformation consists of two passes
     /// First pass finds all common sequences and split it into the sets of subexpressions,
     /// that could be calculated once
-    /// Second pass inserts additional variables, used for common subexpressions
+    /// Second pass inserts additional temporary variables, used for common subexpressions
     /// </summary>
     public class CommonExpressions
     {
@@ -102,7 +107,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             }
         }
 
-        private void createOrAdd(ref Dictionary<BinaryExpression, int> container, BinaryExpression expression,
+        private void createOrAdd(ref EquivalenceClassIndex container, BinaryExpression expression,
             int index)
         {
             if (container.ContainsKey(expression))
@@ -117,7 +122,7 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         private void firstPassStep(int number, LinearRepresentation instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
-            ref Dictionary<BinaryExpression, int> nodeIndex,
+            ref EquivalenceClassIndex expressionToEqClass,
             ref Dictionary<IdentificatorValue, List<BinaryExpression>> resultDependency)
         {
             if (!BinaryExpression.isModifiableOperation(instruction.Operation))
@@ -127,13 +132,13 @@ namespace OptimizingCompilers2016.Library.Transformations
 
             var currentExpression = new BinaryExpression(instruction);
 
-            int value = nodeIndex.ContainsKey(currentExpression) ? nodeIndex[currentExpression] : -1;
+            int value = expressionToEqClass.ContainsKey(currentExpression) ? expressionToEqClass[currentExpression] : -1;
 
             // add value to resultant set
             if (value == -1)
             {
                 firstPassResult.Add(new RelevantCSEWatcher(number));
-                createOrAdd(ref nodeIndex, currentExpression, firstPassResult.Count() - 1);
+                createOrAdd(ref expressionToEqClass, currentExpression, firstPassResult.Count() - 1);
             }
             else
             {
@@ -157,7 +162,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             {
                 foreach (var item in resultDependency[(IdentificatorValue)instruction.Destination])
                 {
-                    nodeIndex[item] = -1;
+                    expressionToEqClass[item] = -1;
 
                 }
             }
@@ -165,18 +170,18 @@ namespace OptimizingCompilers2016.Library.Transformations
         }
 
         private List<LinearRepresentation> secondPass(List<LinearRepresentation> original,
-            List<RelevantCSEWatcher> equalInstructions)
+            List<RelevantCSEWatcher> commonExpressions)
         {
             var insertedTmps = new HashSet<int>();
             var substitution = Enumerable.Repeat(-1, original.Count).ToList();
 
-            for (int i = 0; i < equalInstructions.Count; ++i)
+            for (int i = 0; i < commonExpressions.Count; ++i)
             {
-                if (equalInstructions[i].expressions.Count <= 1)
+                if (commonExpressions[i].expressions.Count <= 1)
                 {
                     continue;
                 }
-                foreach (var inner in equalInstructions[i].expressions)
+                foreach (var inner in commonExpressions[i].expressions)
                 {
                     substitution[inner] = i;
                 }
@@ -214,7 +219,7 @@ namespace OptimizingCompilers2016.Library.Transformations
 
             var firstPassResult = new List<RelevantCSEWatcher>();
             // int is an index in firstPassResult
-            var nodeIndex = new Dictionary<BinaryExpression, int>();
+            var nodeIndex = new EquivalenceClassIndex();
             var resultDependency = new Dictionary<IdentificatorValue, List<BinaryExpression>>();
 
             for (int i = 0; i < list.Count; ++i)

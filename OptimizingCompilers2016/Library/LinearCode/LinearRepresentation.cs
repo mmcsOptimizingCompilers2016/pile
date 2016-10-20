@@ -57,7 +57,7 @@ namespace OptimizingCompilers2016.Library.LinearCode
         {
             string labelIntentString = Label == null ?
                 new string(' ', s_labelIntentSize) :
-                labelIntent((string)Label.Value);
+                labelIntent(Label.Value);
             return labelIntentString + String.Format(s_opToStringDic[Operation],
                 Destination == null ? "" : Destination.ToString(),
                 LeftOperand == null ? "" : LeftOperand.ToString(),
