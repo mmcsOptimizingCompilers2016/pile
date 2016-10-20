@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using OptimizingCompilers2016.Library;
+using System.Collections;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
 
     public class InblockDefUse
     {
-        Dictionary<Occurrence, HashSet<Occurrence>> result = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        public Dictionary<Occurrence, HashSet<Occurrence>> result { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
         DefsMap lastDef = new DefsMap();
 
         private void setLastDef(IdentificatorValue variable, Occurrence occurrence)
@@ -54,7 +57,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
 
 
-        public Dictionary<Occurrence, HashSet<Occurrence>> runAnalys(List<LinearRepresentation> code)
+        private Dictionary<Occurrence, HashSet<Occurrence>> runAnalys(List<IThreeAddressCode> code)
         {
             
             int index = 0;
@@ -71,10 +74,72 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             return result;
         }
+
+        public InblockDefUse(BaseBlock block)
+        {
+            runAnalys(block.Commands);
+        }
     }
 
     public class GlobalDefUse
     {
+
+        //Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
+        //Dictionary<BaseBlock.BaseBlock, >
+
+        Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
+        Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
+        Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+        Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
+
+        private void fillOccToBitNumber(List<BaseBlock> blocks)
+        {
+            int counter = 0;
+            foreach (var block in blocks)
+            {
+                for (int i=0; i < block.Commands.Count; ++i)
+                {
+                    var line = block.Commands[i];
+                    if (line.Destination is IdentificatorValue) {
+                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
+                    }
+                }
+            }
+        }
+
+        private void fillGenerators(List<BaseBlock> blocks)
+        {
+            foreach(var block in blocks)
+            {
+                generators.Add(block, new BitArray(occToBitNumber.Count, false));
+
+                var usedVariables = new HashSet<IdentificatorValue>();
+                localDefUses.Add(block, new InblockDefUse(block));
+                foreach (var ldur in localDefUses[block].result)
+                {
+                    //if ( usedVariables.Contains() )
+                    generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
+                }
+
+                Console.WriteLine(block.Name + ":");
+                foreach (var b in generators[block])
+                {
+                    //Console.Write(b.GetType());
+                    var bb = b.ToString() == "True";
+                    Console.Write(bb?"1":"0");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public void runAnalys(List<BaseBlock> blocks) {
+            fillOccToBitNumber(blocks);
+            fillGenerators(blocks);
+
+
+        }
+
+
 
     }
 }

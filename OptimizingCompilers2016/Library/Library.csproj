@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="Analysis\DefUse.cs" />
+    <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
