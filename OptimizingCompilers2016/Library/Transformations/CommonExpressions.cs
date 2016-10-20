@@ -4,14 +4,31 @@ using System.Diagnostics;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.BaseBlock;
 
 namespace OptimizingCompilers2016.Library.Transformations
 {
- 
+    /** DEF: equivalence class of right side expression 
+         right side expressions form equivalence class when:
+        1) operation and operands are the same
+        2) their operands aren't reassigned between these occurrences
+
+        Example:
+        d1: c := a + b
+        d2: d := a + b
+        d3: a := 1
+        d4: e := a + b
+
+        Classes of equivalence: {d1, d2}, {d3}, {d4}
+    **/
+
+    
     /// Maps equivalence class of right side expression to its index in 
     /// firstPassResult list. If this equivalence class is invalidated, index equals -1
     using EquivalenceClassIndex = Dictionary<BinaryExpression, int>;
 
+    /// Maps variable name to its entries in class equivalence of expression
+    using VariableOccurrence = Dictionary<IdentificatorValue, List<BinaryExpression>>;
     /// <summary>
     /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
     /// </summary>
@@ -91,7 +108,7 @@ namespace OptimizingCompilers2016.Library.Transformations
     /// </summary>
     public class CommonExpressions
     {
-        private void createOrAdd(ref Dictionary<IdentificatorValue, List<BinaryExpression>> container,
+        private void createOrAdd(ref VariableOccurrence container,
                                  IdentificatorValue id,
                                  BinaryExpression expr)
         {
@@ -105,25 +122,13 @@ namespace OptimizingCompilers2016.Library.Transformations
                 lst.Add(expr);
                 container.Add(id, lst);
             }
-        }
 
-        private void createOrAdd(ref EquivalenceClassIndex container, BinaryExpression expression,
-            int index)
-        {
-            if (container.ContainsKey(expression))
-            {
-                container[expression] = index;
-            }
-            else
-            {
-                container.Add(expression, index);
-            }
         }
 
         private void firstPassStep(int number, LinearRepresentation instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
             ref EquivalenceClassIndex expressionToEqClass,
-            ref Dictionary<IdentificatorValue, List<BinaryExpression>> resultDependency)
+            ref VariableOccurrence resultDependency)
         {
             if (!BinaryExpression.isModifiableOperation(instruction.Operation))
             {
@@ -138,7 +143,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             if (value == -1)
             {
                 firstPassResult.Add(new RelevantCSEWatcher(number));
-                createOrAdd(ref expressionToEqClass, currentExpression, firstPassResult.Count() - 1);
+                expressionToEqClass[currentExpression] = firstPassResult.Count() - 1;
             }
             else
             {
@@ -216,11 +221,10 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         public List<LinearRepresentation> optimize(List<LinearRepresentation> list)
         {
-
             var firstPassResult = new List<RelevantCSEWatcher>();
             // int is an index in firstPassResult
             var nodeIndex = new EquivalenceClassIndex();
-            var resultDependency = new Dictionary<IdentificatorValue, List<BinaryExpression>>();
+            var resultDependency = new VariableOccurrence();
 
             for (int i = 0; i < list.Count; ++i)
             {
@@ -231,4 +235,3 @@ namespace OptimizingCompilers2016.Library.Transformations
         }
     }
 }
-
