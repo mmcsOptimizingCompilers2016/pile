@@ -23,12 +23,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
                 //var linearCode = new LinearCodeVisitor();
                 //parser.root.Accept(linearCode);
                 //Console.WriteLine(linearCode.ToString());
