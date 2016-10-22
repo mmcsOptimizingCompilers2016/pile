@@ -6,13 +6,15 @@ using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.Transformations;
+
 namespace OptimizingCompilers2016.ConsoleApplication
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string FileName = @"a_delete_code.txt";
+            string FileName = @"a.txt";
             try
             {
                 string text = File.ReadAllText(FileName);
@@ -23,6 +25,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
+
                 if (!b)
                     Console.WriteLine("Ошибка");
                 else Console.WriteLine("Программа распознана");
@@ -60,6 +63,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     //console.writeline(block.tostring());
                     Console.WriteLine("-------");
                 }
+
+                //ConstantFolding.transform(blocks);
+                //foreach (var block in blocks)
+                //{
+                //    Console.WriteLine(block.ToString());
+                //    Console.WriteLine("-------");
+                //    Console.WriteLine("-------");
+                //}
+
+
+
             }
             catch (FileNotFoundException)
             {
