@@ -23,7 +23,10 @@ namespace OptimizingCompilers2016.Library.Transformations
 
         Classes of equivalence: {d1, d2}, {d3}, {d4}
     **/
-
+    
+    /// Set of right side expressions 
+    /// alias to make iteration process readable
+    using ExpressionSet = HashSet<BinaryExpression>;
     
     /// Maps equivalence class of right side expression to its index in 
     /// firstPassResult list. If this equivalence class is invalidated, index equals -1
@@ -31,6 +34,7 @@ namespace OptimizingCompilers2016.Library.Transformations
 
     /// Maps variable name to its entries in class equivalence of expression
     using VariableOccurrence = Dictionary<IdentificatorValue, List<BinaryExpression>>;
+
     /// <summary>
     /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
     /// </summary>
@@ -126,6 +130,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             }
         }
 
+		
         private void firstPassStep(int number, IThreeAddressCode instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
             ref EquivalenceClassIndex expressionToEqClass,
@@ -160,7 +165,7 @@ namespace OptimizingCompilers2016.Library.Transformations
                 createOrAdd(ref resultDependency, (IdentificatorValue)instruction.RightOperand, currentExpression);
             }
 
-            // remove operaions, where have current result as an operand
+            // remove operations, which have current result as an operand
 
             Debug.Assert(instruction.Destination != null);
 
@@ -236,5 +241,146 @@ namespace OptimizingCompilers2016.Library.Transformations
             result.Commands.AddRange(secondPass(list, firstPassResult));
             return result;
         }
+		
+/// Available Expressions Analysis:
+
+        /// <summary>
+        /// Optimize program using the results of available expressions analysis
+        /// @param blocks - list of all blocks in the program + fictional source block
+        /// @return block representation of the optimized program
+        /// </summary>
+        public List<BaseBlock> optimize(ref List<BaseBlock> blocks)
+        {   
+            List<BaseBlock> result = new List<BaseBlock>();
+
+            // TODO: apply iterational algorithm to find the list of available expressions
+            iterationalAlgorithm(ref blocks);
+            
+            // TODO: do something
+            return result;
+        }   
+        
+        /// <summary>
+        /// Retrieve all expressions from a block
+        /// Example:
+        ///      d1: c := a + b
+        ///      d2: d := a + b
+        /// d1 and d2 are considered to be the same expression i.e. ( a + b )
+
+        /// @param block - base block
+        /// @return set of all the expressions of the block
+        /// </summary>
+        private ExpressionSet extractAllExpressions(BaseBlock block)
+        {   
+            ExpressionSet result = new ExpressionSet();
+
+            List<IThreeAddressCode> instructionsInBlock = block.Commands;
+            
+            foreach ( IThreeAddressCode instruction in instructionsInBlock )
+            {
+                if (!BinaryExpression.isModifiableOperation(instruction.Operation)) { continue; }
+
+                var currentExpression = new BinaryExpression(instruction);
+                result.Add(currentExpression);
+            }
+           
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieve all expressions from a program
+        /// Example:
+        ///      d1: c := a + b
+        ///      d2: d := a + b
+        /// d1 and d2 are considered to be the same expression i.e. ( a + b )
+
+        /// @param blocks - list of all blocks in the program 
+        /// @return set of all the expressions of the program
+        /// </summary>
+        private ExpressionSet extractAllExpressions(ref List<BaseBlock> blocks)
+        {
+            ExpressionSet result = new ExpressionSet();
+            
+            foreach ( BaseBlock block in blocks )
+            {   
+                // TODO: add comparator?
+                result.Union( extractAllExpressions(block) );
+            }
+            
+            return result;
+        }
+        
+        private void initOutB(ref ExpressionSet[] outB, ref List<BaseBlock> blocks)
+        {   
+            ExpressionSet allExpressions = extractAllExpressions(ref blocks);
+            
+            for ( var i = 0; i < outB.Count(); i++ )
+            {
+                outB[i] = new ExpressionSet(allExpressions);
+            }
+        }
+        
+        /// <summary>
+        /// Update input expressions set for a current block
+        ///     IN[B] = П OUT[P] for all B.predecessors
+        ///
+        /// @param inB - input expressions set
+        /// @param currentBlock
+        /// @param changed - status of the expression set (whether it was altered by this func)
+        /// </summary>
+        private void updateInB( ref ExpressionSet inB, BaseBlock currentBlock, ref bool changed)
+        {   
+            // TODO: implement me
+        }
+        
+        /// <summary>
+        /// Update output expressions set for a current block
+        ///     OUT[B] EgenB OR (IN[B] \ EkillB)
+        ///
+        /// @param outB - output expressions set
+        /// @param currentBlock
+        /// @param changed - status of the expression set (whether it was altered by this func)
+        /// </summary>
+        private void updateOutB( ref ExpressionSet outB, BaseBlock currentBlock, ref bool changed)
+        {   
+            // TODO: implement me
+        }
+
+        /// <summary>
+        /// Iterational process to find the list of available expressions
+        ///     IN - set of expressions available at the start of a block
+        ///     OUT - set of expressions available at the end of a block
+        ///     EgenB - set of all the expressions in the block
+        ///     EkillB - set of all the expressions which contain variables that are assigned to in this block
+        ///
+        /// @param blocks - list of all blocks in the program + fictional source block
+        /// TODO: decide what this function should return
+        /// </summary>
+        private void iterationalAlgorithm(ref List<BaseBlock> blocks) 
+        {   
+            // TODO: consider using Dictionary< BaseBlock, ExpressionSet > instead of ExpressionSet[]
+            ExpressionSet[] inB = new ExpressionSet[blocks.Count];
+            ExpressionSet[] outB = new ExpressionSet[blocks.Count];
+
+            for (var i = 0; i < blocks.Count; i++) 
+            {   
+                // init OUT[B] with all the expressions
+                // TODO: find out - should it be done outside the loop?
+                initOutB(ref outB, ref blocks);
+
+                // while OUT[B] changes do
+                bool changed = true;
+                while ( changed )
+                {
+                    for (var j = 0; j < blocks.Count; j++)
+                    {   
+                    // IN[B] = П OUT[P] for all B.predecessors
+                        updateInB(ref inB[j], blocks[i], ref changed);
+                    // OUT[B] EgenB OR (IN[B] \ EkillB)
+                        updateOutB(ref outB[j], blocks[i], ref changed);
+                    }
+                }
+            }
+        }       
     }
 }
