@@ -310,13 +310,20 @@ namespace OptimizingCompilers2016.Library.Transformations
             return result;
         }
         
-        private void initOutB(ref ExpressionSet[] outB, ref List<BaseBlock> blocks)
+        /// <summary>
+        /// init OUT Dictionary with all the expressions in program
+        /// OUT dictionary maps block ( by its name ) to all expressions available after exiting the block
+        ///
+        /// @param outB - output expressions set
+        /// @param blocks
+        /// </summary>
+        private void initOutB(ref Dictionary<string, ExpressionSet> outB, ref List<BaseBlock> blocks)
         {   
             ExpressionSet allExpressions = extractAllExpressions(ref blocks);
             
-            for ( var i = 0; i < outB.Count(); i++ )
+            foreach ( var block in blocks )
             {
-                outB[i] = new ExpressionSet(allExpressions);
+                outB[block.Name] = new ExpressionSet(allExpressions);
             }
         }
         
@@ -324,26 +331,49 @@ namespace OptimizingCompilers2016.Library.Transformations
         /// Update input expressions set for a current block
         ///     IN[B] = П OUT[P] for all B.predecessors
         ///
-        /// @param inB - input expressions set
+        /// @param inB - input available expressions set
+        /// @param outB - output available expressions set
         /// @param currentBlock
         /// @param changed - status of the expression set (whether it was altered by this func)
         /// </summary>
-        private void updateInB( ref ExpressionSet inB, BaseBlock currentBlock, ref bool changed)
+        private void updateInB( ref Dictionary<string, ExpressionSet> inB,
+                ref Dictionary<string, ExpressionSet> outB,
+                BaseBlock currentBlock,
+                ref bool changed)
         {   
-            // TODO: implement me
+            ExpressionSet newInB = new ExpressionSet();
+            foreach ( var predecessor in currentBlock.Predecessors )
+            {
+                newInB.IntersectWith(outB[predecessor.Name]);
+            }
+
+            changed = changed || inB[currentBlock.Name].SetEquals(newInB);
+            inB[currentBlock.Name] = newInB;
         }
         
         /// <summary>
         /// Update output expressions set for a current block
-        ///     OUT[B] EgenB OR (IN[B] \ EkillB)
+        ///     OUT[B] = EgenB OR (IN[B] \ EkillB)
         ///
-        /// @param outB - output expressions set
+        /// @param inB - input available expressions set
+        /// @param outB - output available expressions set
         /// @param currentBlock
         /// @param changed - status of the expression set (whether it was altered by this func)
         /// </summary>
-        private void updateOutB( ref ExpressionSet outB, BaseBlock currentBlock, ref bool changed)
+        private void updateOutB(ref Dictionary<string, ExpressionSet> inB,
+                ref Dictionary<string, ExpressionSet> outB,
+                BaseBlock currentBlock,
+                ref bool changed)
         {   
-            // TODO: implement me
+            // TODO: get eGenB and eKillB from block
+            ExpressionSet eGenB = new ExpressionSet();
+            ExpressionSet eKillB = new ExpressionSet();
+
+            ExpressionSet newOutB = new ExpressionSet( eGenB );
+            
+            newOutB.UnionWith(inB[currentBlock.Name].Except(eKillB));
+            //TODO: update 'changed'
+            outB[currentBlock.Name] = newOutB;
         }
 
         /// <summary>
@@ -358,11 +388,11 @@ namespace OptimizingCompilers2016.Library.Transformations
         /// </summary>
         private void iterationalAlgorithm(ref List<BaseBlock> blocks) 
         {   
-            // TODO: consider using Dictionary< BaseBlock, ExpressionSet > instead of ExpressionSet[]
-            ExpressionSet[] inB = new ExpressionSet[blocks.Count];
-            ExpressionSet[] outB = new ExpressionSet[blocks.Count];
+            // block name - expression set
+            Dictionary<string, ExpressionSet> inB = new Dictionary<string, ExpressionSet>();
+            Dictionary<string, ExpressionSet>  outB = new Dictionary<string, ExpressionSet>();
 
-            for (var i = 0; i < blocks.Count; i++) 
+            foreach (var block in blocks) 
             {   
                 // init OUT[B] with all the expressions
                 // TODO: find out - should it be done outside the loop?
@@ -372,12 +402,12 @@ namespace OptimizingCompilers2016.Library.Transformations
                 bool changed = true;
                 while ( changed )
                 {
-                    for (var j = 0; j < blocks.Count; j++)
+                    foreach (var innerBlock in blocks)
                     {   
                     // IN[B] = П OUT[P] for all B.predecessors
-                        updateInB(ref inB[j], blocks[i], ref changed);
-                    // OUT[B] EgenB OR (IN[B] \ EkillB)
-                        updateOutB(ref outB[j], blocks[i], ref changed);
+                        updateInB(ref inB, ref outB, innerBlock, ref changed);
+                    // OUT[B] = EgenB OR (IN[B] \ EkillB)
+                        updateOutB(ref inB, ref outB, innerBlock, ref changed);
                     }
                 }
             }
