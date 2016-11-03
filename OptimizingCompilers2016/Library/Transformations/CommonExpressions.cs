@@ -304,7 +304,7 @@ namespace OptimizingCompilers2016.Library.Transformations
             foreach ( BaseBlock block in blocks )
             {   
                 // TODO: add comparator?
-                result.Union( extractAllExpressions(block) );
+                result.UnionWith( extractAllExpressions(block) );
             }
             
             return result;
@@ -368,6 +368,26 @@ namespace OptimizingCompilers2016.Library.Transformations
             // TODO: get eGenB and eKillB from block
             ExpressionSet eGenB = new ExpressionSet();
             ExpressionSet eKillB = new ExpressionSet();
+
+            var firstPassResult = new List<RelevantCSEWatcher>();
+            var nodeIndex = new EquivalenceClassIndex();
+            var resultDependency = new VariableOccurrence();
+
+            for (int i = 0; i < currentBlock.Commands.Count; ++i)
+            {
+                firstPassStep(i, currentBlock.Commands[i], ref firstPassResult, ref nodeIndex, ref resultDependency);
+            }
+            
+            for (int i = 0; i < firstPassResult.Count; ++i) 
+            {   
+                var expression = new BinaryExpression(currentBlock.Commands[i]);
+                if ( firstPassResult[i].isValid )
+                {
+                    eGenB.Add(expression);
+                } else {
+                    eKillB.Add(expression);
+                }   
+            }
 
             ExpressionSet newOutB = new ExpressionSet( eGenB );
             
