@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseBlock\BaseBlock.cs" />
+    <Compile Include="Optimizators\ConstantPropagationOtimizator.cs" />
+    <Compile Include="Optimizators\IOptimizator.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
