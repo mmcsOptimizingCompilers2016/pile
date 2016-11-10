@@ -79,6 +79,12 @@ namespace OptimizingCompilers2016.Library.Analysis
         {
             runAnalys(block.Commands);
         }
+
+        public override string ToString()
+        {
+            var defUseString = result.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            return String.Join("\n", defUseString);
+        }
     }
 
     public class GlobalDefUse
@@ -132,11 +138,14 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
+
+        private void iterationAlgorithm() {
+
+        }
+
         public void runAnalys(List<BaseBlock> blocks) {
             fillOccToBitNumber(blocks);
             fillGenerators(blocks);
-
-
         }
 
 
