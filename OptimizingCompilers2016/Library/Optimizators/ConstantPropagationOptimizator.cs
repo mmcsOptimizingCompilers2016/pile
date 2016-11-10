@@ -16,7 +16,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                 {
                     for (int j = i + 1; j < baseBlock.Commands.Count; j++)
                     {
-                        if (baseBlock.Commands[j].Operation == Operation.Assign &&
+                        if (baseBlock.Commands[j].Destination is IdentificatorValue &&
                             baseBlock.Commands[j].Destination.Value == baseBlock.Commands[i].Destination.Value)
                         {
                             break;
