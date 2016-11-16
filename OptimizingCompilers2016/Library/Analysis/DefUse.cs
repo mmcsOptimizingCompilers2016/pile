@@ -98,11 +98,13 @@ namespace OptimizingCompilers2016.Library.Analysis
         Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
         Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
 
-        private void fillOccToBitNumber(List<BaseBlock> blocks)
+        private void fillSupportingStructures(List<BaseBlock> blocks)
         {
             int counter = 0;
             foreach (var block in blocks)
             {
+                Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
+                localDefUses.Add(block, new InblockDefUse(block));
                 for (int i=0; i < block.Commands.Count; ++i)
                 {
                     var line = block.Commands[i];
@@ -113,39 +115,77 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
-        private void fillGenerators(List<BaseBlock> blocks)
+        private void fillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach(var block in blocks)
             {
                 generators.Add(block, new BitArray(occToBitNumber.Count, false));
-
-                var usedVariables = new HashSet<IdentificatorValue>();
-                localDefUses.Add(block, new InblockDefUse(block));
+                killers.Add(block, new BitArray(occToBitNumber.Count, false));
                 foreach (var ldur in localDefUses[block].result)
                 {
-                    //if ( usedVariables.Contains() )
                     generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
-                }
 
-                Console.WriteLine(block.Name + ":");
-                foreach (var b in generators[block])
-                {
-                    //Console.Write(b.GetType());
-                    var bb = b.ToString() == "True";
-                    Console.Write(bb?"1":"0");
+                    var variable = ldur.Key.Item2;
+                    //check if variable is used somewhere in another block
+                    foreach (var block2 in blocks)
+                    {
+                        if (block != block2)
+                        {
+                            foreach (var ldur2 in localDefUses[block2].result)
+                            {
+                                if (ldur2.Key.Item2.Equals(variable))
+                                {
+                                    killers[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block2, ldur2.Key)], true);
+                                }
+                            }
+                        }
+                    }
                 }
-                Console.WriteLine();
+                Console.WriteLine(block.Name);
+                Console.WriteLine("Gen: " + bitArrayToString(generators[block]));
+                Console.WriteLine("Kill: " + bitArrayToString(killers[block]));
             }
         }
 
-
-        private void iterationAlgorithm() {
-
+        private String bitArrayToString(BitArray arr) {
+            String fullString = "";
+            foreach (var bit in arr)
+            {
+                fullString += bit.ToString() == "True" ? "1" : "0";
+            }
+            return fullString;
         }
 
+        private void iterationAlgorithm(List<BaseBlock> blocks) {
+            Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
+            Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
+            Dictionary<BaseBlock, BitArray> prevOuts = new Dictionary<BaseBlock, BitArray>();
+            foreach (var block in blocks)
+            {
+                outs.Add(block, new BitArray(occToBitNumber.Count, false));
+                prevOuts.Add(block, new BitArray(occToBitNumber.Count, true));
+                ins.Add(block, new BitArray(occToBitNumber.Count, false));
+            }
+
+            var prevBlock = blocks[0];
+            while (areDifferent(outs, prevOuts))
+            {
+                foreach (var block in blocks) {
+                    ins[block] = ins[block].Or(outs[prevBlock]);
+                    outs[block] = generators[block].Or(ins[block]);
+                    prevBlock = block;
+                }
+           }
+        }
+
+        private bool areDifferent(Dictionary<BaseBlock, BitArray>  currentOuts, Dictionary<BaseBlock, BitArray> prevOuts) {
+            return true;
+        }
+
+
         public void runAnalys(List<BaseBlock> blocks) {
-            fillOccToBitNumber(blocks);
-            fillGenerators(blocks);
+            fillSupportingStructures(blocks);
+            fillGeneratorsAndKillers(blocks);
         }
 
 
