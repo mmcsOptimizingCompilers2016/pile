@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
+    <Compile Include="DepthSpanningTree\DepthSpanningTree.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
