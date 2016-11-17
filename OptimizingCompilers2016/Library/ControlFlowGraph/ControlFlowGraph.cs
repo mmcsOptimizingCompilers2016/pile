@@ -1,6 +1,7 @@
 ﻿using QuickGraph;
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {
@@ -31,6 +32,15 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             }
         }
 
+        public BaseBlock.BaseBlock GetRoot()
+        {
+            return (NumberOfVertices() > 0) ? CFG.Vertices.ElementAt(0) : null;
+        }
+
+        public int NumberOfVertices()
+        {
+            return CFG.Vertices.Count();
+        }
         /// <summary>
         /// Сериализация графа в строку формата dot-файла для последующей визуализации с
         /// помощью graphviz
