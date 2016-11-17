@@ -29,6 +29,7 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
             int numberOfVertices = controlFlowGraph.NumberOfVertices() - 1;
             Visited = new HashSet<BaseBlock>();
 			SpanningTree = new BidirectionalGraph<BaseBlock, Edge<BaseBlock>>();
+			Numbers = new Dictionary<BaseBlock, int>();
 
 			var rootBlock = controlFlowGraph.GetRoot();
 			BuildTree(rootBlock, ref numberOfVertices);
