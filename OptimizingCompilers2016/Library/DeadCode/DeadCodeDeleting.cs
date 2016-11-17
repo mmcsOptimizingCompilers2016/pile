@@ -26,10 +26,6 @@ namespace OptimizingCompilers2016.Library.DeadCode
         private static void iteration(BaseBlock block)
         {
             //throw new NotImplementedException("Not implemented deleting dead code");
-
-
-            //Dictionary<Occurrence, HashSet<Occurrence>>
-
             HashSet<IThreeAddressCode> toDelete  = new HashSet<IThreeAddressCode>();
             HashSet<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue> viewed = new HashSet<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>();
             InblockDefUse DU = new InblockDefUse(block);
