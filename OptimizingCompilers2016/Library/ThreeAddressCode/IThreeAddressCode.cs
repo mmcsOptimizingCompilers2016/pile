@@ -1,4 +1,4 @@
-﻿using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
 
 namespace OptimizingCompilers2016.Library.ThreeAddressCode
 {

@@ -1,4 +1,4 @@
-using OptimizingCompilers2016.Library.LinearCode;
+﻿using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
@@ -15,7 +15,6 @@ namespace OptimizingCompilers2016.Library.BaseBlock
         public BaseBlock JumpOutput { get; set; }
 
         public BaseBlock Output { get; set; }
-
 
         public string Name { get; set; }
 
