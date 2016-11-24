@@ -26,7 +26,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// alias to make iteration process readable
     
     /// Maps equivalence class of right side expression to firstPassResult values
-    using EquivalenceClassMap = Dictionary<BinaryExpression, RelevantCSEWatcher>;
+    using BinExpToEqClass = Dictionary<BinaryExpression, RelevantCSEWatcher>;
 
     /// Maps variable name to its entries in class equivalence of expression
     using VariableOccurrence = Dictionary<IdentificatorValue, List<BinaryExpression>>;
@@ -100,6 +100,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// </summary>
     struct RelevantCSEWatcher
     {
+        /// supposed to be used in interblocked CSE
         public bool isValid;
         /// indecies of BaseBlock's IThreeAddressCode
         public List<int> expressions;
@@ -111,7 +112,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
 
             isValid = true;
         }
-        public void invalidateMe()
+        public void Invalidate()
         {
             isValid = false;
         }
@@ -146,7 +147,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
 
         private void firstPassStep(int number, IThreeAddressCode instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
-            ref EquivalenceClassMap expressionToEqClass,
+            ref BinExpToEqClass expressionToEqClass,
             ref VariableOccurrence resultDependency)
         {
             if (!BinaryExpression.isModifiableOperation(instruction.Operation))
@@ -187,7 +188,11 @@ namespace OptimizingCompilers2016.Library.Optimizators
             {
                 foreach (var item in resultDependency[(IdentificatorValue)instruction.Destination])
                 {
-                    expressionToEqClass.Remove(item);
+                    if (expressionToEqClass.ContainsKey(item))
+                    {
+                        expressionToEqClass[item].Invalidate();
+                        expressionToEqClass.Remove(item);
+                    }
                 }
             }
         }
@@ -245,7 +250,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
         public bool Optimize(BaseBlock block)
         {
             var firstPassResult = new List<RelevantCSEWatcher>();
-            var nodeIndex = new EquivalenceClassMap();
+            var nodeIndex = new BinExpToEqClass();
             var resultDependency = new VariableOccurrence();
 
             for (int i = 0; i < block.Commands.Count; ++i)
