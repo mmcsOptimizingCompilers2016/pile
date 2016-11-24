@@ -4,16 +4,27 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
-using OptimizingCompilers2016.Library.Transformations;
-using OptimizingCompilers2016.Library.BaseBlock;
+using OptimizingCompilers2016.Library.Optimizators;
+using System.Collections.Generic;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
-using OptimizingCompilers2016.Library.Transformations;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
     class Program
     {
+        static void print(List<IThreeAddressCode> code)
+        {
+            String text = "";
+            foreach (IThreeAddressCode lr in code)
+            {
+
+                text += lr.ToString() + Environment.NewLine;
+            }
+            Console.WriteLine(text);
+        }
+
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
@@ -36,22 +47,19 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(prettyVisitor.Text);
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
+
                 var opt = new CommonExpressions();
+
                 BaseBlock block = new BaseBlock();
+                
                 block.Commands.AddRange(linearCode.code);
-                var optCode = opt.optimize(block);
-
+                
+                
                 Console.WriteLine("Before:");
-
-                Console.WriteLine(linearCode.ToString());
+                print(block.Commands);
+                var optCode = opt.Optimize(block);
                 Console.WriteLine("After:");
-                foreach (var item in optCode.Commands)
-                {
-                    Console.WriteLine(item.ToString());
-                }
-
-
-
+                print(block.Commands);
             }
             catch (FileNotFoundException)
             {

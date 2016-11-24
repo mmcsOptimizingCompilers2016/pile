@@ -62,6 +62,8 @@
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="DeadCode\DeadCodeDeleting.cs" />
+    <Compile Include="Optimizators\AlgebraicIdentityOptimizator.cs" />
+    <Compile Include="Optimizators\CommonExpressions.cs" />
     <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />
     <Compile Include="Optimizators\IOptimizator.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
@@ -74,7 +76,6 @@
     <Compile Include="ThreeAddressCode\Values\LabelValue.cs" />
     <Compile Include="ThreeAddressCode\Values\IdentificatorValue.cs" />
     <Compile Include="ThreeAddressCode\Values\NumericValue.cs" />
-	<Compile Include="Transformations\CommonExpressions.cs" />
     <Compile Include="Transformations\ConstantFolding.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
