@@ -3,6 +3,11 @@
     using BaseBlock;
     public interface IOptimizator
     {
-        void Optimize(BaseBlock baseBlock);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseBlock"></param>
+        /// <returns>Returns true if BaseBlock was optimized, false otherwise</returns>
+        bool Optimize(BaseBlock baseBlock);
     }
 }
