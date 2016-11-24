@@ -44,6 +44,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var gdu = new GlobalDefUse();
                 gdu.runAnalys(blocks);
+
+
             }
             catch (FileNotFoundException)
             {
