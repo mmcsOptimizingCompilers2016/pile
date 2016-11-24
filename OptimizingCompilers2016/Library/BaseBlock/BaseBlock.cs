@@ -1,7 +1,4 @@
-﻿using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.ThreeAddressCode;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
+﻿using OptimizingCompilers2016.Library.ThreeAddressCode;
 using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.Library

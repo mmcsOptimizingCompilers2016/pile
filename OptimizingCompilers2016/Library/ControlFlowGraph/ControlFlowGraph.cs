@@ -1,19 +1,20 @@
 ﻿using QuickGraph;
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace OptimizingCompilers2016.Library.ControlFlowGraph
+namespace OptimizingCompilers2016.Library
 {
     public class ControlFlowGraph
     {
-        UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
-            new UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
+        UndirectedGraph<BaseBlock, Edge<BaseBlock>> CFG =
+            new UndirectedGraph<BaseBlock, Edge<BaseBlock>>();
 
         /// <summary>
         /// Конструктор класса ControlFlowGraph
         /// </summary>
         /// <param name="blocks">Коллекция базовых блоков трёхадресного кода</param>
-        public ControlFlowGraph(IEnumerable<BaseBlock.BaseBlock> blocks)
+        public ControlFlowGraph(IEnumerable<BaseBlock> blocks)
         {
             // Добавление вершин в граф
             CFG.AddVertexRange(blocks);
@@ -22,13 +23,23 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             {
                 if (block.Output != null)
                 {
-                    CFG.AddEdge(new Edge<BaseBlock.BaseBlock>(block, block.Output));
+                    CFG.AddEdge(new Edge<BaseBlock>(block, block.Output));
                 }
                 if (block.JumpOutput != null)
                 {
-                    CFG.AddEdge(new Edge<BaseBlock.BaseBlock>(block, block.JumpOutput));
+                    CFG.AddEdge(new Edge<BaseBlock>(block, block.JumpOutput));
                 }
             }
+        }
+
+        public BaseBlock GetRoot()
+        {
+            return (Count() > 0) ? CFG.Vertices.ElementAt(0) : null;
+        }
+
+        public int Count()
+        {
+            return CFG.Vertices.Count();
         }
 
         /// <summary>
@@ -38,7 +49,7 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
         /// <returns></returns>
         public string GenerateGraphvizDotFile()
         {
-            var graphviz = new GraphvizAlgorithm<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG);
+            var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(CFG);
             return graphviz.Generate();
         }
 
