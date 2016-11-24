@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis\ActiveVariables.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="Analysis\DefUse.cs" />
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
