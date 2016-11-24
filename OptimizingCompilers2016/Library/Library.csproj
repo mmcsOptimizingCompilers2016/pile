@@ -64,6 +64,7 @@
     <Compile Include="DeadCode\DeadCodeDeleting.cs" />
     <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />
     <Compile Include="Optimizators\IOptimizator.cs" />
+    <Compile Include="Region\Region.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
