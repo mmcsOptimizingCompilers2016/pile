@@ -25,9 +25,8 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// Set of right side expressions 
     /// alias to make iteration process readable
     
-    /// Maps equivalence class of right side expression to its index in 
-    /// firstPassResult list. If this equivalence class is invalidated, index equals -1
-    using EquivalenceClassIndex = Dictionary<BinaryExpression, int>;
+    /// Maps equivalence class of right side expression to firstPassResult values
+    using EquivalenceClassMap = Dictionary<BinaryExpression, RelevantCSEWatcher>;
 
     /// Maps variable name to its entries in class equivalence of expression
     using VariableOccurrence = Dictionary<IdentificatorValue, List<BinaryExpression>>;
@@ -75,9 +74,20 @@ namespace OptimizingCompilers2016.Library.Optimizators
             if (obj is BinaryExpression)
             {
                 BinaryExpression expression = (BinaryExpression)obj;
+                if (!expression.Operation.Equals(this.Operation))
+                {
+                    return false;
+                }
+                if (isCommutative(Operation) &&
+                    expression.LeftOperand.Equals(RightOperand) &&
+                    expression.RightOperand.Equals(LeftOperand))
+                {
+                    return true;
+                }
+
+
                 return expression.LeftOperand.Equals(this.LeftOperand) &&
-                        expression.Operation.Equals(this.Operation) &&
-                        expression.RightOperand.Equals(this.RightOperand);
+                       expression.RightOperand.Equals(this.RightOperand);
             }
             return false;
         }
@@ -136,7 +146,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
 
         private void firstPassStep(int number, IThreeAddressCode instruction,
             ref List<RelevantCSEWatcher> firstPassResult,
-            ref EquivalenceClassIndex expressionToEqClass,
+            ref EquivalenceClassMap expressionToEqClass,
             ref VariableOccurrence resultDependency)
         {
             if (!BinaryExpression.isModifiableOperation(instruction.Operation))
@@ -146,18 +156,18 @@ namespace OptimizingCompilers2016.Library.Optimizators
 
             var currentExpression = new BinaryExpression(instruction);
 
-            int value = expressionToEqClass.ContainsKey(currentExpression) ? 
-                expressionToEqClass[currentExpression] : -1;
+            var value = expressionToEqClass.ContainsKey(currentExpression) ?
+                (RelevantCSEWatcher?)expressionToEqClass[currentExpression] : null;
 
             // add value to resultant set
-            if (value == -1)
+            if (value == null)
             {
                 firstPassResult.Add(new RelevantCSEWatcher(number));
-                expressionToEqClass[currentExpression] = firstPassResult.Count() - 1;
+                expressionToEqClass[currentExpression] = firstPassResult.Last();
             }
             else
             {
-                firstPassResult[value].expressions.Add(number);
+                value.Value.expressions.Add(number);
             }
 
             if (instruction.LeftOperand is IdentificatorValue)
@@ -177,10 +187,9 @@ namespace OptimizingCompilers2016.Library.Optimizators
             {
                 foreach (var item in resultDependency[(IdentificatorValue)instruction.Destination])
                 {
-                    expressionToEqClass[item] = -1;
+                    expressionToEqClass.Remove(item);
                 }
             }
-
         }
 
         private bool secondPass(BaseBlock block,
@@ -188,6 +197,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
         {
             List<RelevantCSEWatcher> commonExpressions = commonExpressionsAll.
                 Where(x => x.expressions.Count > 1).ToList();
+
             if (commonExpressions.Count == 0)
             {
                 // nothing to change
@@ -235,8 +245,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
         public bool Optimize(BaseBlock block)
         {
             var firstPassResult = new List<RelevantCSEWatcher>();
-            // int is an index in firstPassResult
-            var nodeIndex = new EquivalenceClassIndex();
+            var nodeIndex = new EquivalenceClassMap();
             var resultDependency = new VariableOccurrence();
 
             for (int i = 0; i < block.Commands.Count; ++i)
