@@ -3,12 +3,11 @@ using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 
 namespace OptimizingCompilers2016.Library.Optimizators
 {
-    using BaseBlock;
-
     public class ConstantPropagationOptimizator : IOptimizator
     {
-        public void Optimize(BaseBlock baseBlock)
+        public bool Optimize(BaseBlock baseBlock)
         {
+            bool changed = false;
             for (int i = 0; i < baseBlock.Commands.Count; i++)
             {
                 if (baseBlock.Commands[i].Operation == Operation.Assign &&
@@ -30,6 +29,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                                 identificatorValue.Value == baseBlock.Commands[i].Destination.Value)
                             {
                                 baseBlock.Commands[j].LeftOperand = baseBlock.Commands[i].LeftOperand;
+                                changed = true;
                             }
                         }
 
@@ -40,11 +40,13 @@ namespace OptimizingCompilers2016.Library.Optimizators
                                 identificatorValue.Value == baseBlock.Commands[i].Destination.Value)
                             {
                                 baseBlock.Commands[j].RightOperand = baseBlock.Commands[i].LeftOperand;
+                                changed = true;
                             }
                         }
                     }
                 }
             }
+            return changed;
         }
     }
 }

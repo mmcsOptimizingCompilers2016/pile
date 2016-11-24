@@ -5,19 +5,16 @@ namespace OptimizingCompilers2016.Library.LinearCode
         public Identificator(string i) { id = i; }
         public string id;
 
-        public override int GetHashCode()
-        {
-            return id.GetHashCode();
-        }
+        public override string ToString() { return id; }
 
         public override bool Equals(object obj)
         {
-            if (obj is Identificator)
-            {
-                return ((Identificator)obj).id == this.id;
-            }
-            return false;
+            return obj.ToString().Equals(ToString());
         }
-        public override string ToString() { return id; }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
+        }
     }
 }

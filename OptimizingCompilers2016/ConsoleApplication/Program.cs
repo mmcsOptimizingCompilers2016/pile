@@ -6,6 +6,9 @@ using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.BaseBlock;
+using OptimizingCompilers2016.Library.Analysis;
+using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.Transformations;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -46,6 +49,9 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 {
                     Console.WriteLine(item.ToString());
                 }
+
+
+
             }
             catch (FileNotFoundException)
             {

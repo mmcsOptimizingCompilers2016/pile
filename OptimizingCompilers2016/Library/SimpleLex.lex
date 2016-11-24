@@ -30,7 +30,7 @@ ID {Alpha}{AlphaDigit}*
   return res;
 }
 
-":=" { return (int)Tokens.ASSIGN; }
+"=" { return (int)Tokens.ASSIGN; }
 ";"  { return (int)Tokens.SEMICOLON; }
 "{"  { return (int)Tokens.BEGIN; }
 "}"  { return (int)Tokens.END; }
@@ -44,7 +44,7 @@ ID {Alpha}{AlphaDigit}*
 ">"  { return (int)Tokens.GT; }
 "<=" { return (int)Tokens.LE; }
 ">=" { return (int)Tokens.GE; }
-"=" { return (int)Tokens.EQ; }
+"==" { return (int)Tokens.EQ; }
 "!=" { return (int)Tokens.NE; }
 
 [^ \r\n\t] {
