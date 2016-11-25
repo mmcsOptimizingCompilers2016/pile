@@ -159,29 +159,31 @@ namespace OptimizingCompilers2016.Library.Analysis
         private void iterationAlgorithm(List<BaseBlock> blocks) {
             Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
             Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-            Dictionary<BaseBlock, BitArray> prevOuts = new Dictionary<BaseBlock, BitArray>();
             foreach (var block in blocks)
             {
                 outs.Add(block, new BitArray(occToBitNumber.Count, false));
-                prevOuts.Add(block, new BitArray(occToBitNumber.Count, true));
                 ins.Add(block, new BitArray(occToBitNumber.Count, false));
             }
 
-            var prevBlock = blocks[0];
-            while (areDifferent(outs, prevOuts))
+            bool areDifferent = true;
+            while (areDifferent)
             {
+                areDifferent = false;
                 foreach (var block in blocks) {
-                    ins[block] = ins[block].Or(outs[prevBlock]);
-                    outs[block] = generators[block].Or(ins[block]);
-                    prevBlock = block;
+                    var predecessors = block.Predecessors;
+                    foreach (var pred in predecessors) {
+                        ins[block] = ins[block].Or(outs[pred]);
+                    }
+
+                    var prevOut = outs[block].Clone();
+
+                    outs[block] = generators[block].Or(ins[block].And(killers[block].Not()));
+                    if (prevOut.Equals(outs[block])) {
+                        areDifferent = areDifferent || false;
+                    } 
                 }
            }
         }
-
-        private bool areDifferent(Dictionary<BaseBlock, BitArray>  currentOuts, Dictionary<BaseBlock, BitArray> prevOuts) {
-            return true;
-        }
-
 
         public void runAnalys(List<BaseBlock> blocks) {
             fillSupportingStructures(blocks);
