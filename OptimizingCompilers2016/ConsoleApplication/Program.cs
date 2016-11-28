@@ -95,6 +95,18 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     foreach (var item2 in item)
                         Console.WriteLine(item2);
 
+                var AV = new ActiveVariables(blocks);
+
+                AV.runAnalys();
+
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
+
+                Console.WriteLine("------------------");
+
 
             }
             catch (FileNotFoundException)
