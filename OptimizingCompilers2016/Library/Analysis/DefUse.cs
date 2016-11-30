@@ -123,26 +123,28 @@ namespace OptimizingCompilers2016.Library.Analysis
                 killers.Add(block, new BitArray(occToBitNumber.Count, false));
                 foreach (var ldur in localDefUses[block].result)
                 {
+                    foreach(var e in occToBitNumber)
+                    {
+                        if ( e.Key.Item2.Item2.Equals(ldur.Key.Item2) )
+                        {
+                            generators[block].Set(occToBitNumber[e.Key], false);
+                        }
+                    }
                     generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
 
                     var variable = ldur.Key.Item2;
                     //check if variable is used somewhere in another block
-                    foreach (var block2 in blocks)
+                    foreach (var e in occToBitNumber)
                     {
-                        if (block != block2)
+                        if (e.Key.Item2.Item2.Equals(ldur.Key.Item2))
                         {
-                            foreach (var ldur2 in localDefUses[block2].result)
-                            {
-                                if (ldur2.Key.Item2.Equals(variable))
-                                {
-                                    killers[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block2, ldur2.Key)], true);
-                                }
-                            }
+                            killers[block].Set(occToBitNumber[e.Key], true);
                         }
                     }
                 }
                 Console.WriteLine(block.Name);
-                Console.WriteLine("Gen: " + bitArrayToString(generators[block]));
+                Console.WriteLine(" Gen: " + bitArrayToString(generators[block]));
+                printKillOfGen(generators[block]);
                 Console.WriteLine("Kill: " + bitArrayToString(killers[block]));
             }
         }
@@ -154,6 +156,19 @@ namespace OptimizingCompilers2016.Library.Analysis
                 fullString += bit.ToString() == "True" ? "1" : "0";
             }
             return fullString;
+        }
+        
+        private void printKillOfGen(BitArray something)
+        {
+            foreach (var e in occToBitNumber)
+            {
+                if (something.Get(e.Value))
+                {
+                    Console.Write(e.Key.Item2.Item2.ToString() + ", ");
+                }
+            }
+            
+            Console.WriteLine();
         }
 
         private void iterationAlgorithm(List<BaseBlock> blocks) {
@@ -172,6 +187,7 @@ namespace OptimizingCompilers2016.Library.Analysis
                 foreach (var block in blocks) {
                     var predecessors = block.Predecessors;
                     foreach (var pred in predecessors) {
+                        //Console.WriteLine("Block " + block.Name + " Pred " + pred.Name);
                         ins[block] = ins[block].Or(outs[pred]);
                     }
 
@@ -183,11 +199,18 @@ namespace OptimizingCompilers2016.Library.Analysis
                     } 
                 }
            }
+
+            foreach (var res in outs)
+            {
+                Console.WriteLine(res.Key.Name);
+                printKillOfGen(res.Value);
+            }
         }
 
         public void runAnalys(List<BaseBlock> blocks) {
             fillSupportingStructures(blocks);
             fillGeneratorsAndKillers(blocks);
+            iterationAlgorithm(blocks);
         }
 
 

@@ -36,7 +36,7 @@ namespace OptimizingCompilers2016.Library
                 }
             }
 
-            blocks.RemoveAll(block => block.Commands.Count == 0);
+            blocks.RemoveAll(block => block.Commands.Count == 0 && block.Predecessors.Count > 0);
         }
 
         public static List<BaseBlock> divide(List<LinearRepresentation> plainCode)
