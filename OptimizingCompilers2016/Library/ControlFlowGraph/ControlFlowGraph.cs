@@ -2,13 +2,18 @@
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
 using System.Linq;
+using OptimizingCompilers2016.Library.DepthSpanningTree;
 
 namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {
+    using DepthSpanningTree = DepthSpanningTree.DepthSpanningTree;
+
     public class ControlFlowGraph
     {
-        UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
-            new UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
+
+
+        BidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
+            new BidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
 
         /// <summary>
         /// Конструктор класса ControlFlowGraph
@@ -52,5 +57,28 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             return graphviz.Generate();
         }
 
+        
+        List<Edge<BaseBlock.BaseBlock>> BackEdges = new List<Edge<BaseBlock.BaseBlock>>();
+
+        List<Edge<BaseBlock.BaseBlock>> RetreatingEdges = new List<Edge<BaseBlock.BaseBlock>>();
+
+
+        public bool CheckReducibility() {
+            DepthSpanningTree DFST = new DepthSpanningTree(this);
+           
+            var BackEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(this.BackEdges);
+            var RetreatingEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(this.RetreatingEdges);
+
+            return BackEdges.SetEquals(RetreatingEdges);
+
+
+        } 
+
+
+
+
     }
+
+
+
 }
