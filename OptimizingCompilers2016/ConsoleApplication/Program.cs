@@ -97,6 +97,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var AV = new ActiveVariables(blocks);
 
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
+
                 AV.runAnalys();
 
                 foreach (var block in blocks)
