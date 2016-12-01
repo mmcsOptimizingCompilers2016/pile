@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyses\DOM.cs" />
-	<Compile Include="LinearCode\Label.cs" />
+	<Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
@@ -99,14 +99,13 @@
     <Compile Include="Visitors\PrettyPrintVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="LinearCode\Base\" />
     <Folder Include="ThreeAddressCode\Base\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LinearCode\Base\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
