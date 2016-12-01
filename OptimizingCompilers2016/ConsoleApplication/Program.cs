@@ -5,6 +5,7 @@ using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.BaseBlock;
+using OptimizingCompilers2016.Library.ControlFlowGraph;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -23,17 +24,22 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
-                //var linearCode = new LinearCodeVisitor();
-                //parser.root.Accept(linearCode);
-                //Console.WriteLine(linearCode.ToString());
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+                Console.WriteLine(linearCode.ToString());
 
-                //var blocks = BaseBlockDivider.divide(linearCode.code);
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+
+                ControlFlowGraph cfg = new ControlFlowGraph(blocks);
+
+                Console.WriteLine(cfg.GenerateGraphvizDotFile());
+
                 //Console.WriteLine("Blocks:");
                 //foreach (var block in blocks)
                 //{
