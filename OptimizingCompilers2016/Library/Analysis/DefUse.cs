@@ -16,7 +16,9 @@ namespace OptimizingCompilers2016.Library.Analysis
 
     public class InblockDefUse
     {
-        public Dictionary<Occurrence, HashSet<Occurrence>> result { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        public Dictionary<Occurrence, HashSet<Occurrence>> defUses { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        public Dictionary<Occurrence, HashSet<Occurrence>> useDefs { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        //public Dictionary<Occurrence, HashSet<Occurrence>> result { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
         DefsMap lastDef = new DefsMap();
 
         private void setLastDef(IdentificatorValue variable, Occurrence occurrence)
@@ -29,7 +31,8 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 lastDef[variable] = occurrence;
             }
-            result.Add(lastDef[variable], new HashSet<Occurrence>());
+
+            defUses.Add(lastDef[variable], new HashSet<Occurrence>());
         }
 
         private bool checkLastDefs(IdentificatorValue occ)
@@ -52,14 +55,14 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             if ( checkLastDefs(variable))
             {
-                result[lastDef[variable]].Add(new Occurrence(index, variable));
+                defUses[lastDef[variable]].Add(new Occurrence(index, variable));
             }
         }
 
 
-        private Dictionary<Occurrence, HashSet<Occurrence>> runAnalys(List<IThreeAddressCode> code)
+        private void fillDefUses(List<IThreeAddressCode> code)
         {
-            
+            //defUses.Clear();
             int index = 0;
             foreach ( var line in code )
             {
@@ -72,17 +75,35 @@ namespace OptimizingCompilers2016.Library.Analysis
                 index++;
             }
 
-            return result;
+            //return defUses;
+        }
+
+        private void fillUseDefs() 
+        {
+            foreach (var defUse in defUses) {
+                foreach (var use in defUse.Value) {
+                    if (!useDefs.ContainsKey(use))
+                    {
+                        HashSet<Occurrence> defs = new HashSet<Occurrence>();
+                        defs.Add(defUse.Key);
+                        useDefs.Add(use, new HashSet<Occurrence>());
+                    }
+                    else {
+                        useDefs[use].Add(defUse.Key);
+                    }      
+                }
+            }
         }
 
         public InblockDefUse(BaseBlock block)
         {
-            runAnalys(block.Commands);
+            fillDefUses(block.Commands);
+            fillUseDefs();
         }
 
         public override string ToString()
         {
-            var defUseString = result.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var defUseString = defUses.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
             return String.Join("\n", defUseString);
         }
     }
@@ -121,7 +142,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 generators.Add(block, new BitArray(occToBitNumber.Count, false));
                 killers.Add(block, new BitArray(occToBitNumber.Count, false));
-                foreach (var ldur in localDefUses[block].result)
+                foreach (var ldur in localDefUses[block].defUses)
                 {
                     foreach(var e in occToBitNumber)
                     {
