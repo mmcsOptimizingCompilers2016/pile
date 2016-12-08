@@ -108,35 +108,9 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
     }
 
-    public class GlobalDefUse
+    public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
     {
-
-        //Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
-        //Dictionary<BaseBlock.BaseBlock, >
-
-        Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
-        Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
-        Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
-        Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
-
-        private void fillSupportingStructures(List<BaseBlock> blocks)
-        {
-            int counter = 0;
-            foreach (var block in blocks)
-            {
-                Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
-                localDefUses.Add(block, new InblockDefUse(block));
-                for (int i=0; i < block.Commands.Count; ++i)
-                {
-                    var line = block.Commands[i];
-                    if (line.Destination is IdentificatorValue) {
-                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
-                    }
-                }
-            }
-        }
-
-        private void fillGeneratorsAndKillers(List<BaseBlock> blocks)
+        protected override void fillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach(var block in blocks)
             {
@@ -170,6 +144,18 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
+        protected override BitArray setStartingSet() {
+            return new BitArray(occToBitNumber.Count, false);
+        }
+
+        protected override BitArray substractSets(BitArray firstSet, BitArray secondSet) {
+            return firstSet.And(secondSet.Not());
+        }
+
+        protected override BitArray cloneSet(BitArray set) {
+            return set.Clone() as BitArray;
+        }
+
         private String bitArrayToString(BitArray arr) {
             String fullString = "";
             foreach (var bit in arr)
@@ -192,34 +178,23 @@ namespace OptimizingCompilers2016.Library.Analysis
             Console.WriteLine();
         }
 
-        private void iterationAlgorithm(List<BaseBlock> blocks) {
-            Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
-            Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-            foreach (var block in blocks)
-            {
-                outs.Add(block, new BitArray(occToBitNumber.Count, false));
-                ins.Add(block, new BitArray(occToBitNumber.Count, false));
-            }
+        private BitArray collect(BitArray x, BitArray y) {
+            return x.Or(y);
+        }
+        
+        //TODO replace with robust transfedr function with one arg (?)    
+        private BitArray transferFunction(BitArray x, BitArray y) {
+            return x.Or(y);
+        }
 
-            bool areDifferent = true;
-            while (areDifferent)
-            {
-                areDifferent = false;
-                foreach (var block in blocks) {
-                    var predecessors = block.Predecessors;
-                    foreach (var pred in predecessors) {
-                        //Console.WriteLine("Block " + block.Name + " Pred " + pred.Name);
-                        ins[block] = ins[block].Or(outs[pred]);
-                    }
+        private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
+            return base.iterationAlgorithm(blocks, collect, transferFunction);
+        }
 
-                    var prevOut = outs[block].Clone();
-
-                    outs[block] = generators[block].Or(ins[block].And(killers[block].Not()));
-                    if (prevOut.Equals(outs[block])) {
-                        areDifferent = areDifferent || false;
-                    } 
-                }
-           }
+        public void runAnalys(List<BaseBlock> blocks) {
+            fillSupportingStructures(blocks);
+            fillGeneratorsAndKillers(blocks);
+            var outs = iterationAlgorithm(blocks);
 
             foreach (var res in outs)
             {
@@ -227,14 +202,5 @@ namespace OptimizingCompilers2016.Library.Analysis
                 printKillOfGen(res.Value);
             }
         }
-
-        public void runAnalys(List<BaseBlock> blocks) {
-            fillSupportingStructures(blocks);
-            fillGeneratorsAndKillers(blocks);
-            iterationAlgorithm(blocks);
-        }
-
-
-
     }
 }
