@@ -1,15 +1,16 @@
-﻿using OptimizingCompilers2016.Library.LinearCode;
+﻿using OptimizingCompilers2016.Library;
+using OptimizingCompilers2016.Library.LinearCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
-using OptimizingCompilers2016.Library;
-using System.Collections;
-using OptimizingCompilers2016.Library.ThreeAddressCode;
+using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -58,8 +59,7 @@ namespace OptimizingCompilers2016.Library.Analysis
                 defUses[lastDef[variable]].Add(new Occurrence(index, variable));
             }
         }
-
-
+        
         private void fillDefUses(List<IThreeAddressCode> code)
         {
             //defUses.Clear();
@@ -110,6 +110,34 @@ namespace OptimizingCompilers2016.Library.Analysis
 
     public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
     {
+        ////Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
+        ////Dictionary<BaseBlock.BaseBlock, >
+
+        //Dictionary<IntraOccurence, int> occToBitNumber = new Dictionary<IntraOccurence, int>();
+        //Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
+        //Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+        //Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
+
+        //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
+        //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
+
+        //private void fillSupportingStructures(List<BaseBlock> blocks)
+        //{
+        //    int counter = 0;
+        //    foreach (var block in blocks)
+        //    {
+        //        Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
+        //        localDefUses.Add(block, new InblockDefUse(block));
+        //        for (int i=0; i < block.Commands.Count; ++i)
+        //        {
+        //            var line = block.Commands[i];
+        //            if (line.Destination is IdentificatorValue) {
+        //                occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
+        //            }
+        //        }
+        //    }
+        //}
+        
         protected override void fillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach(var block in blocks)
@@ -187,6 +215,23 @@ namespace OptimizingCompilers2016.Library.Analysis
             return x.Or(y);
         }
 
+        //private void iterationAlgorithm(List<BaseBlock> blocks) {
+        //    foreach (var block in blocks)
+        //    {
+        //        outs.Add(block, new BitArray(occToBitNumber.Count, false));
+        //        ins.Add(block, new BitArray(occToBitNumber.Count, false));
+        //    }
+
+        //    bool areDifferent = true;
+        //    while (areDifferent)
+        //    {
+        //        areDifferent = false;
+        //        foreach (var block in blocks) {
+        //            var predecessors = block.Predecessors;
+        //            foreach (var pred in predecessors) {
+        //                ins[block] = ins[block].Or(outs[pred]);
+        //            }
+
         private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
             return base.iterationAlgorithm(blocks, collect, transferFunction);
         }
@@ -202,5 +247,31 @@ namespace OptimizingCompilers2016.Library.Analysis
                 printKillOfGen(res.Value);
             }
         }
+
+        //public void runAnalys(List<BaseBlock> blocks)
+        //{
+        //    fillSupportingStructures(blocks);
+        //    fillGeneratorsAndKillers(blocks);
+        //    iterationAlgorithm(blocks);
+        //}
+
+        //public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getDefUses()
+        //{
+        //    foreach (var occ in occToBitNumber)
+        //    {
+        //        foreach (var blockIn in ins)
+        //        {
+        //            if ( blockIn.Value.Get(occ.Value) )
+        //            {
+        //                localDefUses[occ.Key.Item1].result[occ.Key.Item2];
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getUseDefs()
+        //{
+
+        //}
     }
 }
