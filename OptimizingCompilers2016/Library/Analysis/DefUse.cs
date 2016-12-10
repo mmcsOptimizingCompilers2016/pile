@@ -19,7 +19,6 @@ namespace OptimizingCompilers2016.Library.Analysis
     {
         public Dictionary<Occurrence, HashSet<Occurrence>> defUses { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
         public Dictionary<Occurrence, HashSet<Occurrence>> useDefs { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
-        //public Dictionary<Occurrence, HashSet<Occurrence>> result { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
         DefsMap lastDef = new DefsMap();
 
         private void setLastDef(IdentificatorValue variable, Occurrence occurrence)
@@ -86,7 +85,7 @@ namespace OptimizingCompilers2016.Library.Analysis
                     {
                         HashSet<Occurrence> defs = new HashSet<Occurrence>();
                         defs.Add(defUse.Key);
-                        useDefs.Add(use, new HashSet<Occurrence>());
+                        useDefs.Add(use, defs);
                     }
                     else {
                         useDefs[use].Add(defUse.Key);
@@ -104,7 +103,11 @@ namespace OptimizingCompilers2016.Library.Analysis
         public override string ToString()
         {
             var defUseString = defUses.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
-            return String.Join("\n", defUseString);
+            var sdu = "defUse: " + String.Join("\n", defUseString) + "\n";
+            var useDefString = useDefs.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var sud = "useDef: " + String.Join("\n", useDefString) + "\n";
+
+            return sud + sdu;
         }
     }
 
