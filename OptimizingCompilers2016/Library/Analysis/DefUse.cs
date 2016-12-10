@@ -121,7 +121,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         //Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
         //Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
 
-        //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
+        Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
         //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
 
         //private void fillSupportingStructures(List<BaseBlock> blocks)
@@ -218,23 +218,6 @@ namespace OptimizingCompilers2016.Library.Analysis
             return x.Or(y);
         }
 
-        //private void iterationAlgorithm(List<BaseBlock> blocks) {
-        //    foreach (var block in blocks)
-        //    {
-        //        outs.Add(block, new BitArray(occToBitNumber.Count, false));
-        //        ins.Add(block, new BitArray(occToBitNumber.Count, false));
-        //    }
-
-        //    bool areDifferent = true;
-        //    while (areDifferent)
-        //    {
-        //        areDifferent = false;
-        //        foreach (var block in blocks) {
-        //            var predecessors = block.Predecessors;
-        //            foreach (var pred in predecessors) {
-        //                ins[block] = ins[block].Or(outs[pred]);
-        //            }
-
         private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
             return base.iterationAlgorithm(blocks, collect, transferFunction);
         }
@@ -242,39 +225,25 @@ namespace OptimizingCompilers2016.Library.Analysis
         public void runAnalys(List<BaseBlock> blocks) {
             fillSupportingStructures(blocks);
             fillGeneratorsAndKillers(blocks);
-            var outs = iterationAlgorithm(blocks);
-
-            foreach (var res in outs)
-            {
-                Console.WriteLine(res.Key.Name);
-                printKillOfGen(res.Value);
-            }
+            outs = iterationAlgorithm(blocks);
         }
 
-        //public void runAnalys(List<BaseBlock> blocks)
-        //{
-        //    fillSupportingStructures(blocks);
-        //    fillGeneratorsAndKillers(blocks);
-        //    iterationAlgorithm(blocks);
-        //}
 
-        //public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getDefUses()
-        //{
-        //    foreach (var occ in occToBitNumber)
-        //    {
-        //        foreach (var blockIn in ins)
-        //        {
-        //            if ( blockIn.Value.Get(occ.Value) )
-        //            {
-        //                localDefUses[occ.Key.Item1].result[occ.Key.Item2];
-        //            }
-        //        }
-        //    }
-        //}
+        public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getDefUses()
+        {
+            Dictionary<IntraOccurence, HashSet<IntraOccurence>> defUses = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+            foreach (var res in outs)
+            {
+                Console.WriteLine(res.Key.Name + " outs: ");
+                printKillOfGen(res.Value);
+            }
 
-        //public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getUseDefs()
-        //{
+            return null;
+        }
 
-        //}
+        public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getUseDefs()
+        {
+            return null;
+        }
     }
 }
