@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+using OptimizingCompilers2016.Library.Semilattice;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -113,37 +114,20 @@ namespace OptimizingCompilers2016.Library.Analysis
 
     public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
     {
-        ////Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
-        ////Dictionary<BaseBlock.BaseBlock, >
-
-        //Dictionary<IntraOccurence, int> occToBitNumber = new Dictionary<IntraOccurence, int>();
-        //Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
-        //Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
-        //Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
-
-        Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
+        Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
+        //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
         //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-
-        //private void fillSupportingStructures(List<BaseBlock> blocks)
-        //{
-        //    int counter = 0;
-        //    foreach (var block in blocks)
-        //    {
-        //        Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
-        //        localDefUses.Add(block, new InblockDefUse(block));
-        //        for (int i=0; i < block.Commands.Count; ++i)
-        //        {
-        //            var line = block.Commands[i];
-        //            if (line.Destination is IdentificatorValue) {
-        //                occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
-        //            }
-        //        }
-        //    }
-        //}
         
-        protected override void fillGeneratorsAndKillers(List<BaseBlock> blocks)
+        protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
-            foreach(var block in blocks)
+            foreach (var block in blocks)
+            {
+                Console.WriteLine("Local def-uses: ");
+                Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
+                localDefUses.Add(block, new InblockDefUse(block));
+            }
+
+            foreach (var block in blocks)
             {
                 generators.Add(block, new BitArray(occToBitNumber.Count, false));
                 killers.Add(block, new BitArray(occToBitNumber.Count, false));
@@ -169,25 +153,25 @@ namespace OptimizingCompilers2016.Library.Analysis
                     }
                 }
                 Console.WriteLine(block.Name);
-                Console.WriteLine(" Gen: " + bitArrayToString(generators[block]));
-                printKillOfGen(generators[block]);
-                Console.WriteLine("Kill: " + bitArrayToString(killers[block]));
+                Console.WriteLine(" Gen: " + BitArrayToString(generators[block]));
+                PrintKillOfGen(generators[block]);
+                Console.WriteLine("Kill: " + BitArrayToString(killers[block]));
             }
         }
 
-        protected override BitArray setStartingSet() {
+        protected override BitArray SetStartingSet() {
             return new BitArray(occToBitNumber.Count, false);
         }
 
-        protected override BitArray substractSets(BitArray firstSet, BitArray secondSet) {
+        protected override BitArray SubstractSets(BitArray firstSet, BitArray secondSet) {
             return firstSet.And(secondSet.Not());
         }
 
-        protected override BitArray cloneSet(BitArray set) {
-            return set.Clone() as BitArray;
-        }
+        //protected override BitArray CloneSet(BitArray set) {
+        //    return set.Clone() as BitArray;
+        //}
 
-        private String bitArrayToString(BitArray arr) {
+        private String BitArrayToString(BitArray arr) {
             String fullString = "";
             foreach (var bit in arr)
             {
@@ -196,7 +180,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             return fullString;
         }
         
-        private void printKillOfGen(BitArray something)
+        private void PrintKillOfGen(BitArray something)
         {
             foreach (var e in occToBitNumber)
             {
@@ -205,11 +189,10 @@ namespace OptimizingCompilers2016.Library.Analysis
                     Console.Write(e.Key.Item2.Item2.ToString() + ", ");
                 }
             }
-            
             Console.WriteLine();
         }
 
-        private BitArray collect(BitArray x, BitArray y) {
+        public override BitArray Collect(BitArray x, BitArray y) {
             return x.Or(y);
         }
         
@@ -219,12 +202,13 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
 
         private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
-            return base.iterationAlgorithm(blocks, collect, transferFunction);
+            base.IterationAlgorithm(blocks, transferFunction);
+            return base.outs;
         }
 
         public void runAnalys(List<BaseBlock> blocks) {
-            fillSupportingStructures(blocks);
-            fillGeneratorsAndKillers(blocks);
+            FillSupportingStructures(blocks);
+            FillGeneratorsAndKillers(blocks);
             outs = iterationAlgorithm(blocks);
         }
 
@@ -235,7 +219,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             foreach (var res in outs)
             {
                 Console.WriteLine(res.Key.Name + " outs: ");
-                printKillOfGen(res.Value);
+                PrintKillOfGen(res.Value);
             }
 
             return null;

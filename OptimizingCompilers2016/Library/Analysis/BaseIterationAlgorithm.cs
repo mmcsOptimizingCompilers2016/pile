@@ -7,6 +7,7 @@ using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddres
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System.Collections;
+using OptimizingCompilers2016.Library.Semilattice;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -14,20 +15,21 @@ namespace OptimizingCompilers2016.Library.Analysis
     /// Множество, для которого ипользуется итерационный алгоритм
     /// (например: BitArray)
     /// </typeparam>
-    public abstract class BaseIterationAlgorithm<T>
+    public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
+        where T : IEnumerable, ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
         protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
-        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
 
-        protected void fillSupportingStructures(List<BaseBlock> blocks)
+        protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
+        protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
+
+        protected void FillSupportingStructures(List<BaseBlock> blocks)
         {
             int counter = 0;
             foreach (var block in blocks)
             {
-                Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
-                localDefUses.Add(block, new InblockDefUse(block));
                 for (int i = 0; i < block.Commands.Count; ++i)
                 {
                     var line = block.Commands[i];
@@ -39,21 +41,21 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
-        protected abstract void fillGeneratorsAndKillers(List<BaseBlock> blocks);
-        protected abstract T setStartingSet();
-        protected abstract T substractSets(T firstSet, T secondSet);
-        //TODO maybe T should implement IClonable
-        protected abstract T cloneSet(T set);
+        protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
+        protected abstract T SetStartingSet();
+        protected abstract T SubstractSets(T firstSet, T secondSet);
+
+        public virtual T Collect(T x, T y) { return SetStartingSet(); }
+
+        //protected abstract T cloneSet(T set);
 
         //maybe it should implement Semilattice interface
-        public Dictionary<BaseBlock, T> iterationAlgorithm(List<BaseBlock> blocks, Func<T, T, T> collectFunction, Func<T, T, T> transferFunction)
+        public void IterationAlgorithm(List<BaseBlock> blocks, Func<T, T, T> transferFunction)
         {
-            Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
-            Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>(); 
             foreach (var block in blocks)
             {
-                outs.Add(block, setStartingSet());
-                ins.Add(block, setStartingSet());
+                outs.Add(block, SetStartingSet());
+                ins.Add(block, SetStartingSet());
             }
 
             bool areDifferent = true;
@@ -65,19 +67,19 @@ namespace OptimizingCompilers2016.Library.Analysis
                     var predecessors = block.Predecessors;
                     foreach (var pred in predecessors)
                     {
-                        ins[block] = collectFunction(ins[block], outs[pred]);
+                        ins[block] = Collect(ins[block], outs[pred]);
                     }
 
-                    var prevOut = cloneSet(outs[block]);
+                    var prevOut = outs[block].Clone();
+                    //var prevOut = cloneSet(outs[block]);
 
-                    outs[block] = transferFunction(generators[block], substractSets(ins[block], killers[block]));
+                    outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]))
                     {
                         areDifferent = areDifferent || false;
                     }
                 }
             }
-            return outs;
         }
     }
 }
