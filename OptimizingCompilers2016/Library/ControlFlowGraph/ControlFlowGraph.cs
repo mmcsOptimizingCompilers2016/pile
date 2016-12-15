@@ -2,17 +2,16 @@
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
 using System.Linq;
-using OptimizingCompilers2016.Library.DepthSpanningTree;
 
 namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {
     using DepthSpanningTree = DepthSpanningTree.DepthSpanningTree;
+    using ReverseControlFlowGraph = ReversedBidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>;
 
     public class ControlFlowGraph
     {
 
-
-        BidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
+        public BidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG =
             new BidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
 
         /// <summary>
@@ -57,23 +56,66 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             return graphviz.Generate();
         }
 
-        
-        List<Edge<BaseBlock.BaseBlock>> BackEdges = new List<Edge<BaseBlock.BaseBlock>>();
+        public static Edge<BaseBlock.BaseBlock> MakeEdge(BaseBlock.BaseBlock source, BaseBlock.BaseBlock target) {
+            
+            return new Edge<BaseBlock.BaseBlock>(source, target);
+        }
 
-        List<Edge<BaseBlock.BaseBlock>> RetreatingEdges = new List<Edge<BaseBlock.BaseBlock>>();
 
 
         public bool CheckReducibility() {
             DepthSpanningTree DFST = new DepthSpanningTree(this);
-           
-            var BackEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(this.BackEdges);
-            var RetreatingEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(this.RetreatingEdges);
 
-            return BackEdges.SetEquals(RetreatingEdges);
+            List<Edge<BaseBlock.BaseBlock>> BackEdges = new List<Edge<BaseBlock.BaseBlock>>();
+
+            List<Edge<BaseBlock.BaseBlock>> RetreatingEdges = new List<Edge<BaseBlock.BaseBlock>>();
+
+            var _BackEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(BackEdges);
+            var _RetreatingEdges = new HashSet<Edge<BaseBlock.BaseBlock>>(RetreatingEdges);
+
+            return _BackEdges.SetEquals(_RetreatingEdges);
+
+            
+        }
+    }
+
+    
+
+    public class NaturalLoop{
+        HashSet<BaseBlock.BaseBlock> loop = new HashSet<BaseBlock.BaseBlock>();
+
+        public HashSet<BaseBlock.BaseBlock> Loop { get { return loop; } }
+
+        ReversedBidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> reverseCFG;
+
+        public NaturalLoop(ControlFlowGraph CFG, Edge<BaseBlock.BaseBlock> BackEdge) {
+            
+            reverseCFG = new ReversedBidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG.CFG);
+
+            loop.Add(BackEdge.Target);
+
+            loop.Add(BackEdge.Source);
+
+            BuildNaturalLoop(BackEdge.Source);
+            
+        }
 
 
-        } 
+        void BuildNaturalLoop(BaseBlock.BaseBlock Source) {
 
+            foreach (var edge in reverseCFG.OutEdges(Source)) { 
+
+                if (!loop.Contains(edge.Target)) 
+                {
+
+                    loop.Add(edge.Target);
+
+                    BuildNaturalLoop(edge.Target);
+                }
+
+            }
+
+        }
 
 
 

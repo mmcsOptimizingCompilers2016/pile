@@ -5,6 +5,8 @@ using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.BaseBlock;
+using OptimizingCompilers2016.Library.ControlFlowGraph;
+
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -12,6 +14,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
     {
         static void Main(string[] args)
         {
+
             string FileName = @"a.txt";
             try
             {
@@ -23,23 +26,37 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
-                //var linearCode = new LinearCodeVisitor();
-                //parser.root.Accept(linearCode);
-                //Console.WriteLine(linearCode.ToString());
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
 
-                //var blocks = BaseBlockDivider.divide(linearCode.code);
-                //Console.WriteLine("Blocks:");
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //}
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+                Console.WriteLine(linearCode.ToString());
+
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+
+                Console.WriteLine("Blocks:");
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
+
+                var CFG = new ControlFlowGraph(blocks);
+
+                var BackEdge = ControlFlowGraph.MakeEdge(blocks[2], blocks[0]);
+
+                var NatLoop = new NaturalLoop(CFG, BackEdge);
+
+                foreach (var block in NatLoop.Loop)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
+
+
+                Console.WriteLine(CFG.GenerateGraphvizDotFile());
             }
             catch (FileNotFoundException)
             {
