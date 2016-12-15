@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+	<Compile Include="Semilattice\Semilattice.cs" />
+    <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />

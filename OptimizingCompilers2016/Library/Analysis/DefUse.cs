@@ -1,22 +1,25 @@
-﻿using OptimizingCompilers2016.Library.LinearCode;
+﻿using OptimizingCompilers2016.Library;
+using OptimizingCompilers2016.Library.LinearCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
-using OptimizingCompilers2016.Library;
-using System.Collections;
-using OptimizingCompilers2016.Library.ThreeAddressCode;
+using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+using OptimizingCompilers2016.Library.Semilattice;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
 
     public class InblockDefUse
     {
-        public Dictionary<Occurrence, HashSet<Occurrence>> result { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        public Dictionary<Occurrence, HashSet<Occurrence>> defUses { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
+        public Dictionary<Occurrence, HashSet<Occurrence>> useDefs { get; set; } = new Dictionary<Occurrence, HashSet<Occurrence>>();
         DefsMap lastDef = new DefsMap();
 
         private void setLastDef(IdentificatorValue variable, Occurrence occurrence)
@@ -29,7 +32,8 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 lastDef[variable] = occurrence;
             }
-            result.Add(lastDef[variable], new HashSet<Occurrence>());
+
+            defUses.Add(lastDef[variable], new HashSet<Occurrence>());
         }
 
         private bool checkLastDefs(IdentificatorValue occ)
@@ -52,14 +56,13 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             if ( checkLastDefs(variable))
             {
-                result[lastDef[variable]].Add(new Occurrence(index, variable));
+                defUses[lastDef[variable]].Add(new Occurrence(index, variable));
             }
         }
-
-
-        private Dictionary<Occurrence, HashSet<Occurrence>> runAnalys(List<IThreeAddressCode> code)
+        
+        private void fillDefUses(List<IThreeAddressCode> code)
         {
-            
+            //defUses.Clear();
             int index = 0;
             foreach ( var line in code )
             {
@@ -72,82 +75,103 @@ namespace OptimizingCompilers2016.Library.Analysis
                 index++;
             }
 
-            return result;
+            //return defUses;
+        }
+
+        private void fillUseDefs() 
+        {
+            foreach (var defUse in defUses) {
+                foreach (var use in defUse.Value) {
+                    if (!useDefs.ContainsKey(use))
+                    {
+                        HashSet<Occurrence> defs = new HashSet<Occurrence>();
+                        defs.Add(defUse.Key);
+                        useDefs.Add(use, defs);
+                    }
+                    else {
+                        useDefs[use].Add(defUse.Key);
+                    }      
+                }
+            }
         }
 
         public InblockDefUse(BaseBlock block)
         {
-            runAnalys(block.Commands);
+            fillDefUses(block.Commands);
+            fillUseDefs();
         }
 
         public override string ToString()
         {
-            var defUseString = result.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
-            return String.Join("\n", defUseString);
+            var defUseString = defUses.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var sdu = "defUse: " + String.Join("\n", defUseString) + "\n";
+            var useDefString = useDefs.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var sud = "useDef: " + String.Join("\n", useDefString) + "\n";
+
+            return sud + sdu;
         }
     }
 
-    public class GlobalDefUse
+    public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
     {
-
-        //Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
-        //Dictionary<BaseBlock.BaseBlock, >
-
-        Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
-        Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
-        Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
         Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
-
-        private void fillSupportingStructures(List<BaseBlock> blocks)
+        //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
+        //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
+        
+        protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
-            int counter = 0;
             foreach (var block in blocks)
             {
+                Console.WriteLine("Local def-uses: ");
                 Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
                 localDefUses.Add(block, new InblockDefUse(block));
-                for (int i=0; i < block.Commands.Count; ++i)
-                {
-                    var line = block.Commands[i];
-                    if (line.Destination is IdentificatorValue) {
-                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
-                    }
-                }
             }
-        }
 
-        private void fillGeneratorsAndKillers(List<BaseBlock> blocks)
-        {
-            foreach(var block in blocks)
+            foreach (var block in blocks)
             {
                 generators.Add(block, new BitArray(occToBitNumber.Count, false));
                 killers.Add(block, new BitArray(occToBitNumber.Count, false));
-                foreach (var ldur in localDefUses[block].result)
+                foreach (var ldur in localDefUses[block].defUses)
                 {
+                    foreach(var e in occToBitNumber)
+                    {
+                        if ( e.Key.Item2.Item2.Equals(ldur.Key.Item2) )
+                        {
+                            generators[block].Set(occToBitNumber[e.Key], false);
+                        }
+                    }
                     generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
 
                     var variable = ldur.Key.Item2;
                     //check if variable is used somewhere in another block
-                    foreach (var block2 in blocks)
+                    foreach (var e in occToBitNumber)
                     {
-                        if (block != block2)
+                        if (e.Key.Item2.Item2.Equals(ldur.Key.Item2))
                         {
-                            foreach (var ldur2 in localDefUses[block2].result)
-                            {
-                                if (ldur2.Key.Item2.Equals(variable))
-                                {
-                                    killers[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block2, ldur2.Key)], true);
-                                }
-                            }
+                            killers[block].Set(occToBitNumber[e.Key], true);
                         }
                     }
                 }
                 Console.WriteLine(block.Name);
-                Console.WriteLine("Gen: " + bitArrayToString(generators[block]));
-                Console.WriteLine("Kill: " + bitArrayToString(killers[block]));
+                Console.WriteLine(" Gen: " + BitArrayToString(generators[block]));
+                PrintKillOfGen(generators[block]);
+                Console.WriteLine("Kill: " + BitArrayToString(killers[block]));
             }
         }
 
-        private String bitArrayToString(BitArray arr) {
+        protected override BitArray SetStartingSet() {
+            return new BitArray(occToBitNumber.Count, false);
+        }
+
+        protected override BitArray SubstractSets(BitArray firstSet, BitArray secondSet) {
+            return firstSet.And(secondSet.Not());
+        }
+
+        //protected override BitArray CloneSet(BitArray set) {
+        //    return set.Clone() as BitArray;
+        //}
+
+        private String BitArrayToString(BitArray arr) {
             String fullString = "";
             foreach (var bit in arr)
             {
@@ -155,40 +179,55 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
             return fullString;
         }
-
-        private void iterationAlgorithm(List<BaseBlock> blocks) {
-            Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
-            Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-            Dictionary<BaseBlock, BitArray> prevOuts = new Dictionary<BaseBlock, BitArray>();
-            foreach (var block in blocks)
+        
+        private void PrintKillOfGen(BitArray something)
+        {
+            foreach (var e in occToBitNumber)
             {
-                outs.Add(block, new BitArray(occToBitNumber.Count, false));
-                prevOuts.Add(block, new BitArray(occToBitNumber.Count, true));
-                ins.Add(block, new BitArray(occToBitNumber.Count, false));
-            }
-
-            var prevBlock = blocks[0];
-            while (areDifferent(outs, prevOuts))
-            {
-                foreach (var block in blocks) {
-                    ins[block] = ins[block].Or(outs[prevBlock]);
-                    outs[block] = generators[block].Or(ins[block]);
-                    prevBlock = block;
+                if (something.Get(e.Value))
+                {
+                    Console.Write(e.Key.Item2.Item2.ToString() + ", ");
                 }
-           }
+            }
+            Console.WriteLine();
         }
 
-        private bool areDifferent(Dictionary<BaseBlock, BitArray>  currentOuts, Dictionary<BaseBlock, BitArray> prevOuts) {
-            return true;
+        public override BitArray Collect(BitArray x, BitArray y) {
+            return x.Or(y);
+        }
+        
+        //TODO replace with robust transfedr function with one arg (?)    
+        private BitArray transferFunction(BitArray x, BitArray y) {
+            return x.Or(y);
         }
 
+        private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
+            base.IterationAlgorithm(blocks, transferFunction);
+            return base.outs;
+        }
 
         public void runAnalys(List<BaseBlock> blocks) {
-            fillSupportingStructures(blocks);
-            fillGeneratorsAndKillers(blocks);
+            FillSupportingStructures(blocks);
+            FillGeneratorsAndKillers(blocks);
+            outs = iterationAlgorithm(blocks);
         }
 
 
+        public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getDefUses()
+        {
+            Dictionary<IntraOccurence, HashSet<IntraOccurence>> defUses = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+            foreach (var res in outs)
+            {
+                Console.WriteLine(res.Key.Name + " outs: ");
+                PrintKillOfGen(res.Value);
+            }
 
+            return null;
+        }
+
+        public Dictionary<IntraOccurence, HashSet<IntraOccurence>> getUseDefs()
+        {
+            return null;
+        }
     }
 }
