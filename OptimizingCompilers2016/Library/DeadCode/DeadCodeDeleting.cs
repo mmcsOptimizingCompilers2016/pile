@@ -6,25 +6,26 @@ using System.Threading.Tasks;
 using OptimizingCompilers2016.Library.Analysis;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 
 namespace OptimizingCompilers2016.Library.DeadCode
 {
     public class DeadCodeDeleting
     {
         
-        public static void optimizeDeadCode(BaseBlock block)
+        public static void optimizeDeadCode(BaseBlock block, HashSet<IdentificatorValue> activeVars = null)
         {
             int count_commands = block.Commands.Count;
 
-            iteration(block);
+            iteration(block, activeVars);
             while(block.Commands.Count != count_commands)
             {
                 count_commands = block.Commands.Count;
-                iteration(block);
+                iteration(block, activeVars);
             }
         }
 
-        private static void iteration(BaseBlock block)
+        private static void iteration(BaseBlock block, HashSet<IdentificatorValue> activeVars = null)
         {
             //throw new NotImplementedException("Not implemented deleting dead code");
 
@@ -37,7 +38,7 @@ namespace OptimizingCompilers2016.Library.DeadCode
 
             for (int i = DU.result.Count-1; i >=0; i--)
             {
-                if(!viewed.Contains(DU.result.ElementAt(i).Key.Item2))
+                if(!viewed.Contains(DU.result.ElementAt(i).Key.Item2) || (activeVars != null && activeVars.Contains(DU.result.ElementAt(i).Key.Item2)))
                 {
                     viewed.Add(DU.result.ElementAt(i).Key.Item2);
                 }
