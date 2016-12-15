@@ -8,7 +8,7 @@ namespace OptimizingCompilers2016.Library
 {
     public class BaseBlock
     {
-        public List<IThreeAddressCode> Commands { get; }
+        public List<IThreeAddressCode> Commands { get; set; }
 
         public List<BaseBlock> Predecessors { get; }
 

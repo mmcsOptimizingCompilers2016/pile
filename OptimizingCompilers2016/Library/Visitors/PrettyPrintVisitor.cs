@@ -29,8 +29,9 @@ namespace OptimizingCompilers2016.Library.Visitors
         {
             Text += IndentStr();
             a.Id.Accept(this);
-            Text += " := ";
+            Text += " = ";
             a.Expr.Accept(this);
+            Text += ";";
         }
 
         public void Visit(CycleNode c)
@@ -43,7 +44,7 @@ namespace OptimizingCompilers2016.Library.Visitors
 
         public void Visit(BlockNode bl)
         {
-            Text += IndentStr() + "begin" + Environment.NewLine;
+            Text += IndentStr() + "{" + Environment.NewLine;
             IndentPlus();
 
             var Count = bl.StList.Count;
@@ -52,20 +53,20 @@ namespace OptimizingCompilers2016.Library.Visitors
                 bl.StList[0].Accept(this);
             for (var i = 1; i < Count; i++)
             {
-                Text += ';';
                 if (!(bl.StList[i] is EmptyNode))
                     Text += Environment.NewLine;
+                
                 bl.StList[i].Accept(this);
             }
             IndentMinus();
-            Text += Environment.NewLine + IndentStr() + "end";
+            Text += Environment.NewLine + IndentStr() + "}";
         }
 
         public void Visit(IfNode iNode)
         {
             Text += Environment.NewLine + IndentStr() + "if ";
             iNode.Condition.Accept(this);
-            Text += " then" + Environment.NewLine;
+            Text += " " + Environment.NewLine;
             IndentPlus();
             iNode.TrueBranch.Accept(this);
             IndentMinus();
@@ -82,7 +83,7 @@ namespace OptimizingCompilers2016.Library.Visitors
         {
             Text += Environment.NewLine + IndentStr() + "for";
             forNode.LeftLimit.Accept(this);
-            Text += "to";
+            Text += " to ";
             forNode.RightLimit.Accept(this);
 
             Text += Environment.NewLine;
