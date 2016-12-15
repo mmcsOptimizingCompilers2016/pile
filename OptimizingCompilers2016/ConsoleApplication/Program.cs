@@ -23,23 +23,23 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
-                //var linearCode = new LinearCodeVisitor();
-                //parser.root.Accept(linearCode);
-                //Console.WriteLine(linearCode.ToString());
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+                Console.WriteLine(linearCode.ToString());
 
-                //var blocks = BaseBlockDivider.divide(linearCode.code);
-                //Console.WriteLine("Blocks:");
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //}
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+                Console.WriteLine("Blocks:");
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
             }
             catch (FileNotFoundException)
             {

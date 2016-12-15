@@ -12,6 +12,7 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.BaseBlock;
 using System.Threading;
 using System.Text.RegularExpressions;
 
@@ -60,7 +61,7 @@ namespace OptimizingCompilers2016.GUI
             try
             {
                 string text = Code.Text;
-               
+
                 Scanner scanner = new Scanner();
                 scanner.SetSource(text, 0);
 
@@ -72,6 +73,15 @@ namespace OptimizingCompilers2016.GUI
                 parser.root.Accept(linearCode);
 
                 ResultCode.Text = linearCode.ToString();
+
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+
+                foreach (var block in blocks)
+                {
+                    BaseBlocks.Text += block.ToString();
+                    BaseBlocks.Text += "\r\n";
+                }
+
 
 
             }
@@ -104,7 +114,7 @@ namespace OptimizingCompilers2016.GUI
             this.Close();
         }
 
-        private void PaintLoad() 
+        private void PaintLoad()
         {
             var currentSelStart = Code.SelectionStart;
             var currentSelLength = Code.SelectionLength;
@@ -185,27 +195,75 @@ namespace OptimizingCompilers2016.GUI
                 //}
 
 
-                    Code.Select(currentSelStart, currentSelLength);
+                Code.Select(currentSelStart, currentSelLength);
                 Code.SelectionColor = SystemColors.WindowText;
                 Code.Resume();
             }
         }
+
+        private void Refresh_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string text = Code.Text;
+
+                Scanner scanner = new Scanner();
+                scanner.SetSource(text, 0);
+
+                Parser parser = new Parser(scanner);
+
+                var b = parser.Parse();
+
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+
+                ResultCode.Text = linearCode.ToString();
+
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+
+                foreach (var block in blocks)
+                {
+                    BaseBlocks.Text += block.ToString();
+                    BaseBlocks.Text += "\r\n";
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.Text = String.Format("Файл {0} не найден!\r\n", FileName);
+
+            }
+            catch (LexException exception)
+            {
+                Console.Text = "Лексическая ошибка. " + exception.Message;
+                Console.Text += "\r\n";
+                Console.Select(Console.Text.Length - 1, 0);
+                Blick = new Thread(ConsoleBlick);
+                Blick.Start();
+            }
+            catch (SyntaxException exception)
+            {
+                Console.Text = "Синтаксическая ошибка. " + exception.Message;
+                Console.Text += "\r\n";
+                Console.Select(Console.Text.Length - 1, 0);
+                Blick = new Thread(ConsoleBlick);
+                Blick.Start();
+            }
+        }
+
+        public static class ControlExtensions
+        {
+            [System.Runtime.InteropServices.DllImport("user32.dll")]
+            public static extern bool LockWindowUpdate(IntPtr hWndLock);
+
+            public static void Suspend(this Control control)
+            {
+                LockWindowUpdate(control.Handle);
+            }
+
+            public static void Resume(this Control control)
+            {
+                LockWindowUpdate(IntPtr.Zero);
+            }
+
+        }
     }
-}
-
-public static class ControlExtensions
-{
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    public static extern bool LockWindowUpdate(IntPtr hWndLock);
-
-    public static void Suspend(this Control control)
-    {
-        LockWindowUpdate(control.Handle);
-    }
-
-    public static void Resume(this Control control)
-    {
-        LockWindowUpdate(IntPtr.Zero);
-    }
-
-}
