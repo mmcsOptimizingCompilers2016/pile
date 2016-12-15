@@ -28,34 +28,22 @@ namespace OptimizingCompilers2016.Library.Region
 	///			(may be except for the reverse arcs to the header)
 	/// </summary>
 	public class Region
-	{	
-		// TODO: decide whether to use list or graph
-		public List<Region> SourceRegions { get; }
-		public List<Region> TargetRegions { get; }
-
-		public Region()
+	{
+		public Region ParentRegion { get; set; } /// direct parent (next level in hierarchy)								 
+		public BidirectionalGraph HierarchyLevel { get; set; } /// relations between edges - only parent region contains them 
+		public IEnumerable<Edge<Region>> ChildEdges
 		{
-			SourceRegions = new List<Region>();
-			TargetRegions = new List<Region>();
+			get { return HierarchyLevel.Edges; }
 		}
 
-		public void AddTargetRegion(Region target)
-		{
-			TargetRegions.Add(target);
-		}
-
-		public void AddSourceRegion(Region source)
-		{
-			SourceRegions.Add(source);
-		}
-
+		public Region() { HierarchyLevel = new BidirectionalGraph(); }
 	}
 
 	public class BaseBlockRegion : Region
 	{
 		public BaseBlock Block { get; }
 
-		public BaseBlockRegion(BaseBlock block): base()
+		public BaseBlockRegion(ref BaseBlock block): base()
 		{
 			Block = block;
 		}
@@ -66,18 +54,11 @@ namespace OptimizingCompilers2016.Library.Region
 	/// </summary>
 	public class CycleBodyRegion : Region
 	{
+		// region that dominates all the other regions in the cycle
 		public Region CycleBodyStart { get; }
-		public BidirectionalGraph OutEdges { get; }
-		public CycleBodyRegion(Region cycleBodyStart) : base()
+		public CycleBodyRegion(ref Region cycleBodyStart) : base()
 		{
 			CycleBodyStart = cycleBodyStart;
-			OutEdges = new BidirectionalGraph();
-		}
-
-		public void AddOutEdge(Region source, Region target)
-		{
-			var edge = new QuickGraph.Edge<Region>(source, target);
-			OutEdges.AddEdge(edge);
 		}
 	}
 
@@ -86,30 +67,61 @@ namespace OptimizingCompilers2016.Library.Region
 	/// </summary>
 	public class CycleRegion : Region
 	{
+		/// cycle entry 
 		public Region CycleStart { get; }
-		/// <summary>
 		/// Regions, which are the start of reverse edges
-		/// </summary>
-		public List<Region> ReverseEdgeSource { get; }
-		public CycleRegion(Region cycleStart) : base()
+		public List<Region> ReverseEdgeSources { get; }
+		public List<Edge<Region>> ReverseEdges { get; }
+		public CycleRegion(ref Region cycleStart) : base()
 		{
 			CycleStart = cycleStart;
-			ReverseEdgeSource = new List<Region>();
+			ReverseEdgeSources = new List<Region>();
+			ReverseEdges = new List<Edge<Region>>();
 		}
 
-		public void AddReverseEdgeFrom(Region source)
+		public void AddReverseEdge(ref Region reverseEdgeSource)
 		{
-			ReverseEdgeSource.Add(source);
+			ReverseEdgeSources.Add(reverseEdgeSource);
+			ReverseEdges.Add( new Edge<Region>(reverseEdgeSource, CycleStart) );
 		}
 	}
 
 	public class RegionHierarchy
-	{
-		public BidirectionalGraph Hierarchy { get; }
+	{	
+		/// ascending sequence of regions
+		public List<Region> Hierarchy { get; }
 		public RegionHierarchy(ControlFlowGraph cfg)
 		{
-			Hierarchy = new BidirectionalGraph();
-			// TODO: implement me
+			Hierarchy = new List<Region>();
+			BidirectionalGraph graph = new BidirectionalGraph();
+			BaseBlock root = cfg.GetRoot();
+			/*TODO: 
+			 * foreach ( var baseBlock in cfg)
+			 *     create new BlockRegion
+			 *     add it to the hierarchy
+			 *     add edges to graph
+			 *     
+			 * BuildRegions
+			 *    
+			 */
+		}
+
+		/// TODO: take graph as param
+		private void BuildRegions()
+		{
+			/*
+			 * while has cycles
+			 *    take cycle
+			 *    create cycleBodyRegion
+			 *    add it to hierarchy
+			 *    update Parent of regions in cycle
+			 *    update graph
+			 *    
+			 *    create cycleRegion
+			 *    add it to the hierarchy
+			 *    update graph
+			 *
+			 */
 		}
 	}
 }
