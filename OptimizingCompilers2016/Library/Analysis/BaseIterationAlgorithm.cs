@@ -81,5 +81,11 @@ namespace OptimizingCompilers2016.Library.Analysis
                 }
             }
         }
+        private T Transfer(T enum1, BaseBlock b)
+        {            
+            return FindInSet(generators[b], Diffs(enum1,killers[b]));
+        }
+        protected abstract T FindInSet(T enum1, T enum2);
+        protected abstract T Diffs(T enum1, T enum2);
     }
 }
