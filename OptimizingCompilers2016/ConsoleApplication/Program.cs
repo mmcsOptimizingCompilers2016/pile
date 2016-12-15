@@ -113,6 +113,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 Console.WriteLine("------------------");
 
+                Console.WriteLine(AV.ToString());
+
 
             }
             catch (FileNotFoundException)

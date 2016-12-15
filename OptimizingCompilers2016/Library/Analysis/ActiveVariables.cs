@@ -97,6 +97,25 @@ namespace OptimizingCompilers2016.Library.Analysis
             return result;
         }
 
+        public override string ToString()
+        {
+            var res = "";
+            foreach (var block in result)
+            {
+                res += block.Key;
+                res += ":";
+                foreach (var ident in block.Value)
+                {
+                    res += ident.Value;
+                    res += " ";
+                }
+                res += "\n";
+
+            }
+
+            return res;
+        }
+
         //private void FillDefUse()
         //{
         //    for (int i = 0; i < blocks.Count; i++)
