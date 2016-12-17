@@ -1,6 +1,7 @@
 ﻿using QuickGraph;
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
+using OptimizingCompilers2016.Library.BaseBlock;
 
 namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {

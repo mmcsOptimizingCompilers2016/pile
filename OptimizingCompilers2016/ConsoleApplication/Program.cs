@@ -6,6 +6,8 @@ using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.BaseBlock;
 using OptimizingCompilers2016.Library.ControlFlowGraph;
+using OptimizingCompilers2016.Library.Analyses;
+using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -32,13 +34,9 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Console.WriteLine(prettyVisitor.Text);
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                Console.WriteLine(linearCode.ToString());
+                //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
-
-                ControlFlowGraph cfg = new ControlFlowGraph(blocks);
-
-                Console.WriteLine(cfg.GenerateGraphvizDotFile());
 
                 //Console.WriteLine("Blocks:");
                 //foreach (var block in blocks)
@@ -46,6 +44,22 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine(block.ToString());
                 //    Console.WriteLine("-------");
                 //}
+
+                Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+
+                Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
+                DOM.test_printing(dom_relations);
+                Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
+
+                //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
+                //DOM.test_printing(dom_relations);
+                //DOM.get_tree_root(dom_relations);
+
+                //Console.WriteLine("CFG:");
+                //ControlFlowGraph cfg = new ControlFlowGraph(blocks);
+                //Console.WriteLine(cfg.GenerateGraphvizDotFile());
+
+
             }
             catch (FileNotFoundException)
             {
