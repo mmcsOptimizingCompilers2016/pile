@@ -117,8 +117,11 @@ namespace OptimizingCompilers2016.Library.Analysis
         Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
         //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-        
-        protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
+
+        protected Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
+        protected Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+
+        protected void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
@@ -163,13 +166,9 @@ namespace OptimizingCompilers2016.Library.Analysis
             return new BitArray(occToBitNumber.Count, false);
         }
 
-        protected override BitArray SubstractSets(BitArray firstSet, BitArray secondSet) {
+        protected BitArray SubstractSets(BitArray firstSet, BitArray secondSet) {
             return firstSet.And(secondSet.Not());
         }
-
-        //protected override BitArray CloneSet(BitArray set) {
-        //    return set.Clone() as BitArray;
-        //}
 
         private String BitArrayToString(BitArray arr) {
             String fullString = "";
@@ -195,14 +194,14 @@ namespace OptimizingCompilers2016.Library.Analysis
         public override BitArray Collect(BitArray x, BitArray y) {
             return x.Or(y);
         }
-        
-        //TODO replace with robust transfedr function with one arg (?)    
-        private BitArray transferFunction(BitArray x, BitArray y) {
-            return x.Or(y);
+
+        protected override BitArray Transfer(BitArray x, BaseBlock b)
+        {
+            return generators[b].Or(SubstractSets(x, killers[b]));
         }
 
         private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
-            base.IterationAlgorithm(blocks, transferFunction);
+            base.IterationAlgorithm(blocks);
             return base.outs;
         }
 

@@ -19,9 +19,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         where T : IEnumerable, ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
-        protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
-        protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
-
+       
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
 
@@ -41,16 +39,17 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
-        protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
+        //protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
         protected abstract T SetStartingSet();
-        protected abstract T SubstractSets(T firstSet, T secondSet);
+        //protected abstract T SubstractSets(T firstSet, T secondSet);
 
-        public virtual T Collect(T x, T y) { return SetStartingSet(); }
+        //collect & transfer functions
+        public abstract T Collect(T x, T y);
+        protected abstract T Transfer(T x, BaseBlock b);
 
-        //protected abstract T cloneSet(T set);
 
         //maybe it should implement Semilattice interface
-        public void IterationAlgorithm(List<BaseBlock> blocks, Func<T, T, T> transferFunction)
+        public void IterationAlgorithm(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
@@ -71,9 +70,9 @@ namespace OptimizingCompilers2016.Library.Analysis
                     }
 
                     var prevOut = outs[block].Clone();
-                    //var prevOut = cloneSet(outs[block]);
 
-                    outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
+                    outs[block] = Transfer(ins[block], block);
+                    //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]))
                     {
                         areDifferent = areDifferent || false;
@@ -81,11 +80,12 @@ namespace OptimizingCompilers2016.Library.Analysis
                 }
             }
         }
-        private T Transfer(T enum1, BaseBlock b)
-        {            
-            return FindInSet(generators[b], Diffs(enum1,killers[b]));
-        }
-        protected abstract T FindInSet(T enum1, T enum2);
-        protected abstract T Diffs(T enum1, T enum2);
+
+        //private T Transfer(T enum1, BaseBlock b)
+        //{            
+        //    return FindInSet(generators[b], Diffs(enum1,killers[b]));
+        //}
+        //protected abstract T FindInSet(T enum1, T enum2);
+        //protected abstract T Diffs(T enum1, T enum2);
     }
 }
