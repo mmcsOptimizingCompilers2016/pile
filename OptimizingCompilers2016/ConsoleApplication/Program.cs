@@ -7,6 +7,8 @@ using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.ControlFlowGraph;
+using OptimizingCompilers2016.Library.ILCodeGenerator;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -64,6 +66,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     Console.WriteLine("-------");
                 }
 
+
+
+                //var cfg = new ControlFlowGraph(blocks);
+                //var res = cfg.GenerateGraphvizDotFile();
+
+
                 //ConstantFolding.transform(blocks);
                 //foreach (var block in blocks)
                 //{
@@ -72,7 +80,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine("-------");
                 //}
 
-
+                AssemblyGenerator.Generate(blocks, "result_assembly");
 
             }
             catch (FileNotFoundException)

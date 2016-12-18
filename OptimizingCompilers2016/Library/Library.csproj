@@ -62,6 +62,9 @@
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="DeadCode\DeadCodeDeleting.cs" />
+    <Compile Include="ILCodeGenerator\AssemblyGenerator.cs" />
+    <Compile Include="ILCodeGenerator\AssemblyRepresentation.cs" />
+    <Compile Include="ILCodeGenerator\IAssemblyRepresentation.cs" />
     <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />
     <Compile Include="Optimizators\IOptimizator.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
