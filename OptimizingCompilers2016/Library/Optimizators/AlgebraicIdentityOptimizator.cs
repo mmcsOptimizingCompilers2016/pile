@@ -4,7 +4,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
 {
     public class AlgebraicIdentityOptimizator
     {
-        public void Optimize(BaseBlock.BaseBlock block)
+        public void Optimize(BaseBlock block)
         {
             for (var i = 0; i < block.Commands.Count; ++i)
             {
@@ -68,8 +68,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             break;
                     }
                 }
-
             }
-        }
+        } // Optimize
     }
 }

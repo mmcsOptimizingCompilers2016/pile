@@ -137,7 +137,6 @@ namespace OptimizingCompilers2016.Library.Visitors
             var varIdent = new IdentificatorValue(s_constantPrefix + valueCounter++.ToString());
             code.Add(new LinearRepresentation(Operation.Assign, varIdent, new NumericValue(1)));
 
-            // l1:  
             var conditionLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(conditionLabel, Operation.NoOp));
 
@@ -152,7 +151,7 @@ namespace OptimizingCompilers2016.Library.Visitors
 
             branchCondition(condition, cycNode.Stat, null, beforeEnd);
         }
-        public void Visit(BlockNode blNode) 
+        public void Visit(BlockNode blNode)
         {
             for (var i = 0; i < blNode.StList.Count; ++i)
             {
@@ -168,7 +167,9 @@ namespace OptimizingCompilers2016.Library.Visitors
             LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
             var beforeEnd = new List<LinearRepresentation>();
             forNode.LeftLimit.Id.Accept(this);
-            beforeEnd.Add(new LinearRepresentation(Operation.Plus, 
+
+            beforeEnd.Add(new LinearRepresentation(Operation.Plus,
+
                 (IdentificatorValue)idOrNum, idOrNum, new NumericValue(1)));
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
 
@@ -176,7 +177,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             forNode.LeftLimit.Accept(this);
             code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             ExprNode condition = new BinExprNode(forNode.LeftLimit.Id, BinSign.LS, forNode.RightLimit);
-            
+
             branchCondition(condition, forNode.BodyStatement, null, beforeEnd);
         }
         public void Visit(RepUntNode ruNode)
@@ -191,9 +192,10 @@ namespace OptimizingCompilers2016.Library.Visitors
             evaluatedExpression.Add(gotoCond);
             moveExpressionToCode();
         }
-        public void Visit(WhileNode whNode) 
+        public void Visit(WhileNode whNode)
         {
             LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
+
             code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             var beforeEnd = new List<LinearRepresentation>();
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));

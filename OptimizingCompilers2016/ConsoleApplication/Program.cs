@@ -4,17 +4,75 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.Optimizators;
+using System.Collections.Generic;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
-using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.InterBlockOptimizators;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
     class Program
     {
+        static void print(List<IThreeAddressCode> code)
+        {
+            String text = "";
+            foreach (IThreeAddressCode lr in code)
+            {
+
+                text += lr.ToString() + Environment.NewLine;
+            }
+            Console.WriteLine(text);
+        }
+
+        static List<BaseBlock> getListOfBB(ControlFlowGraph graph)
+        {
+            List<BaseBlock> result = new List<BaseBlock>();
+            Queue<BaseBlock> blocks = new Queue<BaseBlock>();
+            blocks.Enqueue(graph.GetRoot());
+            HashSet<BaseBlock> used = new HashSet<BaseBlock>();
+
+            while (blocks.Count > 0)
+            {
+                var current = blocks.Dequeue();
+                if (used.Contains(current))
+                    continue;
+
+                result.Add(current);
+
+                used.Add(current);
+                if (current.Output != null && !used.Contains(current.Output))
+                {
+                    blocks.Enqueue(current.Output);
+                }
+                if (current.JumpOutput != null && !used.Contains(current.JumpOutput))
+                {
+                    blocks.Enqueue(current.JumpOutput);
+                }
+            }
+            //Debug.Assert(graph.Count == result.Count);
+            return result;
+
+        }
+
+        static void print(List<BaseBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                Console.WriteLine("Block: {0}", block.Name);
+                foreach (var command in block.Commands)
+                {
+                    Console.WriteLine(command);
+                }
+                Console.WriteLine();
+            }
+
+        }
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
+
             try
             {
                 string text = File.ReadAllText(FileName);
@@ -27,53 +85,27 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 var b = parser.Parse();
 
                 if (!b)
+                {
                     Console.WriteLine("Ошибка");
-                else Console.WriteLine("Программа распознана");
-                var prettyVisitor = new PrettyPrintVisitor();
-                parser.root.Accept(prettyVisitor);
-                Console.WriteLine(prettyVisitor.Text);
-
-
+                    return;
+                }
+                //else Console.WriteLine("Программа распознана");
+                //var prettyVisitor = new PrettyPrintVisitor();
+                //parser.root.Accept(prettyVisitor);
+                //Console.WriteLine(prettyVisitor.Text);
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                Console.WriteLine(linearCode.ToString());
 
-                var blocks = BaseBlockDivider.divide(linearCode.code);
-                Console.WriteLine("Blocks:");
-                foreach (var block in blocks)
-                {
-                    //InblockDefUse DU = new InblockDefUse(block);
-                    //foreach (var item in DU.result)
-                    //{
-                    //    Console.Write(item.Key + " :");
-                    //    Console.Write("{");
-                    //    foreach (var item2 in item.Value)
-                    //    {
-                    //        Console.Write(item2 + "  ");
-                    //    }
-                    //    Console.Write("}");
-                    //    Console.WriteLine();
-                    //}
+                var opt = new Library.InterBlockOptimizators.CommonExpressions();
 
-                    Console.WriteLine(block.ToString());
-                    DeadCodeDeleting.optimizeDeadCode(block);
-                    Console.WriteLine("After optimization:");
-                    Console.WriteLine(block.ToString());
+                var graph = BaseBlockDivider.divide(linearCode.code);
 
-                    //console.writeline(block.tostring());
-                    Console.WriteLine("-------");
-                }
-
-                //ConstantFolding.transform(blocks);
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //    Console.WriteLine("-------");
-                //}
-
-
-
+                
+                Console.WriteLine("Before:");
+                print(getListOfBB(graph));
+                var optCode = opt.Optimize(graph);
+                Console.WriteLine("After:");
+                //print(block.Commands);
             }
             catch (FileNotFoundException)
             {
