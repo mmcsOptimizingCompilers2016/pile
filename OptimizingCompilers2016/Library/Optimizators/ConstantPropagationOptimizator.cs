@@ -3,6 +3,7 @@ using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 
 namespace OptimizingCompilers2016.Library.Optimizators
 {
+
     public class ConstantPropagationOptimizator : IOptimizator
     {
         public bool Optimize(BaseBlock baseBlock)
