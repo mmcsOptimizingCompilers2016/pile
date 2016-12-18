@@ -86,11 +86,6 @@ namespace OptimizingCompilers2016.Library.Analysis
             return String.Join("\n", defUseString);
         }
 
-        public override string ToString()
-        {
-            var defUseString = result.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
-            return String.Join("\n", defUseString);
-        }
     }
 
     public class GlobalDefUse
