@@ -20,10 +20,13 @@ namespace OptimizingCompilers2016.GUI
 {
     public partial class Form1 : Form
     {
+        List<BaseBlock> blocks;
 
         Thread Blick;
-
         string FileName;
+
+
+
         public Form1()
         {
             InitializeComponent();
@@ -35,6 +38,8 @@ namespace OptimizingCompilers2016.GUI
 
             Code.Resume();
             Code.TextChanged += Code_TextChanged;
+
+            blocks = new List<BaseBlock>();
 
         }
 
@@ -53,6 +58,16 @@ namespace OptimizingCompilers2016.GUI
             this.Invoke(Invoker);
             Thread.Sleep(100);
             this.Invoke(Invoker2);
+        }
+
+        private void PrintBlocks()
+        {
+            BaseBlocks.Text = "";
+            foreach (var block in blocks)
+            {
+                BaseBlocks.Text += block.ToString();
+                BaseBlocks.Text += "\r\n";
+            }
         }
 
 
@@ -74,16 +89,10 @@ namespace OptimizingCompilers2016.GUI
 
                 ResultCode.Text = linearCode.ToString();
 
-                var blocks = BaseBlockDivider.divide(linearCode.code);
+                var blocks = new List<BaseBlock>();
+                blocks = BaseBlockDivider.divide(linearCode.code);
 
-                foreach (var block in blocks)
-                {
-                    BaseBlocks.Text += block.ToString();
-                    BaseBlocks.Text += "\r\n";
-                }
-
-
-
+                PrintBlocks();
             }
             catch (FileNotFoundException)
             {
@@ -142,6 +151,7 @@ namespace OptimizingCompilers2016.GUI
             Code.Select(currentSelStart, 0);
             Code.SelectionColor = SystemColors.WindowText;
         }
+
         private void MenuOpen_Click(object sender, EventArgs e)
         {
             FileName = this.openFileDialog1.FileName;
@@ -219,13 +229,10 @@ namespace OptimizingCompilers2016.GUI
 
                 ResultCode.Text = linearCode.ToString();
 
-                var blocks = BaseBlockDivider.divide(linearCode.code);
+                var blocks = new List<BaseBlock>();
+                blocks = BaseBlockDivider.divide(linearCode.code);
 
-                foreach (var block in blocks)
-                {
-                    BaseBlocks.Text += block.ToString();
-                    BaseBlocks.Text += "\r\n";
-                }
+                PrintBlocks();
             }
             catch (FileNotFoundException)
             {
@@ -250,20 +257,103 @@ namespace OptimizingCompilers2016.GUI
             }
         }
 
-        public static class ControlExtensions
+        private void NewWindow_Click(object sender, EventArgs e)
         {
-            [System.Runtime.InteropServices.DllImport("user32.dll")]
-            public static extern bool LockWindowUpdate(IntPtr hWndLock);
-
-            public static void Suspend(this Control control)
+            if (tabControl2.SelectedTab == ThreeAddrCode_TabPage)
             {
-                LockWindowUpdate(control.Handle);
+                var threeAdrWindow = new ThreeAddressCode_Form();
+                threeAdrWindow.GetSetText = ResultCode.Text;
+                threeAdrWindow.Show();
             }
 
-            public static void Resume(this Control control)
+            if (tabControl2.SelectedTab == BaseBlock_TabPage)
             {
-                LockWindowUpdate(IntPtr.Zero);
+                var baseBlocksWindow = new BaseBlock_Form();
+                baseBlocksWindow.GetSetText = BaseBlocks.Text;
+                baseBlocksWindow.Show();
             }
+            LinkLabel l = new LinkLabel();
 
         }
+
+        private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //foreach (var block in blocks)
+            //    DeadCodeDeleting.optimizeDeadCode(block);
+
+            //PrintBlocks();
+        }
+        
+        private void свёрткаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //ConstantFolding.transform(blocks);
+            //PrintBlocks();
+        }
+
+        private void оптимизацияОбщихПодвыраженийToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //var opt = new CommonExpressions();
+            //foreach (var block in blocks)
+            //var optCode = opt.Optimize(block);
+
+            //PrintBlocks();
+        }
+
+        private void протяжкаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //var opt = new ConstantPropagationOptimizator();
+            //foreach (var block in blocks)
+            //var optCode = opt.Optimize(block);
+
+            //PrintBlocks();
+        }
+
+        private void учетАлгебраическихТождествToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //var opt = new AlgebraicIdentityOptimizator();
+            //foreach (var block in blocks)
+            //var optCode = opt.Optimize(block);
+
+            //PrintBlocks();
+        }
+
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabControl2_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
     }
+}
+public static class ControlExtensions
+{
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    public static extern bool LockWindowUpdate(IntPtr hWndLock);
+
+    public static void Suspend(this Control control)
+    {
+        LockWindowUpdate(control.Handle);
+    }
+
+    public static void Resume(this Control control)
+    {
+        LockWindowUpdate(IntPtr.Zero);
+    }
+
+}
+
+
+
+
