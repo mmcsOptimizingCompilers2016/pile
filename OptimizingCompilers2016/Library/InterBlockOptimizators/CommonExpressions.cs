@@ -1,265 +1,26 @@
-﻿using OptimizingCompilers2016.Library.BaseBlock;
-using OptimizingCompilers2016.Library.LinearCode;
+﻿using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System.Collections.Generic;
 using System.Diagnostics;
+using OptimizingCompilers2016.Library.Optimizators;
 using System.Linq;
 
 
-namespace OptimizingCompilers2016.Library.Transformations
+namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 {
-    using BaseBlock = BaseBlock.BaseBlock;
-    /** DEF: equivalence class of right side expression 
-         right side expressions form equivalence class when:
-        1) operation and operands are the same
-        2) their operands aren't reassigned between these occurrences
-
-        Example:
-        d1: c := a + b
-        d2: d := a + b
-        d3: a := 1
-        d4: e := a + b
-
-        Classes of equivalence: {d1, d2}, {d3}, {d4}
-    **/
-    
-    /// Set of right side expressions 
-    /// alias to make iteration process readable
     using ExpressionSet = HashSet<BinaryExpression>;
-    
-    /// Maps equivalence class of right side expression to its index in 
-    /// firstPassResult list. If this equivalence class is invalidated, index equals -1
-    using EquivalenceClassIndex = Dictionary<BinaryExpression, int>;
 
-    /// Maps variable name to its entries in class equivalence of expression
-    using VariableOccurrence = Dictionary<IdentificatorValue, List<BinaryExpression>>;
+    using IdentificatorSet = HashSet<IdentificatorValue>;
 
-    /// <summary>
-    /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
-    /// </summary>
-    struct BinaryExpression
+    public class CommonExpressions : IInterBlockOptimizator
     {
-        Operation Operation;
-        IValue LeftOperand;
-        IValue RightOperand;
 
-        public BinaryExpression(IThreeAddressCode instruction)
-        {
-            Debug.Assert(isModifiableOperation(instruction.Operation));
-            Debug.Assert(instruction.LeftOperand != null);
-            Debug.Assert(instruction.RightOperand != null);
-            // what about possible unary operators (that are currently lack in our compiler)?
-            Operation = instruction.Operation;
-            LeftOperand = instruction.LeftOperand;
-            RightOperand = instruction.RightOperand;
-        }
+        // block name -> expression set
+        Dictionary<string, ExpressionSet> eGenB = new Dictionary<string, ExpressionSet>();
+        Dictionary<string, ExpressionSet> eKillB = new Dictionary<string, ExpressionSet>();
 
-        public static bool isModifiableOperation(Operation op)
-        {
-            return
-                op != Operation.NoOp && op != Operation.Assign &&
-                op != Operation.Goto && op != Operation.CondGoto;
-        }
 
-        public override int GetHashCode()
-        {
-            return Operation.GetHashCode() + LeftOperand.GetHashCode() +
-                RightOperand.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is BinaryExpression)
-            {
-                BinaryExpression expression = (BinaryExpression)obj;
-                return expression.LeftOperand.Equals(this.LeftOperand) &&
-                        expression.Operation.Equals(this.Operation) &&
-                        expression.RightOperand.Equals(this.RightOperand);
-            }
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Structure, that keeps number of instructions, that are using the same evaluated expression
-    /// isValid is not used in block expression
-    /// It is supposed to help in interblock CSE, answering whether expression is still alive at the end of the block
-    /// </summary>
-    struct RelevantCSEWatcher
-    {
-        public bool isValid;
-        public List<int> expressions;
-
-        public RelevantCSEWatcher(int instructionNumber)
-        {
-            expressions = new List<int>();
-            expressions.Add(instructionNumber);
-
-            isValid = true;
-        }
-        public void invalidateMe()
-        {
-            isValid = false;
-        }
-    }
-
-    // TODO: Resolve temporary variable name conflicts
-    // possible solution: create global class with method, returning serial number for naming variables
-    /// <summary>
-    /// Transformation consists of two passes
-    /// First pass finds all common sequences and split it into the sets of subexpressions,
-    /// that could be calculated once
-    /// Second pass inserts additional temporary variables, used for common subexpressions
-    /// </summary>
-    public class CommonExpressions
-    {
-        private void createOrAdd(ref VariableOccurrence container,
-                                 IdentificatorValue id,
-                                 BinaryExpression expr)
-        {
-            if (container.ContainsKey(id))
-            {
-                container[id].Add(expr);
-            }
-            else
-            {
-                var lst = new List<BinaryExpression>();
-                lst.Add(expr);
-                container.Add(id, lst);
-            }
-        }
-
-		
-        private void firstPassStep(int number, IThreeAddressCode instruction,
-            ref List<RelevantCSEWatcher> firstPassResult,
-            ref EquivalenceClassIndex expressionToEqClass,
-            ref VariableOccurrence resultDependency)
-        {
-            if (!BinaryExpression.isModifiableOperation(instruction.Operation))
-            {
-                return;
-            }
-
-            var currentExpression = new BinaryExpression(instruction);
-
-            int value = expressionToEqClass.ContainsKey(currentExpression) ? expressionToEqClass[currentExpression] : -1;
-
-            // add value to resultant set
-            if (value == -1)
-            {
-                firstPassResult.Add(new RelevantCSEWatcher(number));
-                expressionToEqClass[currentExpression] = firstPassResult.Count() - 1;
-            }
-            else
-            {
-                firstPassResult[value].expressions.Add(number);
-            }
-
-            if (instruction.LeftOperand is IdentificatorValue)
-            {
-                createOrAdd(ref resultDependency, (IdentificatorValue)instruction.LeftOperand, currentExpression);
-            }
-            if (instruction.RightOperand is IdentificatorValue)
-            {
-                createOrAdd(ref resultDependency, (IdentificatorValue)instruction.RightOperand, currentExpression);
-            }
-
-            // remove operations, which have current result as an operand
-
-            Debug.Assert(instruction.Destination != null);
-
-            if (resultDependency.ContainsKey((IdentificatorValue)instruction.Destination))
-            {
-                foreach (var item in resultDependency[(IdentificatorValue)instruction.Destination])
-                {
-                    expressionToEqClass[item] = -1;
-
-                }
-            }
-
-        }
-
-        private List<IThreeAddressCode> secondPass(List<IThreeAddressCode> original,
-            List<RelevantCSEWatcher> commonExpressions)
-        {
-            var insertedTmps = new HashSet<int>();
-            var substitution = Enumerable.Repeat(-1, original.Count).ToList();
-
-            for (int i = 0; i < commonExpressions.Count; ++i)
-            {
-                if (commonExpressions[i].expressions.Count <= 1)
-                {
-                    continue;
-                }
-                foreach (var inner in commonExpressions[i].expressions)
-                {
-                    substitution[inner] = i;
-                }
-            }
-
-            // start implementing code generation
-            var result = new List<IThreeAddressCode>();
-
-            for (int i = 0; i < original.Count; ++i)
-            {
-                var current = original[i];
-                // substitute with new variable
-                if (substitution[i] != -1)
-                {
-                    var id = new IdentificatorValue("%v_" + substitution[i]);
-                    if (!insertedTmps.Contains(substitution[i]))
-                    {
-                        result.Add(new LinearRepresentation(current.Label, current.Operation,
-                            id, current.LeftOperand, current.RightOperand));
-                        insertedTmps.Add(substitution[i]);
-                    }
-                    result.Add(new LinearRepresentation(Operation.Assign, current.Destination, id));
-                }
-                else
-                {
-                    result.Add(current);
-                }
-            }
-
-            return result;
-        }
-
-        public BaseBlock optimize(BaseBlock block)
-        {
-            List<IThreeAddressCode> list = block.Commands;
-            var firstPassResult = new List<RelevantCSEWatcher>();
-            // int is an index in firstPassResult
-            var nodeIndex = new EquivalenceClassIndex();
-            var resultDependency = new VariableOccurrence();
-
-            for (int i = 0; i < list.Count; ++i)
-            {
-                firstPassStep(i, list[i], ref firstPassResult, ref nodeIndex, ref resultDependency);
-            }
-            BaseBlock result = new BaseBlock();
-            result.Commands.AddRange(secondPass(list, firstPassResult));
-            return result;
-        }
-		
-/// Available Expressions Analysis:
-
-        /// <summary>
-        /// Optimize program using the results of available expressions analysis
-        /// @param blocks - list of all blocks in the program + fictional source block
-        /// @return block representation of the optimized program
-        /// </summary>
-        public List<BaseBlock> optimize(ref List<BaseBlock> blocks)
-        {   
-            List<BaseBlock> result = new List<BaseBlock>();
-
-            // TODO: apply iterational algorithm to find the list of available expressions
-            iterationalAlgorithm(ref blocks);
-            
-            // TODO: do something
-            return result;
-        }   
-        
         /// <summary>
         /// Retrieve all expressions from a block
         /// Example:
@@ -271,19 +32,19 @@ namespace OptimizingCompilers2016.Library.Transformations
         /// @return set of all the expressions of the block
         /// </summary>
         private ExpressionSet extractAllExpressions(BaseBlock block)
-        {   
+        {
             ExpressionSet result = new ExpressionSet();
 
             List<IThreeAddressCode> instructionsInBlock = block.Commands;
-            
-            foreach ( IThreeAddressCode instruction in instructionsInBlock )
-            {
-                if (!BinaryExpression.isModifiableOperation(instruction.Operation)) { continue; }
 
-                var currentExpression = new BinaryExpression(instruction);
-                result.Add(currentExpression);
+            foreach (IThreeAddressCode instruction in instructionsInBlock)
+            {
+                if (!BinaryExpression.isModifiableOperation(instruction.Operation))
+                    continue;
+
+                result.Add(new BinaryExpression(instruction));
             }
-           
+
             return result;
         }
 
@@ -300,100 +61,126 @@ namespace OptimizingCompilers2016.Library.Transformations
         private ExpressionSet extractAllExpressions(ref List<BaseBlock> blocks)
         {
             ExpressionSet result = new ExpressionSet();
-            
-            foreach ( BaseBlock block in blocks )
-            {   
+
+            foreach (BaseBlock block in blocks)
+            {
                 // TODO: add comparator?
-                result.UnionWith( extractAllExpressions(block) );
+                result.UnionWith(extractAllExpressions(block));
             }
-            
+
             return result;
         }
-        
+
         /// <summary>
         /// init OUT Dictionary with all the expressions in program
         /// OUT dictionary maps block ( by its name ) to all expressions available after exiting the block
         ///
-        /// @param outB - output expressions set
         /// @param blocks
         /// </summary>
-        private void initOutB(ref Dictionary<string, ExpressionSet> outB, ref List<BaseBlock> blocks)
-        {   
+        private Dictionary<string, ExpressionSet> initOutB(List<BaseBlock> blocks)
+        {
+            var result = new Dictionary<string, ExpressionSet>();
             ExpressionSet allExpressions = extractAllExpressions(ref blocks);
-            
-            foreach ( var block in blocks )
+
+            foreach (var block in blocks)
             {
-                outB[block.Name] = new ExpressionSet(allExpressions);
+                result[block.Name] = new ExpressionSet(allExpressions);
+            }
+            return result;
+        }
+
+        private Dictionary<string, ExpressionSet> initInB(List<BaseBlock> blocks)
+        {
+            Dictionary<string, ExpressionSet> result = new Dictionary<string, HashSet<BinaryExpression>>();
+            foreach (var block in blocks)
+            {
+                result[block.Name] = new ExpressionSet();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Optimize program using the results of available expressions analysis
+        /// </summary>
+        public bool Optimize(ControlFlowGraph graph)
+        {
+            List<BaseBlock> blocks = graph.GetBaseBlocks();
+            var inB = initInB(blocks);
+            var outB = initOutB(blocks);
+            if (outB.Count == 0 || outB.First().Value.Count == 0)
+                return false;
+
+
+            // TODO: apply iterational algorithm to find the list of available expressions
+            iterationalAlgorithm(blocks, ref inB, ref outB);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieves eGetB and eKillB for single basic block
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="gen"></param>
+        /// <param name="kill"></param>
+        void getGenKill(BaseBlock block, ref ExpressionSet gen, ref IdentificatorSet kill)
+        {
+            foreach (var instruction in block.Commands)
+            {
+                if (BinaryExpression.isModifiableOperation(instruction.Operation))
+                {
+                    gen.Add(new BinaryExpression(instruction));
+                }
+
+                if (instruction.Destination != null && instruction.Operation != Operation.Goto &&
+                    instruction.Operation != Operation.CondGoto)
+                {
+                    kill.Add(instruction.Destination as IdentificatorValue);
+                    gen.RemoveWhere(x => x.LeftOperand.Value as string == instruction.Destination.Value ||
+                        x.RightOperand.Value as string == instruction.Destination.Value);
+                }
             }
         }
-        
+
+        ExpressionSet transformToExprSet(ExpressionSet U, IdentificatorSet kills)
+        {
+            var result = new ExpressionSet();
+            foreach (var kill in kills)
+            {
+                result.UnionWith(U.Where(x => x.LeftOperand.Value as string == kill.Value ||
+                    x.RightOperand.Value as string == kill.Value));
+            }
+            return result;
+        }
         /// <summary>
         /// Update input expressions set for a current block
         ///     IN[B] = П OUT[P] for all B.predecessors
         ///
-        /// @param inB - input available expressions set
         /// @param outB - output available expressions set
-        /// @param currentBlock
-        /// @param changed - status of the expression set (whether it was altered by this func)
         /// </summary>
-        private void updateInB( ref Dictionary<string, ExpressionSet> inB,
-                ref Dictionary<string, ExpressionSet> outB,
-                BaseBlock currentBlock,
-                ref bool changed)
-        {   
-            ExpressionSet newInB = new ExpressionSet();
-            foreach ( var predecessor in currentBlock.Predecessors )
+        private ExpressionSet updateInB(BaseBlock block,
+            Dictionary<string, ExpressionSet> outB)
+        {
+            if (block.Predecessors.Count == 0)
+                return new ExpressionSet();
+            ExpressionSet newInB = new ExpressionSet(outB[block.Predecessors.First().Name]);
+            foreach (var predecessor in block.Predecessors)
             {
                 newInB.IntersectWith(outB[predecessor.Name]);
             }
-
-            changed = changed || inB[currentBlock.Name].SetEquals(newInB);
-            inB[currentBlock.Name] = newInB;
+            return newInB;
         }
-        
+
         /// <summary>
         /// Update output expressions set for a current block
         ///     OUT[B] = EgenB OR (IN[B] \ EkillB)
         ///
         /// @param inB - input available expressions set
-        /// @param outB - output available expressions set
-        /// @param currentBlock
-        /// @param changed - status of the expression set (whether it was altered by this func)
         /// </summary>
-        private void updateOutB(ref Dictionary<string, ExpressionSet> inB,
-                ref Dictionary<string, ExpressionSet> outB,
-                BaseBlock currentBlock,
-                ref bool changed)
-        {   
-            // TODO: get eGenB and eKillB from block
-            ExpressionSet eGenB = new ExpressionSet();
-            ExpressionSet eKillB = new ExpressionSet();
-
-            var firstPassResult = new List<RelevantCSEWatcher>();
-            var nodeIndex = new EquivalenceClassIndex();
-            var resultDependency = new VariableOccurrence();
-
-            for (int i = 0; i < currentBlock.Commands.Count; ++i)
-            {
-                firstPassStep(i, currentBlock.Commands[i], ref firstPassResult, ref nodeIndex, ref resultDependency);
-            }
-            
-            for (int i = 0; i < firstPassResult.Count; ++i) 
-            {   
-                var expression = new BinaryExpression(currentBlock.Commands[i]);
-                if ( firstPassResult[i].isValid )
-                {
-                    eGenB.Add(expression);
-                } else {
-                    eKillB.Add(expression);
-                }   
-            }
-
-            ExpressionSet newOutB = new ExpressionSet( eGenB );
-            
-            newOutB.UnionWith(inB[currentBlock.Name].Except(eKillB));
-            //TODO: update 'changed'
-            outB[currentBlock.Name] = newOutB;
+        private ExpressionSet updateOutB(BaseBlock block,
+            ExpressionSet inB)
+        {
+            return new ExpressionSet(eGenB[block.Name].Union(inB.Except(eKillB[block.Name])));
         }
 
         /// <summary>
@@ -406,31 +193,42 @@ namespace OptimizingCompilers2016.Library.Transformations
         /// @param blocks - list of all blocks in the program + fictional source block
         /// TODO: decide what this function should return
         /// </summary>
-        private void iterationalAlgorithm(ref List<BaseBlock> blocks) 
-        {   
-            // block name - expression set
-            Dictionary<string, ExpressionSet> inB = new Dictionary<string, ExpressionSet>();
-            Dictionary<string, ExpressionSet>  outB = new Dictionary<string, ExpressionSet>();
+        private void iterationalAlgorithm(List<BaseBlock> blocks,
+            ref Dictionary<string, ExpressionSet> inB, ref Dictionary<string, ExpressionSet> outB)
+        {
 
-            foreach (var block in blocks) 
-            {   
-                // init OUT[B] with all the expressions
-                // TODO: find out - should it be done outside the loop?
-                initOutB(ref outB, ref blocks);
+            foreach (var block in blocks)
+            {
+                var genB = new ExpressionSet();
+                var killB = new IdentificatorSet();
+                getGenKill(block, ref genB, ref killB);
+                eGenB.Add(block.Name, genB);
+                eKillB.Add(block.Name, transformToExprSet(outB[block.Name], killB));
+            }
 
-                // while OUT[B] changes do
-                bool changed = true;
-                while ( changed )
+            bool changed;
+            do
+            {
+                changed = false;
+                foreach (var block in blocks)
                 {
-                    foreach (var innerBlock in blocks)
-                    {   
-                    // IN[B] = П OUT[P] for all B.predecessors
-                        updateInB(ref inB, ref outB, innerBlock, ref changed);
-                    // OUT[B] = EgenB OR (IN[B] \ EkillB)
-                        updateOutB(ref inB, ref outB, innerBlock, ref changed);
+                    ExpressionSet ins = updateInB(block, outB);
+                    if (!ins.SetEquals(inB[block.Name]))
+                    {
+                        changed = true;
+                        inB[block.Name] = ins;
+                    }
+
+                    ExpressionSet outs = updateOutB(block, inB[block.Name]);
+                    if (!outs.SetEquals(outB[block.Name]))
+                    {
+                        changed = true;
+                        outB[block.Name] = outs;
                     }
                 }
             }
-        }       
+            while (changed);
+            
+        }
     }
 }

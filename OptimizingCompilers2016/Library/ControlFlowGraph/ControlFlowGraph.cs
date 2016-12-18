@@ -42,6 +42,11 @@ namespace OptimizingCompilers2016.Library
             return CFG.Vertices.Count();
         }
 
+        public List<BaseBlock> GetBaseBlocks()
+        {
+            return CFG.Vertices.ToList();
+        }
+
         /// <summary>
         /// Сериализация графа в строку формата dot-файла для последующей визуализации с
         /// помощью graphviz

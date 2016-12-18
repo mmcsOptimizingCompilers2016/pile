@@ -51,6 +51,11 @@ namespace OptimizingCompilers2016.Library.Optimizators
             RightOperand = instruction.RightOperand;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns> if Operation can be used by CSE</returns>
         public static bool isModifiableOperation(Operation op)
         {
             return
