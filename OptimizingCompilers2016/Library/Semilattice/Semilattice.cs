@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OptimizingCompilers2016.Library.Semilattice
+﻿namespace OptimizingCompilers2016.Library.Semilattice
 {
     /// <summary>
     /// Интерфейс Полурешётка

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OptimizingCompilers2016.Library.Analysis;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 
 namespace OptimizingCompilers2016.Library.DeadCode
 {
