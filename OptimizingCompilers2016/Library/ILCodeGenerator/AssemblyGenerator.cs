@@ -60,6 +60,7 @@ namespace OptimizingCompilers2016.Library.ILCodeGenerator
                 if (!variables.ContainsKey(localName))
                 {
                     Console.WriteLine("Error: expected local variable {0} to be defined earlier. Exiting...", val.Value);
+                    Console.ReadLine();
                     Environment.Exit(1);
                 }
                 var declaredLocal = variables[localName];
@@ -231,6 +232,8 @@ namespace OptimizingCompilers2016.Library.ILCodeGenerator
                         break;
                 }
             }
+
+            ilGen.Emit(OpCodes.Ret);
 
             Type t = bType.CreateType();
             bAssembly.SetEntryPoint(bMethod, PEFileKinds.ConsoleApplication);

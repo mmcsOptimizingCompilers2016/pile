@@ -3,7 +3,6 @@
   a = 3;
   a = b;
   c = b + 2;
-  d = a * b + c * d + 3;
   if 1
 	b = 1;
   else
@@ -14,11 +13,6 @@
   
   if a
 	a = 1;
-  
-  while x <= 10 do
-  {
-	x = x + 1;
-  }
   
   cycle 3
   {
