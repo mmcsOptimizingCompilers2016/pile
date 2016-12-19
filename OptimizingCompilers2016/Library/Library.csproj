@@ -59,6 +59,8 @@
   <ItemGroup>
     <Compile Include="Analysis\AvailabilityAnalysis.cs" />
     <Compile Include="Analysis\DefUse.cs" />
+    <Compile Include="Analysis\DefUse\GlobalDefUse.cs" />
+    <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
     <Compile Include="Semilattice\Semilattice.cs" />
     <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
@@ -106,9 +108,7 @@
     <Compile Include="Visitors\IVisitor.cs" />
     <Compile Include="Visitors\PrettyPrintVisitor.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LinearCode\Base\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
