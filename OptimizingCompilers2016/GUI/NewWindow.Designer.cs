@@ -1,6 +1,6 @@
 ﻿namespace OptimizingCompilers2016.GUI
 {
-    partial class ThreeAddressCode_Form
+    partial class NewWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -28,32 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ResultCode = new System.Windows.Forms.RichTextBox();
+            this.ResultText = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
-            // ResultCode
+            // ResultText
             // 
-            this.ResultCode.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.ResultCode.Location = new System.Drawing.Point(12, 12);
-            this.ResultCode.Name = "ResultCode";
-            this.ResultCode.Size = new System.Drawing.Size(410, 500);
-            this.ResultCode.TabIndex = 0;
-            this.ResultCode.Text = "";
+            this.ResultText.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ResultText.Location = new System.Drawing.Point(12, 12);
+            this.ResultText.Name = "ResultText";
+            this.ResultText.Size = new System.Drawing.Size(410, 500);
+            this.ResultText.TabIndex = 1;
+            this.ResultText.Text = "";
             // 
-            // ThreeAddressCode_Form
+            // NewWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(434, 562);
-            this.Controls.Add(this.ResultCode);
-            this.Name = "ThreeAddressCode_Form";
-            this.Text = "Трёхадресный код";
+            this.Controls.Add(this.ResultText);
+            this.Name = "NewWindow";
+            this.Text = "Новое окно";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox ResultCode;
+        private System.Windows.Forms.RichTextBox ResultText;
     }
 }

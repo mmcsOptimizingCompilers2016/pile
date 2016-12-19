@@ -10,17 +10,17 @@ using System.Windows.Forms;
 
 namespace OptimizingCompilers2016.GUI
 {
-    public partial class BaseBlock_Form : Form
+    public partial class NewWindow : Form
     {
-        public BaseBlock_Form()
+        public NewWindow()
         {
             InitializeComponent();
         }
 
         public string GetSetText
         {
-            get { return BaseBlocks.Text; }
-            set { BaseBlocks.Text = value; }
+            get { return ResultText.Text; }
+            set { ResultText.Text = value; }
         }
     }
 }

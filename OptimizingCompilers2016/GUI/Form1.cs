@@ -60,63 +60,18 @@ namespace OptimizingCompilers2016.GUI
             this.Invoke(Invoker2);
         }
 
-        private void PrintBlocks()
+        private string PrintBlocks()
         {
-            BaseBlocks.Text = "";
+            string result = "";
             foreach (var block in blocks)
             {
-                BaseBlocks.Text += block.ToString();
-                BaseBlocks.Text += "\r\n";
+                result += block.ToString();
+                result += "\r\n";
             }
+
+            return result;
         }
 
-
-        private void Run_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                string text = Code.Text;
-
-                Scanner scanner = new Scanner();
-                scanner.SetSource(text, 0);
-
-                Parser parser = new Parser(scanner);
-
-                var b = parser.Parse();
-
-                var linearCode = new LinearCodeVisitor();
-                parser.root.Accept(linearCode);
-
-                ResultCode.Text = linearCode.ToString();
-
-                var blocks = new List<BaseBlock>();
-                blocks = BaseBlockDivider.divide(linearCode.code);
-
-                PrintBlocks();
-            }
-            catch (FileNotFoundException)
-            {
-                Console.Text = String.Format("Файл {0} не найден!\r\n", FileName);
-
-            }
-            catch (LexException exception)
-            {
-                Console.Text = "Лексическая ошибка. " + exception.Message;
-                Console.Text += "\r\n";
-                Console.Select(Console.Text.Length - 1, 0);
-                Blick = new Thread(ConsoleBlick);
-                Blick.Start();
-            }
-            catch (SyntaxException exception)
-            {
-                Console.Text = "Синтаксическая ошибка. " + exception.Message;
-                Console.Text += "\r\n";
-                Console.Select(Console.Text.Length - 1, 0);
-                Blick = new Thread(ConsoleBlick);
-                Blick.Start();
-            }
-
-        }
 
         private void MenuExit_Click(object sender, EventArgs e)
         {
@@ -229,10 +184,10 @@ namespace OptimizingCompilers2016.GUI
 
                 ResultCode.Text = linearCode.ToString();
 
-                var blocks = new List<BaseBlock>();
+                blocks = new List<BaseBlock>();
                 blocks = BaseBlockDivider.divide(linearCode.code);
 
-                PrintBlocks();
+                BaseBlocks.Text = PrintBlocks();
             }
             catch (FileNotFoundException)
             {
@@ -261,19 +216,28 @@ namespace OptimizingCompilers2016.GUI
         {
             if (tabControl2.SelectedTab == ThreeAddrCode_TabPage)
             {
-                var threeAdrWindow = new ThreeAddressCode_Form();
-                threeAdrWindow.GetSetText = ResultCode.Text;
-                threeAdrWindow.Show();
+                var newWindow = new NewWindow();
+                newWindow.GetSetText = ResultCode.Text;
+                newWindow.Text = "Трёхадресный код";
+                newWindow.Show();
             }
 
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
             {
-                var baseBlocksWindow = new BaseBlock_Form();
-                baseBlocksWindow.GetSetText = BaseBlocks.Text;
-                baseBlocksWindow.Show();
+                var newWindow = new NewWindow();
+                newWindow.GetSetText = BaseBlocks.Text;
+                newWindow.Text = "Базовые блоки";
+                newWindow.Show();
             }
-            LinkLabel l = new LinkLabel();
+            
+        }
 
+        private void NewWindow2_Click(object sender, EventArgs e)
+        {
+            var newWindow = new NewWindow();
+            newWindow.GetSetText = Result.Text;
+            newWindow.Text = "Результат";
+            newWindow.Show();
         }
 
         private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
@@ -281,13 +245,13 @@ namespace OptimizingCompilers2016.GUI
             //foreach (var block in blocks)
             //    DeadCodeDeleting.optimizeDeadCode(block);
 
-            //PrintBlocks();
+            //Result.Text = PrintBlocks();
         }
         
         private void свёрткаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //ConstantFolding.transform(blocks);
-            //PrintBlocks();
+            //Result.Text = PrintBlocks();
         }
 
         private void оптимизацияОбщихПодвыраженийToolStripMenuItem_Click(object sender, EventArgs e)
@@ -296,7 +260,7 @@ namespace OptimizingCompilers2016.GUI
             //foreach (var block in blocks)
             //var optCode = opt.Optimize(block);
 
-            //PrintBlocks();
+            //Result.Text = PrintBlocks();
         }
 
         private void протяжкаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
@@ -305,7 +269,7 @@ namespace OptimizingCompilers2016.GUI
             //foreach (var block in blocks)
             //var optCode = opt.Optimize(block);
 
-            //PrintBlocks();
+            //Result.Text = PrintBlocks();
         }
 
         private void учетАлгебраическихТождествToolStripMenuItem_Click(object sender, EventArgs e)
@@ -314,10 +278,53 @@ namespace OptimizingCompilers2016.GUI
             //foreach (var block in blocks)
             //var optCode = opt.Optimize(block);
 
-            //PrintBlocks();
+            //Result.Text = PrintBlocks();
         }
 
+        private void глобальнаяToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Result.Text = "";
+        }
 
+        private void внутриБлоковToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Result.Text = "";
+            //foreach (var block in blocks)
+            //{
+            //    var ldu = new InblockDefUse(block);
+            //    Result.Text += ldu.ToString();
+            //}
+        }
+
+        private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //var AV = new ActiveVariables(blocks);
+            //foreach (var block in blocks)
+            //    DeadCodeDeleting.optimizeDeadCode(block, AV[block.Name]);
+            //Result.Text = PrintBlocks();
+
+        }
+
+        private void анализАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Result.Text = "";
+            //var AV = new ActiveVariables(blocks);
+            //Result.Text += AV.ToString();
+        }
+
+        private void анализДоступныхВыраженийToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void деревоДоминаторовToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Result.Text = "";
+            //Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+            //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
+            //DOM.test_printing(dom_relations);
+            //Result.Text += DOM.get_tree_root(dom_relations, test_tree.Item1).ToString();
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -330,6 +337,11 @@ namespace OptimizingCompilers2016.GUI
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load_1(object sender, EventArgs e)
         {
 
         }
