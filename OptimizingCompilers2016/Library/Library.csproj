@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\AvailabilityAnalysis.cs" />
-    <Compile Include="Analysis\DefUse.cs" />
     <Compile Include="Analysis\DefUse\GlobalDefUse.cs" />
     <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
     <Compile Include="Semilattice\Semilattice.cs" />
