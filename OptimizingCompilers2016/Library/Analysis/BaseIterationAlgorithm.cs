@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
-using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System.Collections;
 using OptimizingCompilers2016.Library.Semilattice;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -23,6 +20,18 @@ namespace OptimizingCompilers2016.Library.Analysis
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
 
+        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
+        protected Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
+        protected Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+
+        protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
+
+        protected abstract T SetStartingSet();
+
+        public abstract T Collect(T x, T y);
+
+        protected abstract T Transfer(T x, BaseBlock b);
+
         protected void FillSupportingStructures(List<BaseBlock> blocks)
         {
             int counter = 0;
@@ -33,23 +42,17 @@ namespace OptimizingCompilers2016.Library.Analysis
                     var line = block.Commands[i];
                     if (line.Destination is IdentificatorValue)
                     {
-                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
+                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(
+                            block,
+                            new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)),
+                            counter++);
                     }
                 }
             }
         }
 
-        //protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
-        protected abstract T SetStartingSet();
-        //protected abstract T SubstractSets(T firstSet, T secondSet);
-
-        //collect & transfer functions
-        public abstract T Collect(T x, T y);
-        protected abstract T Transfer(T x, BaseBlock b);
-
-
         //maybe it should implement Semilattice interface
-        public void IterationAlgorithm(List<BaseBlock> blocks)
+        protected void IterationAlgorithm(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
@@ -72,7 +75,6 @@ namespace OptimizingCompilers2016.Library.Analysis
                     var prevOut = outs[block].Clone();
 
                     outs[block] = Transfer(ins[block], block);
-                    //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]))
                     {
                         areDifferent = areDifferent || false;
@@ -81,11 +83,17 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
-        //private T Transfer(T enum1, BaseBlock b)
-        //{            
-        //    return FindInSet(generators[b], Diffs(enum1,killers[b]));
-        //}
-        //protected abstract T FindInSet(T enum1, T enum2);
-        //protected abstract T Diffs(T enum1, T enum2);
+        protected void Print()
+        {
+            // create good printing
+        }
+
+        public void RunAnalysis(List<BaseBlock> blocks)
+        {
+            FillSupportingStructures(blocks);
+            FillGeneratorsAndKillers(blocks);
+            IterationAlgorithm(blocks);
+            Print();
+        }
     }
 }
