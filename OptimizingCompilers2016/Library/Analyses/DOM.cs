@@ -156,7 +156,7 @@ namespace OptimizingCompilers2016.Library.Analyses
         /// <returns>tree root</returns>
         static public tree_node get_tree_root(Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>> dom_relations, BaseBlock.BaseBlock root)
         {
-            return make_tree(get_direct_dominators(),root);
+            return make_tree(get_direct_dominators(dom_relations,root),root);
 //             Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>> dom_relations_strong = new Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>>(dom_relations);
 //             foreach (var item in dom_relations_strong)
 //             {
