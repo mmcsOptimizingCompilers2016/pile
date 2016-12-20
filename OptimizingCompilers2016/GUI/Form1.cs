@@ -320,8 +320,8 @@ namespace OptimizingCompilers2016.GUI
         private void деревоДоминаторовToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Result.Text = "";
-            //Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
-            //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
+            ////Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+            //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks[0], blocks);
             //DOM.test_printing(dom_relations);
             //Result.Text += DOM.get_tree_root(dom_relations, test_tree.Item1).ToString();
         }
