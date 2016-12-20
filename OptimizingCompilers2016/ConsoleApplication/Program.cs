@@ -43,30 +43,16 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Console.WriteLine("Blocks:");
                 foreach (var block in blocks)
                 {
-                    //InblockDefUse DU = new InblockDefUse(block);
-                    //foreach (var item in DU.result)
-                    //{
-                    //    Console.Write(item.Key + " :");
-                    //    Console.Write("{");
-                    //    foreach (var item2 in item.Value)
-                    //    {
-                    //        Console.Write(item2 + "  ");
-                    //    }
-                    //    Console.Write("}");
-                    //    Console.WriteLine();
-                    //}
-
                     Console.WriteLine(block.ToString());
-                    DeadCodeDeleting.optimizeDeadCode(block);
-                    Console.WriteLine("After optimization:");
-                    Console.WriteLine(block.ToString());
-
-                    //console.writeline(block.tostring());
                     Console.WriteLine("-------");
                 }
 
-                var gdu = new GlobalDefUse();
-                gdu.runAnalys(blocks);
+                var AV = new ActiveVariables(blocks);
+
+                AV.runAnalys();
+
+                Console.WriteLine(AV.ToString());
+
             }
             catch (FileNotFoundException)
             {

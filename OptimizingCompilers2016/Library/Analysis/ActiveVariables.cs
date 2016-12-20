@@ -59,8 +59,8 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             while (true)
             {
-                var count = 0;
-                //Console.WriteLine("Ахахахха)000))");
+                bool isChanged = false;
+                
                 for (int i = 0; i < blocks.Count; i++)
                 {
                     OUT[blocks[i].Name] = new HashSet<IdentificatorValue>();
@@ -83,10 +83,10 @@ namespace OptimizingCompilers2016.Library.Analysis
                 for (int i = 0; i < oldIN.Count(); i++)
                 {
                     if (!oldIN[blocks[i].Name].SetEquals(IN[blocks[i].Name]))
-                        count++;
+                        isChanged = true;
                 }
 
-                if (count == 0)
+                if (!isChanged)
                     break;
 
                 oldIN = new Dictionary<string, HashSet<IdentificatorValue>>(IN);
