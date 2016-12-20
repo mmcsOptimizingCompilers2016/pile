@@ -157,42 +157,6 @@ namespace OptimizingCompilers2016.Library.Analyses
         static public tree_node get_tree_root(Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>> dom_relations, BaseBlock.BaseBlock root)
         {
             return make_tree(get_direct_dominators(dom_relations,root),root);
-//             Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>> dom_relations_strong = new Dictionary<BaseBlock.BaseBlock, List<BaseBlock.BaseBlock>>(dom_relations);
-//             foreach (var item in dom_relations_strong)
-//             {
-//                 item.Value.Remove(item.Key);
-//             }
-
-//             List<link> links = new List<link>();
-//             foreach (var item in dom_relations_strong)
-//             {
-//                 foreach (var item2 in item.Value)
-//                 {
-//                     link cur_link = new link(item2, item.Key);
-//                     if (!links.Contains(cur_link))
-//                         links.Add(cur_link);
-//                 }
-//             }
-
-//             HashSet<link> to_delete_links = new HashSet<link>();
-
-//             foreach (var item in links)
-//             {
-//                 if (!foo(item.root, dom_relations_strong[item.child], dom_relations_strong[item.root]))
-//                 {
-//                     to_delete_links.Add(item);
-//                     //Console.WriteLine("del");
-//                 }
-//             }
-
-//             foreach (var item in to_delete_links)
-//             {
-//                 links.Remove(item);
-//             }
-
-//             return make_tree(links, root);
-            //throw new NotImplementedException("Not implemented getting tree root");
-            //return null;
         }
 
         /// <summary>
