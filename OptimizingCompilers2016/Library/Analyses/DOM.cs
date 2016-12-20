@@ -52,7 +52,7 @@ namespace OptimizingCompilers2016.Library.Analyses
             }
         }
 
-        class link
+        public class link
         {
             public BaseBlock.BaseBlock root;
             public BaseBlock.BaseBlock child;
