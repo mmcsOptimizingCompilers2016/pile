@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analyses\DOM.cs" />
-    <Compile Include="Analyses\IDF.cs" />
+    <Compile Include="Analyses\DominanceFrontier.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />

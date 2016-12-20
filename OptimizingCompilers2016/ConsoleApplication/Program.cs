@@ -38,18 +38,40 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
 
-                //Console.WriteLine("Blocks:");
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //}
+                Console.WriteLine("Blocks:");
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
 
-                Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+                //Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
 
-                Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
-                DOM.test_printing(dom_relations);
-                Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
+                //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
+                //DOM.test_printing(dom_relations);
+                //Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
+
+                var domFront = new DominanceFrontier(blocks);
+
+                Console.WriteLine(domFront.ToString());
+
+                List<string> l = new List<string>();
+
+                l.Add("B1");
+                l.Add("B2");
+                l.Add("B3");
+                l.Add("B4");
+                l.Add("B5");
+                l.Add("B6");
+                l.Add("B7");
+                
+
+                var IDF = domFront.ComputeIDF(l);
+
+                foreach (var item in IDF)
+                    Console.WriteLine(item);
+
+
 
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
                 //DOM.test_printing(dom_relations);
