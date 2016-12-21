@@ -16,7 +16,8 @@ namespace OptimizingCompilers2016.Library.Analysis
     /// (например: BitArray)
     /// </typeparam>
     public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
-        where T : IEnumerable, ICloneable
+     //    where T : IEnumerable, ICloneable
+           where T : ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
        

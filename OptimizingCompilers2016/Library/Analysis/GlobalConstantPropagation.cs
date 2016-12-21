@@ -20,49 +20,49 @@ namespace OptimizingCompilers2016.Library.Analysis
         public int constantValue;
     }
 
-    class GlobalConstantPropagation : BaseIterationAlgorithm<Dictionary<String, VariableValue>>
+    class GlobalConstantPropagation : BaseIterationAlgorithm<VariableMap>
     {
         List<BaseBlock> blocks = new List<BaseBlock>();
         public GlobalConstantPropagation(List<BaseBlock> _blocks) {
             blocks = _blocks;
         }
 
-        protected override Dictionary<String, VariableValue> SetStartingSet()
+        protected override VariableMap SetStartingSet()
         {
-            Dictionary<String, VariableValue> variableTable = new Dictionary<String, VariableValue>();
+            var currentMap = new VariableMap();
 
             foreach (var block in blocks) {
                 for (int i = 0; i < block.Commands.Count; i++)
                 {
-                    if (block.Commands[i].Operation == Operation.Assign) {
+                    if (block.Commands[i].Operation.Equals(Operation.Assign)) {
                         VariableValue newVar = new VariableValue();
                         newVar.type = VariableValueType.UNDEF;
-                        var operand = (block.Commands[i].LeftOperand as IdentificatorValue).Value;
-                        if (!variableTable.ContainsKey(operand))
+                        var operand = (block.Commands[i].Destination as IdentificatorValue);
+                        if (!currentMap.variableTable.ContainsKey(operand))
                         {
-                            variableTable.Add(operand, newVar);
-                        }
-                        
+                            currentMap.variableTable.Add(operand, newVar);
+                        }                        
                     }
-
                 }
-
             }
 
-            return variableTable;
+
+            Console.WriteLine(currentMap.ToString());
+
+            return currentMap;
         }
 
-        public override Dictionary<String, VariableValue> Collect(Dictionary<String, VariableValue> x, Dictionary<String, VariableValue> y)
+        public override VariableMap Collect(VariableMap x, VariableMap y)
         {
-            Dictionary<String, VariableValue> variableTable = new Dictionary<String, VariableValue>(x.Count);
-            foreach (KeyValuePair<String, VariableValue> variable in x) {
+            Dictionary<IdentificatorValue, VariableValue> variableTable = new Dictionary<IdentificatorValue, VariableValue>(x.variableTable.Count);
+            foreach (KeyValuePair<IdentificatorValue, VariableValue> variable in x.variableTable) {
                 if (!variableTable.ContainsKey(variable.Key)) {
-                    variableTable.Add(variable.Key, VariableCollect(variable.Value, y[variable.Key]));
+                    variableTable.Add(variable.Key, VariableCollect(variable.Value, y.variableTable[variable.Key]));
                 }
                 //TODO else 
             }
 
-            return variableTable;
+            return new VariableMap(variableTable);
         }
 
         private VariableValue VariableCollect(VariableValue x, VariableValue y)
@@ -94,12 +94,109 @@ namespace OptimizingCompilers2016.Library.Analysis
             return newValue;
         }
 
-        protected override Dictionary<String, VariableValue> Transfer(Dictionary<String, VariableValue> x, BaseBlock b)
+        protected override VariableMap Transfer(VariableMap x, BaseBlock b)
         {
-            Dictionary<String, VariableValue> variableTable = new Dictionary<String, VariableValue>(x.Count);
-            return variableTable;
+            VariableMap newM = x.Clone() as VariableMap;
+
+            foreach (var line in b.Commands) {
+                if (line.Operation.Equals(Operation.Assign))
+                {
+                    if ((line.RightOperand.Value == null) && (line.LeftOperand is NumericValue))
+                    {
+                        VariableValue newValue = new VariableValue();
+                        newValue.type = VariableValueType.CONSTANT;
+                        newValue.constantValue = (line.LeftOperand as NumericValue).Value;
+                        newM.variableTable[line.Destination as IdentificatorValue] = newValue;
+                    }
+                    else
+                    {
+
+                    }
+                }
+                
+               
+
+
+            }
+
+
+
+
+
+            return newM;
         }
 
+
+    }
+
+
+    class VariableMap : ICloneable {
+
+        public Dictionary<IdentificatorValue, VariableValue> variableTable { get; }
+
+        public VariableMap() {
+            variableTable = new Dictionary<IdentificatorValue, VariableValue>();
+        }
+
+        public VariableMap(Dictionary<IdentificatorValue, VariableValue> newDictionary)
+        {
+            variableTable = newDictionary;
+        }
+
+        public object Clone()
+        {
+            Dictionary<IdentificatorValue, VariableValue> clonedDictionary = new Dictionary<IdentificatorValue, VariableValue>(variableTable.Count);
+
+            foreach (KeyValuePair<IdentificatorValue, VariableValue> entry in variableTable)
+            {
+                VariableValue variable = new VariableValue();
+                variable.type = entry.Value.type;
+                variable.constantValue = entry.Value.constantValue;
+                clonedDictionary.Add(entry.Key, variable);
+            }
+            return new VariableMap(clonedDictionary);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var secondMap = obj as VariableMap;
+            bool isEqual = true;
+            foreach (KeyValuePair<IdentificatorValue, VariableValue> entry in variableTable)
+            {
+                if (secondMap.variableTable.ContainsKey(entry.Key))
+                {
+                    var secondEntry = secondMap.variableTable[entry.Key];
+                    isEqual = isEqual && (secondEntry.type.Equals(entry.Value.type) 
+                        && secondEntry.constantValue == entry.Value.constantValue);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return isEqual;
+        }
+
+
+        public override string ToString()
+        {
+            String result = "";
+
+            foreach (KeyValuePair<IdentificatorValue, VariableValue> entry in variableTable)
+            {
+                result += entry.Key + "     |     " 
+                    + entry.Value.type 
+                    + (entry.Value.type.Equals(VariableValueType.CONSTANT) ? entry.Value.constantValue.ToString() : "") 
+                    + "\n";
+            }
+
+            return result;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
     }
 }
