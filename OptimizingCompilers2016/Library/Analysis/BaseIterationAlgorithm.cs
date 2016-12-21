@@ -59,8 +59,10 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
 
             bool areDifferent = true;
+            int count = 0;
             while (areDifferent)
             {
+                count++;
                 areDifferent = false;
                 foreach (var block in blocks)
                 {
@@ -74,12 +76,17 @@ namespace OptimizingCompilers2016.Library.Analysis
 
                     outs[block] = Transfer(ins[block], block);
                     //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
-                    if (prevOut.Equals(outs[block]))
+                    if (prevOut.Equals(outs[block]) && !areDifferent)
                     {
-                        areDifferent = areDifferent || false;
+                        areDifferent = false;
                     }
+                    else {
+                        areDifferent = true;
+                    }       
                 }
             }
+
+            Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
 
         //private T Transfer(T enum1, BaseBlock b)
