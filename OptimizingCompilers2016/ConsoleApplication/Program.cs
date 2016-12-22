@@ -68,8 +68,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //gdu.runAnalys(blocks);
                 //gdu.getDefUses();
 
-                var constantPropagation = new GlobalConstantPropagation(blocks);
-                constantPropagation.runAnalys();
                 //ConstantFolding.transform(blocks);
                 //foreach (var block in blocks)
                 //{

@@ -13,23 +13,31 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         public BitArray Bits { get; set; }
 
-        public EqualsBitArray(BitArray Bits)
+        public EqualsBitArray(BitArray bits)
         {
-            this.Bits = Bits;
+            this.Bits = bits;
         }
 
-        public EqualsBiArray Or(EqualsBitArray other)
+        public EqualsBitArray(int count, bool value)
+        {
+            this.Bits = new BitArray(count, value);
+        }
+
+        public EqualsBitArray Or(EqualsBitArray other)
         {
             return new EqualsBitArray(this.Bits.Or(other.Bits));
         }
+
         public EqualsBitArray And(EqualsBitArray other)
         {
             return new EqualsBitArray(this.Bits.And(other.Bits));
         }
+
         public EqualsBitArray Xor(EqualsBitArray other)
         {
             return new EqualsBitArray(this.Bits.Xor(other.Bits));
         }
+
         public EqualsBitArray Not()
         {
             return new EqualsBitArray(this.Bits.Not());
@@ -38,9 +46,10 @@ namespace OptimizingCompilers2016.Library.Analysis
         {
             Bits.Set(index, value);
         }
+
         public bool Get(int index)
         {
-            return new EqualsBitArray(this.Bits.Or(other.Bits));
+            return Bits.Get(index);
         }
 
         public override bool Equals(object obj)
