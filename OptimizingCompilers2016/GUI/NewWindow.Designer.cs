@@ -36,7 +36,7 @@
             this.ResultText.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ResultText.Location = new System.Drawing.Point(12, 12);
             this.ResultText.Name = "ResultText";
-            this.ResultText.Size = new System.Drawing.Size(410, 500);
+            this.ResultText.Size = new System.Drawing.Size(350, 500);
             this.ResultText.TabIndex = 1;
             this.ResultText.Text = "";
             // 
@@ -44,7 +44,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(434, 562);
+            this.ClientSize = new System.Drawing.Size(374, 562);
             this.Controls.Add(this.ResultText);
             this.Name = "NewWindow";
             this.Text = "Новое окно";

@@ -29,12 +29,14 @@ namespace OptimizingCompilers2016.GUI
 
         public Form1()
         {
+            this.DesktopLocation = new Point(10000, 10000);
             InitializeComponent();
             FileName = @"a.txt";
             Code.Text = File.ReadAllText(FileName);
             Code.TextChanged -= Code_TextChanged;
             Code.Suspend();
             PaintLoad();
+                       
 
             Code.Resume();
             Code.TextChanged += Code_TextChanged;
@@ -220,6 +222,9 @@ namespace OptimizingCompilers2016.GUI
                 newWindow.GetSetText = ResultCode.Text;
                 newWindow.Text = "Трёхадресный код";
                 newWindow.Show();
+                newWindow.Top = this.Top;
+                newWindow.Left = this.Right;
+                
             }
 
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
@@ -228,8 +233,11 @@ namespace OptimizingCompilers2016.GUI
                 newWindow.GetSetText = BaseBlocks.Text;
                 newWindow.Text = "Базовые блоки";
                 newWindow.Show();
+                newWindow.Top = this.Top;
+                newWindow.Left = this.Right;
             }
             
+
         }
 
         private void NewWindow2_Click(object sender, EventArgs e)
@@ -238,6 +246,9 @@ namespace OptimizingCompilers2016.GUI
             newWindow.GetSetText = Result.Text;
             newWindow.Text = "Результат";
             newWindow.Show();
+            newWindow.Top = this.Top;
+            newWindow.Left = this.Right;
+            
         }
 
         private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
@@ -328,7 +339,7 @@ namespace OptimizingCompilers2016.GUI
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            this.DesktopLocation = new Point(0, 0);
         }
 
         private void tabControl2_Selecting(object sender, TabControlCancelEventArgs e)
@@ -337,11 +348,6 @@ namespace OptimizingCompilers2016.GUI
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load_1(object sender, EventArgs e)
         {
 
         }
