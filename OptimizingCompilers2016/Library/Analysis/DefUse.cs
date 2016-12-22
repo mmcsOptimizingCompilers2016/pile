@@ -91,8 +91,8 @@ namespace OptimizingCompilers2016.Library.Analysis
     public class GlobalDefUse
     {
 
-        //Queue<BaseBlock.BaseBlock> toProcess = new Queue<BaseBlock.BaseBlock>();
-        //Dictionary<BaseBlock.BaseBlock, >
+        //Queue<BaseBlock> toProcess = new Queue<BaseBlock>();
+        //Dictionary<BaseBlock, >
 
         Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
         Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();

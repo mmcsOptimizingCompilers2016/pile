@@ -57,6 +57,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis\DOM.cs" />
+    <Compile Include="Analysis\DominanceFrontier.cs" />
     <Compile Include="Analysis\DefUse.cs" />
     <Compile Include="Analysis\ActiveVariables.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
@@ -109,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="LinearCode\Base\" />
+    <Folder Include="ThreeAddressCode\Base\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

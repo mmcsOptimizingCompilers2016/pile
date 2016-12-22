@@ -10,7 +10,6 @@ using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
-using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -47,8 +46,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //var prettyVisitor = new PrettyPrintVisitor();
                 //parser.root.Accept(prettyVisitor);
                 //Console.WriteLine(prettyVisitor.Text);
-                var linearCode = new LinearCodeVisitor();
-                parser.root.Accept(linearCode);
+                //var linearCode = new LinearCodeVisitor();
+                //parser.root.Accept(linearCode);
 
                 //Console.WriteLine(linearCode.ToString());
 
@@ -66,18 +65,66 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 //Console.WriteLine(AV.ToString());
 
-                var opt = new CommonExpressions();
+                //var opt = new CommonExpressions();
 
-                BaseBlock block = new BaseBlock();
+                //BaseBlock block = new BaseBlock();
                 
-                block.Commands.AddRange(linearCode.code);
+                //block.Commands.AddRange(linearCode.code);
                 
                 
-                Console.WriteLine("Before:");
-                print(block.Commands);
-                var optCode = opt.Optimize(block);
-                Console.WriteLine("After:");
-                print(block.Commands);
+                //Console.WriteLine("Before:");
+                //print(block.Commands);
+                //var optCode = opt.Optimize(block);
+                //Console.WriteLine("After:");
+                //print(block.Commands);
+
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+                //Console.WriteLine(linearCode.ToString());
+
+                var blocks = BaseBlockDivider.divide(linearCode.code);
+
+                Console.WriteLine("Blocks:");
+                foreach (var block in blocks)
+                {
+                    Console.WriteLine(block.ToString());
+                    Console.WriteLine("-------");
+                }
+
+                //Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+
+                //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
+                //DOM.test_printing(dom_relations);
+                //Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
+                var domFront = new DominanceFrontier(blocks.ToList());
+                
+                Console.WriteLine(domFront.ToString());
+
+                var IDF = new HashSet<string>();
+
+                foreach (var block in blocks)
+                {
+                    IDF = domFront.ComputeIDF(block);
+                    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
+                }
+                    
+
+
+
+                //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
+                //DOM.test_printing(dom_relations);
+                //DOM.get_tree_root(dom_relations);
+
+                //Console.WriteLine("CFG:");
+                //ControlFlowGraph cfg = new ControlFlowGraph(blocks);
+                //Console.WriteLine(cfg.GenerateGraphvizDotFile());
+
             }
             catch (FileNotFoundException)
             {
