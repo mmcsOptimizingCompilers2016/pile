@@ -13,7 +13,7 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
     using BaseBlock = BaseBlock.BaseBlock;
     using ControlFlowGraph = ControlFlowGraph.ControlFlowGraph;
 
-    class DepthSpanningTree
+    public class DepthSpanningTree
     {	
         HashSet<BaseBlock> Visited;
 		Dictionary<BaseBlock, int> Numbers;
@@ -50,9 +50,16 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
 			{
 				if ( !Visited.Contains(predecessor) )
 				{
+                    if (!SpanningTree.Vertices.Contains(block))
+                        SpanningTree.AddVertex(block);
+
+                    if (!SpanningTree.Vertices.Contains(predecessor))
+                        SpanningTree.AddVertex(predecessor);
+
 					SpanningTree.AddEdge(new Edge<BaseBlock>(block, predecessor));
 					BuildTree(predecessor, ref currentNumber);
 				}
+
 				Numbers[block] = currentNumber;
 				currentNumber -= 1;
 			}
