@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 
@@ -84,6 +85,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         {
             var result = string.Empty;
             var counter = 0;
+            var numbers = new HashSet<int>();
             foreach (var pair in outs)
             {
                 var bits = pair.Value.Bits;
@@ -91,10 +93,22 @@ namespace OptimizingCompilers2016.Library.Analysis
                 for (var i = 0; i < bits.Count; ++i)
                 {
                     if (bits[i])
+                    {
                         result += "v" + i + " ";
+                        numbers.Add(i);
+                    }
                 }
                 result += "\n";
             }
+
+            foreach (var num in numbers)
+            {
+                var pair = occToBitNumber.FirstOrDefault(x => x.Value == num).Key;
+                var bb = pair.Item1;
+                var line = bb.Commands[pair.Item2.Item1];
+                result += "v" + num + ": " + line + "\n"; 
+            }
+
             return result;
         }
     }

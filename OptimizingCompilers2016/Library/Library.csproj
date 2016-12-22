@@ -57,12 +57,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analysis\EqualsBitArray.cs" />
     <Compile Include="Analysis\AvailabilityAnalysis.cs" />
     <Compile Include="Analysis\ConstantPropagation\GlobalConstantPropagation.cs" />
     <Compile Include="Analysis\ConstantPropagation\VariableMap.cs" />
     <Compile Include="Analysis\DefUse\GlobalDefUse.cs" />
     <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
-    <Compile Include="Analysis\EqualsBitArray.cs" />
     <Compile Include="Semilattice\Semilattice.cs" />
     <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
