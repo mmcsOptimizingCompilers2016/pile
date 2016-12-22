@@ -13,11 +13,11 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
     using BaseBlock = BaseBlock.BaseBlock;
     using ControlFlowGraph = ControlFlowGraph.ControlFlowGraph;
 
-    class DepthSpanningTree
+    public class DepthSpanningTree
     {	
         HashSet<BaseBlock> Visited;
-		Dictionary<BaseBlock, int> Numbers;
-		BidirectionalGraph<BaseBlock, Edge<BaseBlock>> SpanningTree;
+		public Dictionary<BaseBlock, int> Numbers;
+		public BidirectionalGraph<BaseBlock, Edge<BaseBlock>> SpanningTree;
 
 		/// <summary>
 		/// Depth spanning tree constructor. 
@@ -29,7 +29,7 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
             int numberOfVertices = controlFlowGraph.NumberOfVertices() - 1;
             Visited = new HashSet<BaseBlock>();
 			SpanningTree = new BidirectionalGraph<BaseBlock, Edge<BaseBlock>>();
-			Numbers = new Dictionary<BaseBlock, int>();
+            Numbers = new Dictionary<BaseBlock, int>();
 
 			var rootBlock = controlFlowGraph.GetRoot();
 			BuildTree(rootBlock, ref numberOfVertices);
@@ -56,6 +56,34 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
 				Numbers[block] = currentNumber;
 				currentNumber -= 1;
 			}
+        }
+
+        public string GenerateGraphvizDotFile()
+        {
+            var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(SpanningTree);
+            return graphviz.Generate();
+        }
+
+        public bool FindBackwardPath(BaseBlock source, BaseBlock target)
+        {
+            var result = false;
+
+            var incomingEdges = SpanningTree.InEdges(source);
+            while(incomingEdges.Count() > 0)
+            {
+                var edge = incomingEdges.First();
+                if (edge.Source == target)
+                {
+                    result = true;
+                    break;
+                }
+                else
+                {
+                    incomingEdges = SpanningTree.InEdges(edge.Source);
+                }
+            }
+
+            return result;
         }
     }
 }

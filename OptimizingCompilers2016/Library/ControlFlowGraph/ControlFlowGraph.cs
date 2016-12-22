@@ -5,16 +5,21 @@ using System.Linq;
 
 namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {
+    using DepthSpanningTree;
+    using BaseBlock;
+
     public class ControlFlowGraph
     {
-        UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
-            new UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
+        public UndirectedGraph<BaseBlock, Edge<BaseBlock>> CFG = 
+            new UndirectedGraph<BaseBlock, Edge<BaseBlock>>();
+
+        public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; set; }
 
         /// <summary>
         /// Конструктор класса ControlFlowGraph
         /// </summary>
         /// <param name="blocks">Коллекция базовых блоков трёхадресного кода</param>
-        public ControlFlowGraph(IEnumerable<BaseBlock.BaseBlock> blocks)
+        public ControlFlowGraph(IEnumerable<BaseBlock> blocks)
         {
             // Добавление вершин в граф
             CFG.AddVertexRange(blocks);
@@ -23,16 +28,18 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             {
                 if (block.Output != null)
                 {
-                    CFG.AddEdge(new Edge<BaseBlock.BaseBlock>(block, block.Output));
+                    CFG.AddEdge(new Edge<BaseBlock>(block, block.Output));
                 }
                 if (block.JumpOutput != null)
                 {
-                    CFG.AddEdge(new Edge<BaseBlock.BaseBlock>(block, block.JumpOutput));
+                    CFG.AddEdge(new Edge<BaseBlock>(block, block.JumpOutput));
                 }
             }
+
+            EdgeTypes = new Dictionary<Edge<BaseBlock>, EdgeType>();
         }
 
-        public BaseBlock.BaseBlock GetRoot()
+        public BaseBlock GetRoot()
         {
             return (NumberOfVertices() > 0) ? CFG.Vertices.ElementAt(0) : null;
         }
@@ -48,9 +55,29 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
         /// <returns></returns>
         public string GenerateGraphvizDotFile()
         {
-            var graphviz = new GraphvizAlgorithm<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG);
+            var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(CFG);
             return graphviz.Generate();
         }
-
+        public void Classification()
+        {
+            // TODO: Check when DepthSpanningTree will be fixed
+            var depthTree = new DepthSpanningTree(this);
+            foreach(var edge in CFG.Edges)
+            {
+                if (depthTree.SpanningTree.ContainsEdge(edge))
+                {
+                    EdgeTypes.Add(edge, EdgeType.Coming);
+                }
+                else if(depthTree.FindBackwardPath(edge.Source, edge.Target))
+                {
+                    EdgeTypes.Add(edge, EdgeType.Retreating);
+                }
+                else
+                {
+                    EdgeTypes.Add(edge, EdgeType.Cross);
+                }
+            }
+        }
+        
     }
 }
