@@ -105,7 +105,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 print(getListOfBB(graph));
                 var optCode = opt.Optimize(graph);
                 Console.WriteLine("After:");
-                //print(block.Commands);
+                print(getListOfBB(graph));
             }
             catch (FileNotFoundException)
             {

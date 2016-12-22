@@ -19,7 +19,8 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         // block name -> expression set
         Dictionary<string, ExpressionSet> eGenB = new Dictionary<string, ExpressionSet>();
         Dictionary<string, ExpressionSet> eKillB = new Dictionary<string, ExpressionSet>();
-
+        Dictionary<string, ExpressionSet> eInB = new Dictionary<string, ExpressionSet>();
+        Dictionary<string, ExpressionSet> eOutB = new Dictionary<string, ExpressionSet>();
 
         /// <summary>
         /// Retrieve all expressions from a block
@@ -77,26 +78,22 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         ///
         /// @param blocks
         /// </summary>
-        private Dictionary<string, ExpressionSet> initOutB(List<BaseBlock> blocks)
+        private void initOutB(List<BaseBlock> blocks)
         {
-            var result = new Dictionary<string, ExpressionSet>();
             ExpressionSet allExpressions = extractAllExpressions(ref blocks);
 
             foreach (var block in blocks)
             {
-                result[block.Name] = new ExpressionSet(allExpressions);
+                eOutB[block.Name] = new ExpressionSet(allExpressions);
             }
-            return result;
         }
 
-        private Dictionary<string, ExpressionSet> initInB(List<BaseBlock> blocks)
+        private void initInB(List<BaseBlock> blocks)
         {
-            Dictionary<string, ExpressionSet> result = new Dictionary<string, HashSet<BinaryExpression>>();
             foreach (var block in blocks)
             {
-                result[block.Name] = new ExpressionSet();
+                eInB[block.Name] = new ExpressionSet();
             }
-            return result;
         }
 
         /// <summary>
@@ -105,16 +102,15 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         public bool Optimize(ControlFlowGraph graph)
         {
             List<BaseBlock> blocks = graph.GetBaseBlocks();
-            var inB = initInB(blocks);
-            var outB = initOutB(blocks);
-            if (outB.Count == 0 || outB.First().Value.Count == 0)
+            initInB(blocks);
+            initOutB(blocks);
+            if (eOutB.Count == 0 || eOutB.First().Value.Count == 0)
                 return false;
 
+            // TODO: set inB in first bb into {} manually
+            iterationalAlgorithm(blocks);
 
-            // TODO: apply iterational algorithm to find the list of available expressions
-            iterationalAlgorithm(blocks, ref inB, ref outB);
-
-            return false;
+            return replaceCSE(ref blocks);
         }
 
         /// <summary>
@@ -193,8 +189,7 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         /// @param blocks - list of all blocks in the program + fictional source block
         /// TODO: decide what this function should return
         /// </summary>
-        private void iterationalAlgorithm(List<BaseBlock> blocks,
-            ref Dictionary<string, ExpressionSet> inB, ref Dictionary<string, ExpressionSet> outB)
+        private void iterationalAlgorithm(List<BaseBlock> blocks)
         {
 
             foreach (var block in blocks)
@@ -203,7 +198,7 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                 var killB = new IdentificatorSet();
                 getGenKill(block, ref genB, ref killB);
                 eGenB.Add(block.Name, genB);
-                eKillB.Add(block.Name, transformToExprSet(outB[block.Name], killB));
+                eKillB.Add(block.Name, transformToExprSet(eOutB[block.Name], killB));
             }
 
             bool changed;
@@ -212,23 +207,116 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                 changed = false;
                 foreach (var block in blocks)
                 {
-                    ExpressionSet ins = updateInB(block, outB);
-                    if (!ins.SetEquals(inB[block.Name]))
+                    ExpressionSet ins = updateInB(block, eOutB);
+                    if (!ins.SetEquals(eInB[block.Name]))
                     {
                         changed = true;
-                        inB[block.Name] = ins;
+                        eInB[block.Name] = ins;
                     }
 
-                    ExpressionSet outs = updateOutB(block, inB[block.Name]);
-                    if (!outs.SetEquals(outB[block.Name]))
+                    ExpressionSet outs = updateOutB(block, eInB[block.Name]);
+                    if (!outs.SetEquals(eOutB[block.Name]))
                     {
                         changed = true;
-                        outB[block.Name] = outs;
+                        eOutB[block.Name] = outs;
                     }
                 }
             }
             while (changed);
             
         }
+
+        public static bool isEqualBinRHS(IThreeAddressCode i1, IThreeAddressCode i2)
+        {
+            if (i1.Operation != i2.Operation)
+                return false;
+            
+            if (BinaryExpression.isCommutative(i1.Operation))
+            {
+                if (i1.LeftOperand.Value.Equals(i2.RightOperand.Value) &&
+                    i1.RightOperand.Value.Equals(i2.LeftOperand.Value))
+                    return true;
+            }
+            return i1.LeftOperand == i2.LeftOperand && i1.RightOperand == i2.RightOperand;
+        }
+
+        private void replaceAllOccurences(ref BaseBlock block, IThreeAddressCode inst, BinaryExpression bInst,
+            IdentificatorValue newName)
+        {
+            foreach(var pred in block.Predecessors)
+            {
+                if (eGenB[pred.Name].Contains(bInst))
+                {
+                    for (int i = pred.Commands.Count-1; i >= 0; --i)
+                    {
+                        var command = pred.Commands[i];
+                        if (command.Destination != null)
+                        {
+                            // expression must have been killed
+                            Debug.Assert(command.Destination.Value != bInst.LeftOperand.Value as string);
+                            Debug.Assert(command.Destination.Value != bInst.RightOperand.Value as string);
+                        }
+                        if (BinaryExpression.isModifiableOperation(command.Operation) && isEqualBinRHS(inst, command))
+                        {
+                            LinearRepresentation commonExpression = new LinearRepresentation(inst.Operation,
+                                newName, inst.LeftOperand, inst.RightOperand);
+                            pred.Commands.Insert(i, commonExpression);
+                            
+                            LinearRepresentation replacer = new LinearRepresentation(Operation.Assign,
+                                command.Destination, newName);
+                            pred.Commands[i + 1] = replacer;
+
+                            // TODO: modify gen
+
+                            return;
+                            
+                            
+                        }
+                    }
+                    //Debug.Assert(false); // unreachable
+                }
+                else
+                {
+                    //TODO:
+                    // run algorithm (replaceAllOccurences) for this block predecessors.
+                    // all predecessors (?) should be filled with value 'newName'
+                    continue;
+                }
+            }
+            
+            
+        }
+
+        private bool replaceCSE(ref List<BaseBlock> blocks)
+        {
+            const string namePrefix = "cseTmp";
+            int nameId = 0;
+
+            for (int i = 0; i < blocks.Count; ++i)
+            {
+                var block = blocks[i];
+                Debug.Assert(eInB.ContainsKey(block.Name));
+                ExpressionSet blockIn = eInB[block.Name];
+                ExpressionSet blockGen = eGenB[block.Name];
+                if (blockIn.Count == 0)
+                    continue;
+
+                for (int j = 0; j < block.Commands.Count; ++j)
+                {
+                    var inst = block.Commands[j];
+                    if (!BinaryExpression.isModifiableOperation(inst.Operation))
+                        continue;
+                    var cur = new BinaryExpression(inst);
+                    if (!blockIn.Contains(cur))
+                        continue;
+                    var iValue = new IdentificatorValue(namePrefix + nameId.ToString());
+                    replaceAllOccurences(ref block, inst, cur, iValue);
+                    block.Commands[j] = new LinearRepresentation(Operation.Assign, inst.Destination, iValue);
+                }
+
+            }
+            return false;
+        }
+
     }
 }
