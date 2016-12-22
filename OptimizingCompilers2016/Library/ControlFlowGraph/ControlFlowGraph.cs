@@ -45,12 +45,8 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
         {
             return CFG.Vertices.Count();
         }
-        /// <summary>
-        /// Сериализация графа в строку формата dot-файла для последующей визуализации с
-        /// помощью graphviz
-        /// </summary>
-        /// <returns></returns>
-        public string GenerateGraphvizDotFile()
+
+        public override string ToString()
         {
             var graphviz = new GraphvizAlgorithm<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG);
             return graphviz.Generate();

@@ -55,8 +55,9 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     Console.WriteLine("-------");
                 }
 
+                
 
-                Console.WriteLine(CFG.GenerateGraphvizDotFile());
+                Console.WriteLine(CFG.ToString());
             }
             catch (FileNotFoundException)
             {
