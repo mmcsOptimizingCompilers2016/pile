@@ -3,11 +3,11 @@ using QuickGraph.Graphviz;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OptimizingCompilers2016.Library.ControlFlowGraph
+namespace OptimizingCompilers2016.Library
 {
     public class ControlFlowGraph
     {
-        UndirectedGraph<BaseBlock, Edge<BaseBlock>> CFG = 
+        UndirectedGraph<BaseBlock, Edge<BaseBlock>> CFG =
             new UndirectedGraph<BaseBlock, Edge<BaseBlock>>();
 
         /// <summary>
@@ -32,26 +32,35 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             }
         }
 
-		public BaseBlock GetRoot()
-		{
-			return (NumberOfVertices() > 0) ? CFG.Vertices.ElementAt(0) : null;
-		}
+        public BaseBlock GetRoot()
+        {
+            return (Count() > 0) ? CFG.Vertices.ElementAt(0) : null;
+        }
 
-		public int NumberOfVertices()
-		{
-			return CFG.Vertices.Count();
-		}
+        public int Count()
+        {
+            return CFG.Vertices.Count();
+        }
 
-		/// <summary>
-		/// Сериализация графа в строку формата dot-файла для последующей визуализации с
-		/// помощью graphviz
-		/// </summary>
-		/// <returns></returns>
-		public string GenerateGraphvizDotFile()
+        /// <summary>
+        /// Сериализация графа в строку формата dot-файла для последующей визуализации с
+        /// помощью graphviz
+        /// </summary>
+        /// <returns></returns>
+        public string GenerateGraphvizDotFile()
         {
             var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(CFG);
             return graphviz.Generate();
         }
 
+        public List<BaseBlock> ToList()
+        {
+            return CFG.Vertices.ToList();
+        }
+        
+        public IEnumerator<BaseBlock> GetEnumerator()
+        {
+            return CFG.Vertices.ToList().GetEnumerator();
+        }
     }
 }
