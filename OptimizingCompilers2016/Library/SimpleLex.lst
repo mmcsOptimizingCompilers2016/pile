@@ -3,27 +3,33 @@
 //  GPLEX error listing for lex source file <SimpleLex.lex>
 // ==========================================================================
 //  Version:  1.1.3.301
-//  Machine:  DESKTOP-QPPTP52
-//  DateTime: 10/4/2016 6:33:53 PM
-//  UserName: yanus
+//  Machine:  VVS-??
+//  DateTime: 22.12.2016 14:30:35
+//  UserName: VVS
 // ==========================================================================
 
 
 %using System.Linq;
 %using QUT.Gppg;
-%using OptimizingCompilers2016.Library.Helpers
+%using OptimizingCompilers2016.Library.Helpers;
 
 %namespace OptimizingCompilers2016.Library
-//^^^^^^^^
-// Error: Unexpected symbol, skipping to  <%%> 
-// Error: Parser error <Syntax error, unexpected "%namespace", expecting ";", or "."> 
-// -----------------------------------------------------------------------------------
 
 Alpha 	[a-zA-Z_]
 Digit   [0-9] 
 AlphaDigit {Alpha}|{Digit}
-INTNUM  {Digit}+
+INTNUMPOS  {Digit}+
+INTNUM  {\-INTNUMPOS}|{INTNUMPOS}
+//------^^^
+// Error: Illegal character in this context
+// Error: Illegal character in this context
+// Error: Illegal character in this context
+// ----------------------------------------
 REALNUM {INTNUM}\.{INTNUM}
+//^^^^^
+// Error: Unexpected symbol, skipping to  <%%> 
+// Error: Parser error <Syntax error, unexpected name, expecting verbatim, or pattern> 
+// ------------------------------------------------------------------------------------
 ID {Alpha}{AlphaDigit}*
 
 %%
@@ -53,7 +59,7 @@ ID {Alpha}{AlphaDigit}*
   return res;
 }
 
-":=" { return (int)Tokens.ASSIGN; }
+"=" { return (int)Tokens.ASSIGN; }
 ";"  { return (int)Tokens.SEMICOLON; }
 "{"  { return (int)Tokens.BEGIN; }
 "}"  { return (int)Tokens.END; }
@@ -67,7 +73,7 @@ ID {Alpha}{AlphaDigit}*
 ">"  { return (int)Tokens.GT; }
 "<=" { return (int)Tokens.LE; }
 ">=" { return (int)Tokens.GE; }
-"=" { return (int)Tokens.EQ; }
+"==" { return (int)Tokens.EQ; }
 "!=" { return (int)Tokens.NE; }
 
 [^ \r\n\t] {
