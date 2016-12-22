@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -65,10 +65,14 @@
     <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
     <Compile Include="Semilattice\Semilattice.cs" />
     <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
+    <Compile Include="Analysis\ActiveVariables.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
     <Compile Include="DeadCode\DeadCodeDeleting.cs" />
+    <Compile Include="InterBlockOptimizators\IInterBlockOptimizator.cs" />
+    <Compile Include="Optimizators\AlgebraicIdentityOptimizator.cs" />
+    <Compile Include="Optimizators\CommonExpressions.cs" />
     <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />
     <Compile Include="Optimizators\IOptimizator.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />

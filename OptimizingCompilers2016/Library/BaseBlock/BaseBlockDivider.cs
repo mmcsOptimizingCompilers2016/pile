@@ -1,11 +1,7 @@
 ﻿using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OptimizingCompilers2016.Library
 {
@@ -39,7 +35,7 @@ namespace OptimizingCompilers2016.Library
             blocks.RemoveAll(block => block.Commands.Count == 0 && block.Predecessors.Count > 0);
         }
 
-        public static List<BaseBlock> divide(List<LinearRepresentation> plainCode)
+        public static ControlFlowGraph divide(List<LinearRepresentation> plainCode)
         {
             var blocks = new List<BaseBlock>();
             var labels = new Dictionary<LabelValue, int>();
@@ -83,8 +79,7 @@ namespace OptimizingCompilers2016.Library
             }
 
             eraseEmptyBlocks(blocks);
-
-            return blocks;
+            return new ControlFlowGraph(blocks);
         }
     }
 }
