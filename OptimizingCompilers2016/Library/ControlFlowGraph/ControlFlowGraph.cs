@@ -53,6 +53,10 @@ namespace OptimizingCompilers2016.Library
             return graphviz.Generate();
         }
 
+        public List<BaseBlock> ToList()
+        {
+            return CFG.Vertices.ToList();
+        }
         
         public IEnumerator<BaseBlock> GetEnumerator()
         {

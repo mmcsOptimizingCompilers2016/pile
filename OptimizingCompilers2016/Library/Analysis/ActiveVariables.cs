@@ -19,9 +19,9 @@ namespace OptimizingCompilers2016.Library.Analysis
         private Dictionary<string, HashSet<IdentificatorValue>> Use = new Dictionary<string, HashSet<IdentificatorValue>>();
         private List<BaseBlock> blocks;
 
-        public ActiveVariables(List<BaseBlock> blocks)
+        public ActiveVariables(ControlFlowGraph blocks)
         {
-            this.blocks = blocks;
+            this.blocks = blocks.ToList();
             FillDefUse();
         }
 
