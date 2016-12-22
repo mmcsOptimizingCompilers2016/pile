@@ -9,6 +9,8 @@ using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.ControlFlowGraph;
 using OptimizingCompilers2016.Library.ILCodeGenerator;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
+using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -80,7 +82,10 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine("-------");
                 //}
 
-                AssemblyGenerator.Generate(blocks, "result_assembly");
+                List<IThreeAddressCode> linear = new List<IThreeAddressCode>();
+                for (var block = blocks[0]; block != null; block = block.Output)
+                    linear.AddRange(block.Commands);
+                AssemblyGenerator.Generate(linear, "result_assembly");
 
             }
             catch (FileNotFoundException)

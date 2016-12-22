@@ -19,7 +19,6 @@ namespace OptimizingCompilers2016.Library.ILCodeGenerator
 
         private static Dictionary<string, Label> labels = new Dictionary<string, Label>();
         private static Dictionary<string, LocalBuilder> variables = new Dictionary<string, LocalBuilder>();
-        private static Dictionary<string, IThreeAddressCode> conditions = new Dictionary<string, IThreeAddressCode>();
 
         private static readonly Dictionary<Operation, OpCode> threeAddressCodeOpsToIL = new Dictionary<Operation, OpCode>
         {
@@ -39,18 +38,6 @@ namespace OptimizingCompilers2016.Library.ILCodeGenerator
                 {Operation.LessOrEq, Tuple.Create(OpCodes.Cgt, true)},
                 {Operation.GreatOrEq, Tuple.Create(OpCodes.Clt, true)}
             };
-
-        private static void GenCondition(ILGenerator ilGen, Operation op, IValue lOperand, IValue rOperand, IValue lvalue)
-        {
-            //LoadRval(ilGen, lOperand);
-            //LoadRval(ilGen, rOperand);
-            
-            //switch(op)
-            //{
-            //    case Operation.Eq:
-
-            //}
-        }
 
         private static void LoadRval(ILGenerator ilGen, IValue val)
         {
@@ -79,18 +66,18 @@ namespace OptimizingCompilers2016.Library.ILCodeGenerator
             }
         }
 
-        public static void Generate(List<BaseBlock> blocks, string assemblyName)
+        public static void Generate(List<IThreeAddressCode> linear, string assemblyName, string dir = null)
         {
 
-            var linear = new List<IThreeAddressCode>();
-            for(var block = blocks[0]; block != null; block = block.Output)
-                linear.AddRange(block.Commands);
+            //var linear = new List<IThreeAddressCode>();
+            //for(var block = blocks[0]; block != null; block = block.Output)
+            //    linear.AddRange(block.Commands);
 
 
             AssemblyName assemblyIdentity = new AssemblyName();
             assemblyIdentity.Name = assemblyName;
             AppDomain appDomain = AppDomain.CurrentDomain;
-            AssemblyBuilder bAssembly = appDomain.DefineDynamicAssembly(assemblyIdentity, AssemblyBuilderAccess.Save);
+            AssemblyBuilder bAssembly = appDomain.DefineDynamicAssembly(assemblyIdentity, AssemblyBuilderAccess.Save, dir);
 
             ModuleBuilder bModel = bAssembly.DefineDynamicModule(assemblyIdentity.Name, 
                 string.Format("{0}.exe", assemblyName), 
