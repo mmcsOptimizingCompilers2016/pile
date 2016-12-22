@@ -47,17 +47,14 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var BackEdge = ControlFlowGraph.MakeEdge(blocks[2], blocks[0]);
 
+                Console.WriteLine(CFG.ToString());
+
                 var NatLoop = new NaturalLoop(CFG, BackEdge);
 
-                foreach (var block in NatLoop.Loop)
-                {
-                    Console.WriteLine(block.ToString());
-                    Console.WriteLine("-------");
-                }
+                Console.WriteLine(NatLoop.ToString());
 
-                
 
-                Console.WriteLine(CFG.ToString());
+
             }
             catch (FileNotFoundException)
             {

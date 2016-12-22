@@ -46,6 +46,12 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             return CFG.Vertices.Count();
         }
 
+        public IEnumerable<BaseBlock.BaseBlock> GetVertices() {
+
+            return CFG.Vertices; 
+        }
+             
+
         public override string ToString()
         {
             var graphviz = new GraphvizAlgorithm<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG);
@@ -78,9 +84,9 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
     
 
     public class NaturalLoop{
-        HashSet<BaseBlock.BaseBlock> loop = new HashSet<BaseBlock.BaseBlock>();
+        HashSet<BaseBlock.BaseBlock> NatLoop = new HashSet<BaseBlock.BaseBlock>();
 
-        public HashSet<BaseBlock.BaseBlock> Loop { get { return loop; } }
+        public HashSet<BaseBlock.BaseBlock> Loop { get { return NatLoop; } }
 
         ReversedBidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> reverseCFG;
 
@@ -88,9 +94,9 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
             
             reverseCFG = new ReversedBidirectionalGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>(CFG.CFG);
 
-            loop.Add(BackEdge.Target);
+            NatLoop.Add(BackEdge.Target);
 
-            loop.Add(BackEdge.Source);
+            NatLoop.Add(BackEdge.Source);
 
             BuildNaturalLoop(BackEdge.Source);
             
@@ -101,10 +107,10 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
 
             foreach (var edge in reverseCFG.OutEdges(Source)) { 
 
-                if (!loop.Contains(edge.Target)) 
+                if (!NatLoop.Contains(edge.Target)) 
                 {
 
-                    loop.Add(edge.Target);
+                    NatLoop.Add(edge.Target);
 
                     BuildNaturalLoop(edge.Target);
                 }
@@ -113,7 +119,16 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
 
         }
 
+        public override string ToString()
+        {
+            string LoopStr = "";
+            foreach (var block in NatLoop)
+            {
 
+                LoopStr += block.ToString() + "\n";
+            }
+            return LoopStr;
+        }
 
     }
 
