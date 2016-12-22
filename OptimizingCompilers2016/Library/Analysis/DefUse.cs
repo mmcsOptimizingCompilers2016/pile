@@ -85,6 +85,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             var defUseString = result.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
             return String.Join("\n", defUseString);
         }
+
     }
 
     public class GlobalDefUse

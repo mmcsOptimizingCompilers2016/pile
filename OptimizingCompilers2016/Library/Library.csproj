@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\DefUse.cs" />
+    <Compile Include="Analysis\ActiveVariables.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
