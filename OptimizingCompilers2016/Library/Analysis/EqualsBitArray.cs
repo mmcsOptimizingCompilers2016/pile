@@ -9,59 +9,51 @@ namespace OptimizingCompilers2016.Library.Analysis
 {
     public class EqualsBitArray : ICloneable
     {
-        public BitArray bits { get; set; }
+        public int Length => Bits.Length;
 
-        public EqualsBitArray(BitArray bits)
+        public BitArray Bits { get; set; }
+
+        public EqualsBitArray(BitArray Bits)
         {
-            this.bits = bits;
+            this.Bits = Bits;
         }
 
-        public EqualsBitArray(int count, bool value)
+        public EqualsBiArray Or(EqualsBitArray other)
         {
-            this.bits = new BitArray(count, value);
-        }
-
-        public int length()
-        {
-            return bits.Length;
-        }
-
-        public EqualsBitArray Or(EqualsBitArray other)
-        {
-            return new EqualsBitArray(this.bits.Or(other.bits));
+            return new EqualsBitArray(this.Bits.Or(other.Bits));
         }
         public EqualsBitArray And(EqualsBitArray other)
         {
-            return new EqualsBitArray(this.bits.And(other.bits));
+            return new EqualsBitArray(this.Bits.And(other.Bits));
         }
         public EqualsBitArray Xor(EqualsBitArray other)
         {
-            return new EqualsBitArray(this.bits.Xor(other.bits));
+            return new EqualsBitArray(this.Bits.Xor(other.Bits));
         }
         public EqualsBitArray Not()
         {
-            return new EqualsBitArray(this.bits.Not());
+            return new EqualsBitArray(this.Bits.Not());
         }
         public void Set(int index, bool value)
         {
-            bits.Set(index, value);
+            Bits.Set(index, value);
         }
         public bool Get(int index)
         {
-            return bits.Get(index);
+            return new EqualsBitArray(this.Bits.Or(other.Bits));
         }
 
         public override bool Equals(object obj)
         {
             EqualsBitArray other = obj as EqualsBitArray;
-            if (this.length() != other.length())
+            if (this.Length != other.Length)
             {
                 return false;
             }
 
-            for (int i = 0; i < this.bits.Length; i++)
+            for (int i = 0; i < this.Bits.Length; i++)
             {
-                if (this.bits[i] != other.bits[i])
+                if (this.Bits[i] != other.Bits[i])
                 {
                     return false;
                 }
@@ -78,7 +70,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         public override string ToString()
         {
             String fullString = "";
-            foreach (var bit in bits)
+            foreach (var bit in Bits)
             {
                 fullString += bit.ToString() == "True" ? "1" : "0";
             }
@@ -87,7 +79,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         public object Clone()
         {
-            return new EqualsBitArray(bits.Clone() as BitArray);
+            return new EqualsBitArray(Bits.Clone() as BitArray);
         }
     }
 }

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
-using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System.Collections;
 using OptimizingCompilers2016.Library.Semilattice;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -16,13 +13,24 @@ namespace OptimizingCompilers2016.Library.Analysis
     /// (например: BitArray)
     /// </typeparam>
     public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
-     //    where T : IEnumerable, ICloneable
            where T : ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
        
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
+
+        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
+        protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
+        protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
+
+        protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
+
+        protected abstract T SetStartingSet();
+
+        public abstract T Collect(T x, T y);
+
+        protected abstract T Transfer(T x, BaseBlock b);
 
         protected void FillSupportingStructures(List<BaseBlock> blocks)
         {
@@ -34,23 +42,17 @@ namespace OptimizingCompilers2016.Library.Analysis
                     var line = block.Commands[i];
                     if (line.Destination is IdentificatorValue)
                     {
-                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(block, new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)), counter++);
+                        occToBitNumber.Add(new Tuple<BaseBlock, Tuple<int, IdentificatorValue>>(
+                            block,
+                            new Tuple<int, IdentificatorValue>(i, line.Destination as IdentificatorValue)),
+                            counter++);
                     }
                 }
             }
         }
 
-        //protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
-        protected abstract T SetStartingSet();
-        //protected abstract T SubstractSets(T firstSet, T secondSet);
-
-        //collect & transfer functions
-        public abstract T Collect(T x, T y);
-        protected abstract T Transfer(T x, BaseBlock b);
-
-
         //maybe it should implement Semilattice interface
-        public void IterationAlgorithm(List<BaseBlock> blocks)
+        protected void IterationAlgorithm(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
@@ -60,7 +62,6 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             bool areDifferent = true;
             int count = 0;
-
             while (areDifferent)
             {
                 count++;
@@ -77,16 +78,15 @@ namespace OptimizingCompilers2016.Library.Analysis
                     outs[block] = Transfer(ins[block], block);
                     //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]) && !areDifferent)
-                    {
                         areDifferent = false;
-                    }
-                    else {
+                    else
                         areDifferent = true;
-                    }       
                 }
             }
 
             Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
+        public abstract void RunAnalysis(List<BaseBlock> blocks);
+
     }
 }

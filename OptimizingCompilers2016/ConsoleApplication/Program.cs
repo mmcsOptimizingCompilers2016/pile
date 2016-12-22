@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using OptimizingCompilers2016.Library;
-using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.Analysis;
+using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.Transformations;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -23,12 +25,14 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-                //  if (!b)
-                //Console.WriteLine("Ошибка");
-                //  else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
+
+                if (!b)
+                    Console.WriteLine("Ошибка");
+                else Console.WriteLine("Программа распознана");
+                var prettyVisitor = new PrettyPrintVisitor();
+                parser.root.Accept(prettyVisitor);
+                Console.WriteLine(prettyVisitor.Text);
+
 
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
@@ -38,7 +42,25 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Console.WriteLine("Blocks:");
                 foreach (var block in blocks)
                 {
+                    //InblockDefUse DU = new InblockDefUse(block);
+                    //foreach (var item in DU.result)
+                    //{
+                    //    Console.Write(item.Key + " :");
+                    //    Console.Write("{");
+                    //    foreach (var item2 in item.Value)
+                    //    {
+                    //        Console.Write(item2 + "  ");
+                    //    }
+                    //    Console.Write("}");
+                    //    Console.WriteLine();
+                    //}
+
                     Console.WriteLine(block.ToString());
+                    DeadCodeDeleting.optimizeDeadCode(block);
+                    Console.WriteLine("After optimization:");
+                    Console.WriteLine(block.ToString());
+
+                    //console.writeline(block.tostring());
                     Console.WriteLine("-------");
                 }
 
@@ -48,6 +70,13 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var constantPropagation = new GlobalConstantPropagation(blocks);
                 constantPropagation.runAnalys();
+                //ConstantFolding.transform(blocks);
+                //foreach (var block in blocks)
+                //{
+                //    Console.WriteLine(block.ToString());
+                //    Console.WriteLine("-------");
+                //    Console.WriteLine("-------");
+                //}
             }
             catch (FileNotFoundException)
             {

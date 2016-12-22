@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -31,6 +31,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="QuickGraph, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="QuickGraph.Data, Version=3.6.61114.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="QuickGraph.Graphviz, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Graphviz.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="QuickGraph.Serialization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,13 +57,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+
     <Compile Include="Analysis\EqualsBitArray.cs" />
-    <Compile Include="Analysis\GlobalConstantPropagation.cs" />
+    <Compile Include="Analysis\GlobalConstantPropagation.cs"/>
+    <Compile Include="Analysis\AvailabilityAnalysis.cs" />
+    <Compile Include="Analysis\ConstantPropagation\GlobalConstantPropagation.cs" />
+    <Compile Include="Analysis\ConstantPropagation\VariableMap.cs" />
+    <Compile Include="Analysis\DefUse\GlobalDefUse.cs" />
+    <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
+    <Compile Include="Analysis\EqualsBitArray.cs" />
     <Compile Include="Semilattice\Semilattice.cs" />
     <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
-    <Compile Include="Analysis\DefUse.cs" />
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
+    <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />
+    <Compile Include="DeadCode\DeadCodeDeleting.cs" />
+    <Compile Include="Optimizators\ConstantPropagationOptimizator.cs" />
+    <Compile Include="Optimizators\IOptimizator.cs" />
     <Compile Include="ThreeAddressCode\ThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\IThreeAddressCode.cs" />
     <Compile Include="ThreeAddressCode\Operation.cs" />
@@ -58,6 +84,7 @@
     <Compile Include="ThreeAddressCode\Values\LabelValue.cs" />
     <Compile Include="ThreeAddressCode\Values\IdentificatorValue.cs" />
     <Compile Include="ThreeAddressCode\Values\NumericValue.cs" />
+    <Compile Include="Transformations\ConstantFolding.cs" />
     <Compile Include="Visitors\LinearCode.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
     <Compile Include="Nodes\AssignNode.cs" />
@@ -86,8 +113,9 @@
     <Compile Include="Visitors\IVisitor.cs" />
     <Compile Include="Visitors\PrettyPrintVisitor.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="LinearCode\Base\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
