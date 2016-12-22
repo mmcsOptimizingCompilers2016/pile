@@ -139,8 +139,8 @@ namespace OptimizingCompilers2016.Library.Analysis
             VariableValue y = currentTable.variableTable[line.RightOperand as IdentificatorValue];
             Operation op = line.Operation;
 
-            if (x.type.Equals(VariableValueType.CONSTANT) &&
-               (y.type.Equals(VariableValueType.CONSTANT)))
+            if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue) &&
+               (y.type.Equals(VariableValueType.CONSTANT) || line.RightOperand is NumericValue))
             {
                 newValue.type = VariableValueType.CONSTANT;
                 newValue.constantValue = CalculateConstant(op, x.constantValue, y.constantValue);

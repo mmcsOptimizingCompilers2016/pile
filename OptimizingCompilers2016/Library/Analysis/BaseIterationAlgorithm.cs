@@ -60,6 +60,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             bool areDifferent = true;
             int count = 0;
+
             while (areDifferent)
             {
                 count++;
@@ -73,7 +74,6 @@ namespace OptimizingCompilers2016.Library.Analysis
                     }
 
                     var prevOut = outs[block].Clone();
-
                     outs[block] = Transfer(ins[block], block);
                     //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]) && !areDifferent)
@@ -88,12 +88,5 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
-
-        //private T Transfer(T enum1, BaseBlock b)
-        //{            
-        //    return FindInSet(generators[b], Diffs(enum1,killers[b]));
-        //}
-        //protected abstract T FindInSet(T enum1, T enum2);
-        //protected abstract T Diffs(T enum1, T enum2);
     }
 }

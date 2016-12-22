@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-	<Compile Include="Semilattice\Semilattice.cs" />
+    <Compile Include="Analysis\EqualsBitArray.cs" />
+    <Compile Include="Analysis\GlobalConstantPropagation.cs" />
+    <Compile Include="Semilattice\Semilattice.cs" />
     <Compile Include="Analysis\BaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="Analysis\DefUse.cs" />

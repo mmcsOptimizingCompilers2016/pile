@@ -42,8 +42,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     Console.WriteLine("-------");
                 }
 
-                var gdu = new GlobalDefUse();
-                gdu.runAnalys(blocks);
+                //var gdu = new GlobalDefUse();
+                //gdu.runAnalys(blocks);
+                //gdu.getDefUses();
+
+                var constantPropagation = new GlobalConstantPropagation(blocks);
+                constantPropagation.runAnalys();
             }
             catch (FileNotFoundException)
             {

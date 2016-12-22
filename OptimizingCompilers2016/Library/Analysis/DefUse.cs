@@ -112,28 +112,25 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
     }
 
-    public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
+    public class GlobalDefUse : BaseIterationAlgorithm<EqualsBitArray>
     {
         Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
-        //Dictionary<BaseBlock, BitArray> outs = new Dictionary<BaseBlock, BitArray>();
-        //Dictionary<BaseBlock, BitArray> ins = new Dictionary<BaseBlock, BitArray>();
-
-        protected Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
-        protected Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+        protected Dictionary<BaseBlock, EqualsBitArray> generators = new Dictionary<BaseBlock, EqualsBitArray>();
+        protected Dictionary<BaseBlock, EqualsBitArray> killers = new Dictionary<BaseBlock, EqualsBitArray>();
 
         protected void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
-                Console.WriteLine("Local def-uses: ");
-                Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
+                //Console.WriteLine("Local def-uses: ");
+                //Console.WriteLine(block.Name + " : " + new InblockDefUse(block).ToString());
                 localDefUses.Add(block, new InblockDefUse(block));
             }
 
             foreach (var block in blocks)
             {
-                generators.Add(block, new BitArray(occToBitNumber.Count, false));
-                killers.Add(block, new BitArray(occToBitNumber.Count, false));
+                generators.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
+                killers.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
                 foreach (var ldur in localDefUses[block].defUses)
                 {
                     foreach(var e in occToBitNumber)
@@ -155,31 +152,22 @@ namespace OptimizingCompilers2016.Library.Analysis
                         }
                     }
                 }
-                Console.WriteLine(block.Name);
-                Console.WriteLine(" Gen: " + BitArrayToString(generators[block]));
-                PrintKillOfGen(generators[block]);
-                Console.WriteLine("Kill: " + BitArrayToString(killers[block]));
+                //Console.WriteLine(block.Name);
+                //Console.WriteLine(" Gen: " + EqualsBitArrayToString(generators[block]));
+                //PrintKillOfGen(generators[block]);
+                //Console.WriteLine("Kill: " + EqualsBitArrayToString(killers[block]));
             }
         }
 
-        protected override BitArray SetStartingSet() {
-            return new BitArray(occToBitNumber.Count, false);
+        protected override EqualsBitArray SetStartingSet() {
+            return new EqualsBitArray(occToBitNumber.Count, false);
         }
 
-        protected BitArray SubstractSets(BitArray firstSet, BitArray secondSet) {
+        protected EqualsBitArray SubstractSets(EqualsBitArray firstSet, EqualsBitArray secondSet) {
             return firstSet.And(secondSet.Not());
         }
-
-        private String BitArrayToString(BitArray arr) {
-            String fullString = "";
-            foreach (var bit in arr)
-            {
-                fullString += bit.ToString() == "True" ? "1" : "0";
-            }
-            return fullString;
-        }
         
-        private void PrintKillOfGen(BitArray something)
+        private void PrintKillOfGen(EqualsBitArray something)
         {
             foreach (var e in occToBitNumber)
             {
@@ -191,16 +179,16 @@ namespace OptimizingCompilers2016.Library.Analysis
             Console.WriteLine();
         }
 
-        public override BitArray Collect(BitArray x, BitArray y) {
+        public override EqualsBitArray Collect(EqualsBitArray x, EqualsBitArray y) {
             return x.Or(y);
         }
 
-        protected override BitArray Transfer(BitArray x, BaseBlock b)
+        protected override EqualsBitArray Transfer(EqualsBitArray x, BaseBlock b)
         {
             return generators[b].Or(SubstractSets(x, killers[b]));
         }
 
-        private Dictionary<BaseBlock, BitArray> iterationAlgorithm(List<BaseBlock> blocks) {
+        private Dictionary<BaseBlock, EqualsBitArray> iterationAlgorithm(List<BaseBlock> blocks) {
             base.IterationAlgorithm(blocks);
             return base.outs;
         }
