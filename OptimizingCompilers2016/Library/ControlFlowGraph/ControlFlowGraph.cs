@@ -7,7 +7,7 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
 {
     public class ControlFlowGraph
     {
-        UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG = 
+        UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>> CFG =
             new UndirectedGraph<BaseBlock.BaseBlock, Edge<BaseBlock.BaseBlock>>();
 
         /// <summary>

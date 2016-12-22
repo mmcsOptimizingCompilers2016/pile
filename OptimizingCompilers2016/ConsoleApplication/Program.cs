@@ -5,7 +5,7 @@ using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.BaseBlock;
-using OptimizingCompilers2016.Library.ControlFlowGraph;
+//using OptimizingCompilers2016.Library.ControlFlowGraph;
 using OptimizingCompilers2016.Library.Analyses;
 using System.Collections.Generic;
 
@@ -52,24 +52,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
 
                 var domFront = new DominanceFrontier(blocks);
-
+                
                 Console.WriteLine(domFront.ToString());
 
-                List<string> l = new List<string>();
+                var IDF = new HashSet<string>();
 
-                l.Add("B1");
-                l.Add("B2");
-                l.Add("B3");
-                l.Add("B4");
-                l.Add("B5");
-                l.Add("B6");
-                l.Add("B7");
-                
-
-                var IDF = domFront.ComputeIDF(l);
-
-                foreach (var item in IDF)
-                    Console.WriteLine(item);
+                foreach (var block in blocks)
+                {
+                    IDF = domFront.ComputeIDF(block);
+                    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
+                }
+                    
 
 
 

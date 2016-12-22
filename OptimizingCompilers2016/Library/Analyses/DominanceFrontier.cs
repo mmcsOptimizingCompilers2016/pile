@@ -12,6 +12,7 @@ namespace OptimizingCompilers2016.Library.Analyses
     public class DominanceFrontier
     {
         public Dictionary<string, HashSet<string>> DF = new Dictionary<string, HashSet<string>>();
+        public Dictionary<string, HashSet<string>> IDF = new Dictionary<string, HashSet<string>>();
 
         private List<BaseBlock.BaseBlock> blocks;
 
@@ -50,7 +51,7 @@ namespace OptimizingCompilers2016.Library.Analyses
             }
         }
 
-        public HashSet<string> ComputeIDF(List<string> blocks, int iterations = 2)
+        public HashSet<string> ComputeIDF(List<BaseBlock.BaseBlock> blocks)
         {
             HashSet<string> IDF = new HashSet<string>();
             HashSet<string> oldIDF = new HashSet<string>();
@@ -64,8 +65,8 @@ namespace OptimizingCompilers2016.Library.Analyses
 
             foreach (var block in blocks)
             {
-                S.Add(block);
-                DF_S.UnionWith(DF[block]);
+                S.Add(block.Name);
+                DF_S.UnionWith(DF[block.Name]);
             }
 
             IDF = new HashSet<string>(DF_S);
@@ -85,6 +86,48 @@ namespace OptimizingCompilers2016.Library.Analyses
 
                 if (IDF.SetEquals(oldIDF))
                     flag = false;
+
+                oldIDF = new HashSet<string>(IDF);
+            }
+
+            return IDF;
+
+        }
+
+        public HashSet<string> ComputeIDF(BaseBlock.BaseBlock block)
+        {
+            HashSet<string> IDF = new HashSet<string>();
+            HashSet<string> oldIDF = new HashSet<string>();
+            HashSet<string> DF_S = new HashSet<string>();
+            HashSet<string> S = new HashSet<string>();
+
+            //for (int i = 0; i < iterations; i++)
+            //{
+            //    IDF.Add(new HashSet<string>());
+            //}
+
+            S.Add(block.Name);
+            DF_S.UnionWith(DF[block.Name]);
+
+            IDF = new HashSet<string>(DF_S);
+            oldIDF = new HashSet<string>(IDF);
+
+            bool flag = true;
+
+            while (flag)
+            {
+                DF_S = new HashSet<string>();
+                var tempS = new HashSet<string>(S);
+                tempS.UnionWith(IDF);
+                foreach (var nameBlock in tempS)
+                    DF_S.UnionWith(DF[nameBlock]);
+
+                IDF = new HashSet<string>(DF_S);
+
+                if (IDF.SetEquals(oldIDF))
+                    flag = false;
+
+                oldIDF = new HashSet<string>(IDF);
             }
 
             return IDF;
@@ -97,14 +140,15 @@ namespace OptimizingCompilers2016.Library.Analyses
 
             foreach (var block in DF)
             {
-                res += block.Key + ": ";
-                
-                foreach (var blockDF in block.Value)
-                {
-                    res += blockDF + " ";
-                }
+
+                res += "DF(" + block.Key + ")= {" + string.Join(", ", block.Value) + "}";
+
                 res += "\n";
             }
+
+            res += "\n";
+
+            //res += "IDF({" + string.Join(", ", blocks.Select((BaseBlock.BaseBlock bl) => { return bl.Name; })) + "}) = {"+  string.Join(", ", IDF) + "}";
 
             return res;
         }
