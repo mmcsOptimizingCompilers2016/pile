@@ -4,6 +4,9 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.Optimizators;
+using System.Collections.Generic;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
@@ -13,9 +16,21 @@ namespace OptimizingCompilers2016.ConsoleApplication
 {
     class Program
     {
+        static void print(List<IThreeAddressCode> code)
+        {
+            String text = "";
+            foreach (IThreeAddressCode lr in code)
+            {
+
+                text += lr.ToString() + Environment.NewLine;
+            }
+            Console.WriteLine(text);
+        }
+
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
+
             try
             {
                 string text = File.ReadAllText(FileName);
@@ -26,47 +41,43 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
-
-                if (!b)
-                    Console.WriteLine("Ошибка");
-                else Console.WriteLine("Программа распознана");
-                var prettyVisitor = new PrettyPrintVisitor();
-                parser.root.Accept(prettyVisitor);
-                Console.WriteLine(prettyVisitor.Text);
-
-
+                //if (!b)
+                //    Console.WriteLine("Ошибка");
+                //else Console.WriteLine("Программа распознана");
+                //var prettyVisitor = new PrettyPrintVisitor();
+                //parser.root.Accept(prettyVisitor);
+                //Console.WriteLine(prettyVisitor.Text);
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                Console.WriteLine(linearCode.ToString());
 
-                var blocks = BaseBlockDivider.divide(linearCode.code);
-                Console.WriteLine("Blocks:");
-                foreach (var block in blocks)
-                {
-                    //InblockDefUse DU = new InblockDefUse(block);
-                    //foreach (var item in DU.result)
-                    //{
-                    //    Console.Write(item.Key + " :");
-                    //    Console.Write("{");
-                    //    foreach (var item2 in item.Value)
-                    //    {
-                    //        Console.Write(item2 + "  ");
-                    //    }
-                    //    Console.Write("}");
-                    //    Console.WriteLine();
-                    //}
+                //Console.WriteLine(linearCode.ToString());
 
-                    Console.WriteLine(block.ToString());
-                    DeadCodeDeleting.optimizeDeadCode(block);
-                    Console.WriteLine("After optimization:");
-                    Console.WriteLine(block.ToString());
+                //var blocks = BaseBlockDivider.divide(linearCode.code);
+                //Console.WriteLine("Blocks:");
+                //foreach (var block in blocks)
+                //{
+                //    Console.WriteLine(block.ToString());
+                //    Console.WriteLine("-------");
+                //}
 
-                    //console.writeline(block.tostring());
-                    Console.WriteLine("-------");
-                }
+                //var AV = new ActiveVariables(blocks);
 
-                var gdu = new GlobalDefUse();
-                gdu.runAnalys(blocks);
+                //AV.runAnalys();
+
+                //Console.WriteLine(AV.ToString());
+
+                var opt = new CommonExpressions();
+
+                BaseBlock block = new BaseBlock();
+                
+                block.Commands.AddRange(linearCode.code);
+                
+                
+                Console.WriteLine("Before:");
+                print(block.Commands);
+                var optCode = opt.Optimize(block);
+                Console.WriteLine("After:");
+                print(block.Commands);
             }
             catch (FileNotFoundException)
             {

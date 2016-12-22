@@ -26,4 +26,10 @@
   }
   for i=1 to 10 do
 	a = a + i;
+  
+  c = a + 3;
+  d = d + d;
+  b = a + 2;
+  d = a + 2;
+  e = 3 + a;
 }
