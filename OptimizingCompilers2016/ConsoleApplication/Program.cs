@@ -89,7 +89,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
-
                 Console.WriteLine("Blocks:");
                 foreach (var block in blocks)
                 {
@@ -124,7 +123,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine("CFG:");
                 //ControlFlowGraph cfg = new ControlFlowGraph(blocks);
                 //Console.WriteLine(cfg.GenerateGraphvizDotFile());
-
             }
             catch (FileNotFoundException)
             {
