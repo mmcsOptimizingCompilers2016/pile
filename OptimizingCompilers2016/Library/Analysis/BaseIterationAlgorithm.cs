@@ -13,7 +13,7 @@ namespace OptimizingCompilers2016.Library.Analysis
     /// (например: BitArray)
     /// </typeparam>
     public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
-        where T : IEnumerable, ICloneable
+        where T : ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
        
@@ -21,8 +21,8 @@ namespace OptimizingCompilers2016.Library.Analysis
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
 
         protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
-        protected Dictionary<BaseBlock, BitArray> generators = new Dictionary<BaseBlock, BitArray>();
-        protected Dictionary<BaseBlock, BitArray> killers = new Dictionary<BaseBlock, BitArray>();
+        protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
+        protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
 
         protected abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
 
@@ -61,8 +61,10 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
 
             bool areDifferent = true;
+            int count = 0;
             while (areDifferent)
             {
+                count++;
                 areDifferent = false;
                 foreach (var block in blocks)
                 {
@@ -75,25 +77,18 @@ namespace OptimizingCompilers2016.Library.Analysis
                     var prevOut = outs[block].Clone();
 
                     outs[block] = Transfer(ins[block], block);
-                    if (prevOut.Equals(outs[block]))
-                    {
-                        areDifferent = areDifferent || false;
-                    }
+                    //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
+                    if (prevOut.Equals(outs[block]) && !areDifferent)
+                        areDifferent = false;
+                    else
+                        areDifferent = true;
                 }
             }
+
+            Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
 
-        protected void Print()
-        {
-            // create good printing
-        }
+        public abstract void RunAnalysis(List<BaseBlock> blocks);
 
-        public void RunAnalysis(List<BaseBlock> blocks)
-        {
-            FillSupportingStructures(blocks);
-            FillGeneratorsAndKillers(blocks);
-            IterationAlgorithm(blocks);
-            Print();
-        }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 
 namespace OptimizingCompilers2016.Library.Analysis.DefUse
 {
-    public class GlobalDefUse : BaseIterationAlgorithm<BitArray>
+    public class GlobalDefUse : BaseIterationAlgorithm<EqualsBitArray>
     {
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
@@ -20,8 +19,8 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
             foreach (var block in blocks)
             {
-                generators.Add(block, new BitArray(occToBitNumber.Count, false));
-                killers.Add(block, new BitArray(occToBitNumber.Count, false));
+                generators.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
+                killers.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
                 foreach (var ldur in localDefUses[block].defUses)
                 {
                     foreach (var e in occToBitNumber)
@@ -44,38 +43,35 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                     }
                 }
                 Console.WriteLine(block.Name);
-                Console.WriteLine(" Gen: " + BitArrayToString(generators[block]));
+                Console.WriteLine(" Gen: " + generators[block].ToString());
                 PrintKillOfGen(generators[block]);
-                Console.WriteLine("Kill: " + BitArrayToString(killers[block]));
+                Console.WriteLine("Kill: " + killers[block].ToString());
             }
         }
 
-        protected override BitArray SetStartingSet()
+        protected override EqualsBitArray SetStartingSet()
         {
-            return new BitArray(occToBitNumber.Count, false);
+            return new EqualsBitArray(occToBitNumber.Count, false);
         }
 
-        protected override BitArray Transfer(BitArray x, BaseBlock b)
+        protected override EqualsBitArray Transfer(EqualsBitArray x, BaseBlock b)
         {
             return generators[b].Or(SubstractSets(x, killers[b]));
         }
 
-        public override BitArray Collect(BitArray x, BitArray y)
+        public override EqualsBitArray Collect(EqualsBitArray x, EqualsBitArray y)
         {
             return x.Or(y);
         }
 
-        private string BitArrayToString(BitArray arr)
+        public override void RunAnalysis(List<BaseBlock> blocks)
         {
-            var fullString = "";
-            foreach (var bit in arr)
-            {
-                fullString += bit.ToString() == "True" ? "1" : "0";
-            }
-            return fullString;
+            FillSupportingStructures(blocks);
+            FillGeneratorsAndKillers(blocks);
+            IterationAlgorithm(blocks);
         }
 
-        private void PrintKillOfGen(BitArray something)
+        private void PrintKillOfGen(EqualsBitArray something)
         {
             foreach (var e in occToBitNumber)
             {
@@ -87,7 +83,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
             Console.WriteLine();
         }
 
-        private BitArray SubstractSets(BitArray firstSet, BitArray secondSet)
+        private EqualsBitArray SubstractSets(EqualsBitArray firstSet, EqualsBitArray secondSet)
         {
             return firstSet.And(secondSet.Not());
         }
