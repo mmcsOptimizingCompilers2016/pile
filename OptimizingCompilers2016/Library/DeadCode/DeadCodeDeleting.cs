@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OptimizingCompilers2016.Library.Analysis;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
 
 namespace OptimizingCompilers2016.Library.DeadCode
 {
@@ -33,22 +30,40 @@ namespace OptimizingCompilers2016.Library.DeadCode
             //Dictionary<Occurrence, HashSet<Occurrence>>
 
             HashSet<IThreeAddressCode> toDelete  = new HashSet<IThreeAddressCode>();
-            HashSet<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue> viewed = new HashSet<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>();
+            HashSet<IdentificatorValue> viewed = new HashSet<IdentificatorValue>();
             InblockDefUse DU = new InblockDefUse(block);
 
             for (int i = DU.result.Count-1; i >=0; i--)
             {
-                if(!viewed.Contains(DU.result.ElementAt(i).Key.Item2) || (activeVars != null && activeVars.Contains(DU.result.ElementAt(i).Key.Item2)))
+                if (activeVars == null)
                 {
-                    viewed.Add(DU.result.ElementAt(i).Key.Item2);
+                    if (!viewed.Contains(DU.result.ElementAt(i).Key.Item2))
+                    {
+                        viewed.Add(DU.result.ElementAt(i).Key.Item2);
+                    }
+                    else
+                    {
+                        if (DU.result.ElementAt(i).Value.Count == 0)
+                        {
+                            toDelete.Add(block.Commands[DU.result.ElementAt(i).Key.Item1]);
+                        }
+
+                    }
                 }
                 else
                 {
-                    if (DU.result.ElementAt(i).Value.Count == 0)
+                    if (!viewed.Contains(DU.result.ElementAt(i).Key.Item2) && !activeVars.Contains(DU.result.ElementAt(i).Key.Item2))
                     {
-                        toDelete.Add(block.Commands[DU.result.ElementAt(i).Key.Item1]);
+                        viewed.Add(DU.result.ElementAt(i).Key.Item2);
                     }
+                    else
+                    {
+                        if (DU.result.ElementAt(i).Value.Count == 0)
+                        {
+                            toDelete.Add(block.Commands[DU.result.ElementAt(i).Key.Item1]);
+                        }
 
+                    }
                 }
             }
 
