@@ -112,7 +112,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     IDF = domFront.ComputeIDF(block);
                     Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
                 }
-                    
+
 
 
 
@@ -121,7 +121,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //DOM.get_tree_root(dom_relations);
 
                 //Console.WriteLine("CFG:");
-                //ControlFlowGraph cfg = new ControlFlowGraph(blocks);
+                //ControlFlowGraph cfg = blocks;
                 //Console.WriteLine(cfg.GenerateGraphvizDotFile());
             }
             catch (FileNotFoundException)

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
-
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -31,7 +31,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 var ldu = new InblockDefUse(blocks[i]);
                 var Set = new HashSet<IdentificatorValue>();
-                foreach (var key in ldu.result.Keys)
+                foreach (var key in ldu.defUses.Keys)
                     Set.Add(new IdentificatorValue(key.Item2.Value));
                 Def[blocks[i].Name] = Set;
             }
@@ -40,7 +40,7 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 var ldu = new InblockDefUse(blocks[i]);
                 var Set = new HashSet<IdentificatorValue>();
-                foreach (var sets in ldu.result.Values)
+                foreach (var sets in ldu.defUses.Values)
                     foreach (var itemSet in sets)
                         Set.Add(new IdentificatorValue(itemSet.Item2.Value));
                 Use[blocks[i].Name] = Set;
