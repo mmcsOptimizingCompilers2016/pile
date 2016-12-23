@@ -11,7 +11,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 {
     public class ActiveVariables
     {
-        public new Dictionary<string, HashSet<IdentificatorValue>> result = new Dictionary<string, HashSet<IdentificatorValue>>();
+        public Dictionary<string, HashSet<IdentificatorValue>> result = new Dictionary<string, HashSet<IdentificatorValue>>();
 
         private Dictionary<string, HashSet<IdentificatorValue>> IN = new Dictionary<string, HashSet<IdentificatorValue>>();
         private Dictionary<string, HashSet<IdentificatorValue>> OUT = new Dictionary<string, HashSet<IdentificatorValue>>();

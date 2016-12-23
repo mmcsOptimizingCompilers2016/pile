@@ -1,15 +1,15 @@
 ﻿using System;
 using System.IO;
-using OptimizingCompilers2016.Library;
-using OptimizingCompilers2016.Library.Helpers;
-using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.Visitors;
-using OptimizingCompilers2016.Library.Optimizators;
-using System.Collections.Generic;
-using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.Helpers;
+using OptimizingCompilers2016.Library.LinearCode;
+using OptimizingCompilers2016.Library.Optimizators;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library;
+using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -28,6 +28,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
         static void Main(string[] args)
         {
+
             string FileName = @"a.txt";
 
             try
@@ -40,6 +41,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 Parser parser = new Parser(scanner);
 
                 var b = parser.Parse();
+
                 //if (!b)
                 //    Console.WriteLine("Ошибка");
                 //else Console.WriteLine("Программа распознана");
@@ -89,6 +91,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
+
                 Console.WriteLine("Blocks:");
                 foreach (var block in blocks)
                 {
@@ -113,9 +116,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
                     Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
                 }
 
-
-
-
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
                 //DOM.test_printing(dom_relations);
                 //DOM.get_tree_root(dom_relations);
@@ -123,6 +123,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine("CFG:");
                 //ControlFlowGraph cfg = blocks;
                 //Console.WriteLine(cfg.GenerateGraphvizDotFile());
+
+                var CFG = blocks;
+
+                var BackEdge = ControlFlowGraph.MakeEdge(blocks.ToList()[2], blocks.ToList()[0]);
+
+                Console.WriteLine(CFG.ToString());
+
+                var NatLoop = new NaturalLoop(CFG, BackEdge);
+
+                Console.WriteLine(NatLoop.ToString());
+
             }
             catch (FileNotFoundException)
             {
