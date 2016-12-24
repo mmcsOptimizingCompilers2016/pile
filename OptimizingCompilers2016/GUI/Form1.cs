@@ -16,6 +16,7 @@ using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.Optimizators;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 using System.Threading;
 using System.Text.RegularExpressions;
 
