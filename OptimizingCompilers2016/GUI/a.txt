@@ -1,0 +1,29 @@
+{
+  b := 2;
+  a := 3;
+  a := b;
+  c:= b + 2;
+  d:= a * b + c * d + 3;
+  if 1 then
+	b := 1;
+  else
+  {
+    b := 0;
+    yep := 2;
+  }
+  
+  if a then
+	a := 1;
+  
+  while x <= 10 do
+  {
+	x := x + 1;
+  }
+  
+  cycle 3
+  {
+  a := a + a;
+  }
+  for i:=1 to 10 do
+	a := a + i;
+}

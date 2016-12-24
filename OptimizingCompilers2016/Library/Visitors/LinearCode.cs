@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
@@ -137,6 +137,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             var varIdent = new IdentificatorValue(s_constantPrefix + valueCounter++.ToString());
             code.Add(new LinearRepresentation(Operation.Assign, varIdent, new NumericValue(1)));
 
+            // l1:
             var conditionLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(conditionLabel, Operation.NoOp));
 

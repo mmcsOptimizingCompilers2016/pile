@@ -101,7 +101,7 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         /// </summary>
         public bool Optimize(ControlFlowGraph graph)
         {
-            List<BaseBlock> blocks = graph.GetBaseBlocks();
+            List<BaseBlock> blocks = graph.GetVertices().ToList();
             initInB(blocks);
             initOutB(blocks);
             if (eOutB.Count == 0 || eOutB.First().Value.Count == 0)

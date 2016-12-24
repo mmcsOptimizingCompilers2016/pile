@@ -7,8 +7,9 @@
 Alpha 	[a-zA-Z_]
 Digit   [0-9] 
 AlphaDigit {Alpha}|{Digit}
-INTNUM  {Digit}+
-REALNUM {INTNUM}\.{INTNUM}
+INTNUMPOS  {Digit}+
+INTNUM  \-{INTNUMPOS}|{INTNUMPOS}
+REALNUM {INTNUM}\.{INTNUMPOS}
 ID {Alpha}{AlphaDigit}*
 
 %%
