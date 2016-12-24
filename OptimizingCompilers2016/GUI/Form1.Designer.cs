@@ -40,6 +40,8 @@
             this.анализАктивныхПеременныхToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализДоступныхВыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.деревоДоминаторовToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.фронтДоминировнияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацииToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.удалениеМёртвогоКодаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацияОбщихПодвыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,8 +62,7 @@
             this.NewWindow = new System.Windows.Forms.Button();
             this.Result = new System.Windows.Forms.RichTextBox();
             this.NewWindow2 = new System.Windows.Forms.Button();
-            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.фронтДоминировнияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Save = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SourceCode_TabPage.SuspendLayout();
             this.tabControl2.SuspendLayout();
@@ -172,6 +173,20 @@
             this.деревоДоминаторовToolStripMenuItem.Text = "Дерево доминаторов";
             this.деревоДоминаторовToolStripMenuItem.Click += new System.EventHandler(this.деревоДоминаторовToolStripMenuItem_Click);
             // 
+            // итерационныйФронтДоминированияToolStripMenuItem
+            // 
+            this.итерационныйФронтДоминированияToolStripMenuItem.Name = "итерационныйФронтДоминированияToolStripMenuItem";
+            this.итерационныйФронтДоминированияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.итерационныйФронтДоминированияToolStripMenuItem.Text = "Итерационный фронт доминирования";
+            this.итерационныйФронтДоминированияToolStripMenuItem.Click += new System.EventHandler(this.итерационныйФронтДоминированияToolStripMenuItem_Click);
+            // 
+            // фронтДоминировнияToolStripMenuItem
+            // 
+            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
+            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
+            this.фронтДоминировнияToolStripMenuItem.Click += new System.EventHandler(this.фронтДоминировнияToolStripMenuItem_Click);
+            // 
             // оптимизацииToolStripMenuItem
             // 
             this.оптимизацииToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -237,7 +252,7 @@
             this.SourceCode_TabPage.Location = new System.Drawing.Point(4, 22);
             this.SourceCode_TabPage.Name = "SourceCode_TabPage";
             this.SourceCode_TabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.SourceCode_TabPage.Size = new System.Drawing.Size(462, 428);
+            this.SourceCode_TabPage.Size = new System.Drawing.Size(328, 428);
             this.SourceCode_TabPage.TabIndex = 0;
             this.SourceCode_TabPage.Text = "Исходный код";
             this.SourceCode_TabPage.UseVisualStyleBackColor = true;
@@ -247,7 +262,7 @@
             this.Code.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Code.Location = new System.Drawing.Point(3, 0);
             this.Code.Name = "Code";
-            this.Code.Size = new System.Drawing.Size(453, 426);
+            this.Code.Size = new System.Drawing.Size(325, 426);
             this.Code.TabIndex = 0;
             this.Code.Text = "";
             this.Code.TextChanged += new System.EventHandler(this.Code_TextChanged);
@@ -260,8 +275,9 @@
             this.tabControl2.Location = new System.Drawing.Point(12, 27);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(470, 454);
+            this.tabControl2.Size = new System.Drawing.Size(336, 454);
             this.tabControl2.TabIndex = 6;
+            this.tabControl2.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl2_Selecting);
             // 
             // ThreeAddrCode_TabPage
             // 
@@ -269,7 +285,7 @@
             this.ThreeAddrCode_TabPage.Location = new System.Drawing.Point(4, 22);
             this.ThreeAddrCode_TabPage.Name = "ThreeAddrCode_TabPage";
             this.ThreeAddrCode_TabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.ThreeAddrCode_TabPage.Size = new System.Drawing.Size(462, 428);
+            this.ThreeAddrCode_TabPage.Size = new System.Drawing.Size(328, 428);
             this.ThreeAddrCode_TabPage.TabIndex = 1;
             this.ThreeAddrCode_TabPage.Text = "Трёхадресный код";
             this.ThreeAddrCode_TabPage.UseVisualStyleBackColor = true;
@@ -279,7 +295,7 @@
             this.ResultCode.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ResultCode.Location = new System.Drawing.Point(0, 0);
             this.ResultCode.Name = "ResultCode";
-            this.ResultCode.Size = new System.Drawing.Size(456, 425);
+            this.ResultCode.Size = new System.Drawing.Size(328, 425);
             this.ResultCode.TabIndex = 0;
             this.ResultCode.Text = "";
             // 
@@ -289,7 +305,7 @@
             this.BaseBlock_TabPage.Location = new System.Drawing.Point(4, 22);
             this.BaseBlock_TabPage.Name = "BaseBlock_TabPage";
             this.BaseBlock_TabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.BaseBlock_TabPage.Size = new System.Drawing.Size(462, 428);
+            this.BaseBlock_TabPage.Size = new System.Drawing.Size(328, 428);
             this.BaseBlock_TabPage.TabIndex = 2;
             this.BaseBlock_TabPage.Text = "Базовые блоки";
             this.BaseBlock_TabPage.UseVisualStyleBackColor = true;
@@ -299,7 +315,7 @@
             this.BaseBlocks.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.BaseBlocks.Location = new System.Drawing.Point(0, 0);
             this.BaseBlocks.Name = "BaseBlocks";
-            this.BaseBlocks.Size = new System.Drawing.Size(456, 425);
+            this.BaseBlocks.Size = new System.Drawing.Size(328, 425);
             this.BaseBlocks.TabIndex = 0;
             this.BaseBlocks.Text = "";
             // 
@@ -315,7 +331,7 @@
             // 
             // NewWindow
             // 
-            this.NewWindow.Location = new System.Drawing.Point(346, 487);
+            this.NewWindow.Location = new System.Drawing.Point(249, 487);
             this.NewWindow.Name = "NewWindow";
             this.NewWindow.Size = new System.Drawing.Size(99, 31);
             this.NewWindow.TabIndex = 8;
@@ -326,15 +342,15 @@
             // Result
             // 
             this.Result.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Result.Location = new System.Drawing.Point(506, 49);
+            this.Result.Location = new System.Drawing.Point(354, 49);
             this.Result.Name = "Result";
-            this.Result.Size = new System.Drawing.Size(444, 432);
+            this.Result.Size = new System.Drawing.Size(596, 432);
             this.Result.TabIndex = 9;
             this.Result.Text = "";
             // 
             // NewWindow2
             // 
-            this.NewWindow2.Location = new System.Drawing.Point(532, 487);
+            this.NewWindow2.Location = new System.Drawing.Point(618, 487);
             this.NewWindow2.Name = "NewWindow2";
             this.NewWindow2.Size = new System.Drawing.Size(99, 31);
             this.NewWindow2.TabIndex = 10;
@@ -342,17 +358,16 @@
             this.NewWindow2.UseVisualStyleBackColor = true;
             this.NewWindow2.Click += new System.EventHandler(this.NewWindow2_Click);
             // 
-            // итерационныйФронтДоминированияToolStripMenuItem
+            // Save
             // 
-            this.итерационныйФронтДоминированияToolStripMenuItem.Name = "итерационныйФронтДоминированияToolStripMenuItem";
-            this.итерационныйФронтДоминированияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
-            this.итерационныйФронтДоминированияToolStripMenuItem.Text = "Итерационный фронт доминирования";
-            // 
-            // фронтДоминировнияToolStripMenuItem
-            // 
-            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
-            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
-            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
+            this.Save.Enabled = false;
+            this.Save.Location = new System.Drawing.Point(132, 487);
+            this.Save.Name = "Save";
+            this.Save.Size = new System.Drawing.Size(99, 31);
+            this.Save.TabIndex = 11;
+            this.Save.Text = "Запомнить";
+            this.Save.UseVisualStyleBackColor = true;
+            this.Save.Click += new System.EventHandler(this.Save_Click);
             // 
             // Form1
             // 
@@ -360,6 +375,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(962, 665);
+            this.Controls.Add(this.Save);
             this.Controls.Add(this.NewWindow2);
             this.Controls.Add(this.Result);
             this.Controls.Add(this.NewWindow);
@@ -367,6 +383,7 @@
             this.Controls.Add(this.tabControl2);
             this.Controls.Add(this.Console);
             this.Controls.Add(this.menuStrip1);
+            this.ImeMode = System.Windows.Forms.ImeMode.On;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Оптимизирующий компилятор";
@@ -417,6 +434,7 @@
         private System.Windows.Forms.Button NewWindow2;
         private System.Windows.Forms.ToolStripMenuItem итерационныйФронтДоминированияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem фронтДоминировнияToolStripMenuItem;
+        private System.Windows.Forms.Button Save;
     }
 }
 
