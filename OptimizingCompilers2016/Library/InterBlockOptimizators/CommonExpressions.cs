@@ -6,9 +6,11 @@ using System.Diagnostics;
 using OptimizingCompilers2016.Library.Optimizators;
 using System.Linq;
 
+//TODO: tests, especially loop tests
 
 namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 {
+    using System;
     using ExpressionSet = HashSet<BinaryExpression>;
 
     using IdentificatorSet = HashSet<IdentificatorValue>;
@@ -17,11 +19,15 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
     {
 
         // block name -> expression set
-        Dictionary<string, ExpressionSet> eGenB = new Dictionary<string, ExpressionSet>();
-        Dictionary<string, ExpressionSet> eKillB = new Dictionary<string, ExpressionSet>();
-        Dictionary<string, ExpressionSet> eInB = new Dictionary<string, ExpressionSet>();
-        Dictionary<string, ExpressionSet> eOutB = new Dictionary<string, ExpressionSet>();
+        private Dictionary<string, ExpressionSet> eGenB = new Dictionary<string, ExpressionSet>();
+        private Dictionary<string, ExpressionSet> eKillB = new Dictionary<string, ExpressionSet>();
+        private Dictionary<string, ExpressionSet> eInB = new Dictionary<string, ExpressionSet>();
+        private Dictionary<string, ExpressionSet> eOutB = new Dictionary<string, ExpressionSet>();
 
+        private Dictionary<string, Dictionary<BinaryExpression, IdentificatorValue>> eReplaceB =
+            new Dictionary<string, Dictionary<BinaryExpression, IdentificatorValue>>();
+        // for variable naming
+        private int counter = 0;
         /// <summary>
         /// Retrieve all expressions from a block
         /// Example:
@@ -65,7 +71,6 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 
             foreach (BaseBlock block in blocks)
             {
-                // TODO: add comparator?
                 result.UnionWith(extractAllExpressions(block));
             }
 
@@ -107,10 +112,19 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
             if (eOutB.Count == 0 || eOutB.First().Value.Count == 0)
                 return false;
 
-            // TODO: set inB in first bb into {} manually
             iterationalAlgorithm(blocks);
 
+            initReplace(blocks);
+
             return replaceCSE(ref blocks);
+        }
+
+        private void initReplace(List<BaseBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                eReplaceB.Add(block.Name, new Dictionary<BinaryExpression, IdentificatorValue>());
+            }
         }
 
         /// <summary>
@@ -187,7 +201,6 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
         ///     EkillB - set of all the expressions which contain variables that are assigned to in this block
         ///
         /// @param blocks - list of all blocks in the program + fictional source block
-        /// TODO: decide what this function should return
         /// </summary>
         private void iterationalAlgorithm(List<BaseBlock> blocks)
         {
@@ -207,7 +220,9 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                 changed = false;
                 foreach (var block in blocks)
                 {
-                    ExpressionSet ins = updateInB(block, eOutB);
+                    ExpressionSet ins = block.Name == blocks[0].Name ?
+                        new ExpressionSet() :
+                        updateInB(block, eOutB);
                     if (!ins.SetEquals(eInB[block.Name]))
                     {
                         changed = true;
@@ -237,16 +252,52 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                     i1.RightOperand.Value.Equals(i2.LeftOperand.Value))
                     return true;
             }
-            return i1.LeftOperand == i2.LeftOperand && i1.RightOperand == i2.RightOperand;
+            return i1.LeftOperand.Value.Equals(i2.LeftOperand.Value) &&
+                i1.RightOperand.Value.Equals(i2.RightOperand.Value);
         }
 
-        private void replaceAllOccurences(ref BaseBlock block, IThreeAddressCode inst, BinaryExpression bInst,
-            IdentificatorValue newName)
+        private string newVarName()
         {
-            foreach(var pred in block.Predecessors)
+            const string namePrefix = "cseTmp";
+            return namePrefix + counter++.ToString();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="inst"></param>
+        /// <param name="bInst"></param>
+        /// <param name="newName">set by function</param>
+        private void replaceAllOccurences(ref BaseBlock block, IThreeAddressCode inst, BinaryExpression bInst,
+            ref IdentificatorValue newName, ref HashSet<string> watched)
+        {
+            for (int k = 0; k < block.Predecessors.Count; ++k)
             {
+                var pred = block.Predecessors[k];
+                if (watched.Contains(pred.Name))
+                {
+                    continue;
+                }
+                watched.Add(pred.Name);
                 if (eGenB[pred.Name].Contains(bInst))
                 {
+                    // already has a variable name, just use it
+                    if (eReplaceB[pred.Name].ContainsKey(bInst))
+                    {
+                        if (newName == null)
+                        {
+                            newName = eReplaceB[pred.Name][bInst];
+                            continue;
+                        }
+                        if (newName.Value.Equals(eReplaceB[pred.Name][bInst]))
+                        {
+                            continue;
+                        }
+                        pred.Commands.Add(new LinearRepresentation(Operation.Assign, newName, 
+                            eReplaceB[pred.Name][bInst]));
+                        continue;
+                    }
                     for (int i = pred.Commands.Count-1; i >= 0; --i)
                     {
                         var command = pred.Commands[i];
@@ -258,6 +309,10 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                         }
                         if (BinaryExpression.isModifiableOperation(command.Operation) && isEqualBinRHS(inst, command))
                         {
+                            if (newName == null)
+                            {
+                                newName = new IdentificatorValue(newVarName());
+                            }
                             LinearRepresentation commonExpression = new LinearRepresentation(inst.Operation,
                                 newName, inst.LeftOperand, inst.RightOperand);
                             pred.Commands.Insert(i, commonExpression);
@@ -266,20 +321,20 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                                 command.Destination, newName);
                             pred.Commands[i + 1] = replacer;
 
-                            // TODO: modify gen
+                            Debug.Assert(eGenB[pred.Name].Contains(bInst));
+                            eReplaceB[block.Name].Add(bInst, newName);
+                            eReplaceB[pred.Name].Add(bInst, newName);
 
-                            return;
+                            break;
                             
                             
                         }
                     }
-                    //Debug.Assert(false); // unreachable
+                    Debug.Assert(true); // unreachable
                 }
                 else
                 {
-                    //TODO:
-                    // run algorithm (replaceAllOccurences) for this block predecessors.
-                    // all predecessors (?) should be filled with value 'newName'
+                    replaceAllOccurences(ref pred, inst, bInst, ref newName, ref watched);
                     continue;
                 }
             }
@@ -289,9 +344,6 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 
         private bool replaceCSE(ref List<BaseBlock> blocks)
         {
-            const string namePrefix = "cseTmp";
-            int nameId = 0;
-
             for (int i = 0; i < blocks.Count; ++i)
             {
                 var block = blocks[i];
@@ -309,8 +361,11 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                     var cur = new BinaryExpression(inst);
                     if (!blockIn.Contains(cur))
                         continue;
-                    var iValue = new IdentificatorValue(namePrefix + nameId.ToString());
-                    replaceAllOccurences(ref block, inst, cur, iValue);
+                    IdentificatorValue iValue = null;
+                    HashSet<string> wathcedBBs = new HashSet<string>();
+                    wathcedBBs.Add(block.Name);
+                    replaceAllOccurences(ref block, inst, cur, ref iValue, ref wathcedBBs);
+                    Debug.Assert(iValue != null);
                     block.Commands[j] = new LinearRepresentation(Operation.Assign, inst.Destination, iValue);
                 }
 
