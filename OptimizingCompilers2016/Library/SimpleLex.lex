@@ -7,8 +7,9 @@
 Alpha 	[a-zA-Z_]
 Digit   [0-9] 
 AlphaDigit {Alpha}|{Digit}
-INTNUM  {Digit}+
-REALNUM {INTNUM}\.{INTNUM}
+INTNUMPOS  {Digit}+
+INTNUM  \-{INTNUMPOS}|{INTNUMPOS}
+REALNUM {INTNUM}\.{INTNUMPOS}
 ID {Alpha}{AlphaDigit}*
 
 %%
@@ -30,7 +31,7 @@ ID {Alpha}{AlphaDigit}*
   return res;
 }
 
-":=" { return (int)Tokens.ASSIGN; }
+"=" { return (int)Tokens.ASSIGN; }
 ";"  { return (int)Tokens.SEMICOLON; }
 "{"  { return (int)Tokens.BEGIN; }
 "}"  { return (int)Tokens.END; }
@@ -44,7 +45,7 @@ ID {Alpha}{AlphaDigit}*
 ">"  { return (int)Tokens.GT; }
 "<=" { return (int)Tokens.LE; }
 ">=" { return (int)Tokens.GE; }
-"=" { return (int)Tokens.EQ; }
+"==" { return (int)Tokens.EQ; }
 "!=" { return (int)Tokens.NE; }
 
 [^ \r\n\t] {

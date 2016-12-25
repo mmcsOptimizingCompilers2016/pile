@@ -5,13 +5,9 @@ using QuickGraph.Graphviz;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OptimizingCompilers2016.Library.ControlFlowGraph;
-using OptimizingCompilers2016.Library.BaseBlock;
 
-namespace OptimizingCompilers2016.Library.DepthSpanningTree
+namespace OptimizingCompilers2016.Library
 {
-    using BaseBlock = BaseBlock.BaseBlock;
-    using ControlFlowGraph = ControlFlowGraph.ControlFlowGraph;
 
     public class DepthSpanningTree
     {	
