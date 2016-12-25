@@ -312,7 +312,13 @@ namespace OptimizingCompilers2016.GUI
 
         private void глобальнаяToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Result.Text = "";
+            Result.Text = "";
+            foreach (var block in blocks)
+            {
+                var gdu = new GlobalDefUse();
+                gdu.RunAnalysis(blocks);
+                Result.Text += gdu.ToString();
+            }
         }
 
         private void внутриБлоковToolStripMenuItem_Click(object sender, EventArgs e)
@@ -344,7 +350,9 @@ namespace OptimizingCompilers2016.GUI
 
         private void анализДоступныхВыраженийToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            AvailabilityAnalysis AA = new AvailabilityAnalysis();
+            AA.RunAnalysis(blocks);
+            Result.Text = AA.ToString();
         }
 
         private void деревоДоминаторовToolStripMenuItem_Click(object sender, EventArgs e)
@@ -377,6 +385,22 @@ namespace OptimizingCompilers2016.GUI
             }
         }
 
+        private void графПотоковУправленияToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+            Result.Text = CFG.ToString();
+        }
+
+        private void глубинноеОстовноеДеревоToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void натуральныеЦиклыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             this.DesktopLocation = new Point(0, 0);
@@ -393,7 +417,8 @@ namespace OptimizingCompilers2016.GUI
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
                 Save.Enabled = true;
         }
- 
+
+
     }
 }
 public static class ControlExtensions

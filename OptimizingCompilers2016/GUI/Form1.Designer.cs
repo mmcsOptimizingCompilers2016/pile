@@ -40,8 +40,11 @@
             this.анализАктивныхПеременныхToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализДоступныхВыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.деревоДоминаторовToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.фронтДоминировнияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.графПотоковУправленияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.глубинноеОстовноеДеревоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.натуральныеЦиклыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацииToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.удалениеМёртвогоКодаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацияОбщихПодвыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -123,8 +126,11 @@
             this.анализАктивныхПеременныхToolStripMenuItem,
             this.анализДоступныхВыраженийToolStripMenuItem,
             this.деревоДоминаторовToolStripMenuItem,
+            this.фронтДоминировнияToolStripMenuItem,
             this.итерационныйФронтДоминированияToolStripMenuItem,
-            this.фронтДоминировнияToolStripMenuItem});
+            this.графПотоковУправленияToolStripMenuItem,
+            this.глубинноеОстовноеДеревоToolStripMenuItem,
+            this.натуральныеЦиклыToolStripMenuItem});
             this.анализToolStripMenuItem.Name = "анализToolStripMenuItem";
             this.анализToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.анализToolStripMenuItem.Text = "Анализ";
@@ -173,6 +179,13 @@
             this.деревоДоминаторовToolStripMenuItem.Text = "Дерево доминаторов";
             this.деревоДоминаторовToolStripMenuItem.Click += new System.EventHandler(this.деревоДоминаторовToolStripMenuItem_Click);
             // 
+            // фронтДоминировнияToolStripMenuItem
+            // 
+            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
+            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
+            this.фронтДоминировнияToolStripMenuItem.Click += new System.EventHandler(this.фронтДоминировнияToolStripMenuItem_Click);
+            // 
             // итерационныйФронтДоминированияToolStripMenuItem
             // 
             this.итерационныйФронтДоминированияToolStripMenuItem.Name = "итерационныйФронтДоминированияToolStripMenuItem";
@@ -180,12 +193,26 @@
             this.итерационныйФронтДоминированияToolStripMenuItem.Text = "Итерационный фронт доминирования";
             this.итерационныйФронтДоминированияToolStripMenuItem.Click += new System.EventHandler(this.итерационныйФронтДоминированияToolStripMenuItem_Click);
             // 
-            // фронтДоминировнияToolStripMenuItem
+            // графПотоковУправленияToolStripMenuItem
             // 
-            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
-            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
-            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
-            this.фронтДоминировнияToolStripMenuItem.Click += new System.EventHandler(this.фронтДоминировнияToolStripMenuItem_Click);
+            this.графПотоковУправленияToolStripMenuItem.Name = "графПотоковУправленияToolStripMenuItem";
+            this.графПотоковУправленияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.графПотоковУправленияToolStripMenuItem.Text = "Граф потоков управления";
+            this.графПотоковУправленияToolStripMenuItem.Click += new System.EventHandler(this.графПотоковУправленияToolStripMenuItem_Click);
+            // 
+            // глубинноеОстовноеДеревоToolStripMenuItem
+            // 
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Name = "глубинноеОстовноеДеревоToolStripMenuItem";
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Text = "Глубинное остовное дерево";
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Click += new System.EventHandler(this.глубинноеОстовноеДеревоToolStripMenuItem_Click);
+            // 
+            // натуральныеЦиклыToolStripMenuItem
+            // 
+            this.натуральныеЦиклыToolStripMenuItem.Name = "натуральныеЦиклыToolStripMenuItem";
+            this.натуральныеЦиклыToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.натуральныеЦиклыToolStripMenuItem.Text = "Натуральные циклы";
+            this.натуральныеЦиклыToolStripMenuItem.Click += new System.EventHandler(this.натуральныеЦиклыToolStripMenuItem_Click);
             // 
             // оптимизацииToolStripMenuItem
             // 
@@ -435,6 +462,9 @@
         private System.Windows.Forms.ToolStripMenuItem итерационныйФронтДоминированияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem фронтДоминировнияToolStripMenuItem;
         private System.Windows.Forms.Button Save;
+        private System.Windows.Forms.ToolStripMenuItem графПотоковУправленияToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem глубинноеОстовноеДеревоToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem натуральныеЦиклыToolStripMenuItem;
     }
 }
 
