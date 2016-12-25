@@ -71,6 +71,10 @@ namespace OptimizingCompilers2016.Library
             return CFG.Vertices.ToList().GetEnumerator();
         }
 
+		public IEnumerable<Edge<BaseBlock>> GetEdges()
+		{
+			return CFG.Edges;
+		}
 
         public static Edge<BaseBlock> MakeEdge(BaseBlock source, BaseBlock target) {
             
