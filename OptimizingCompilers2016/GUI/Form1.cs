@@ -12,6 +12,11 @@ using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
+using OptimizingCompilers2016.Library.Analysis;
+using OptimizingCompilers2016.Library.Optimizators;
+using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 using System.Threading;
 using System.Text.RegularExpressions;
 
@@ -71,6 +76,11 @@ namespace OptimizingCompilers2016.GUI
             }
 
             return result;
+        }
+
+        private void Save_Click(object sender, EventArgs e)
+        {
+            BaseBlocks.Text = PrintBlocks();
         }
 
 
@@ -215,6 +225,16 @@ namespace OptimizingCompilers2016.GUI
 
         private void NewWindow_Click(object sender, EventArgs e)
         {
+            if (tabControl2.SelectedTab == SourceCode_TabPage)
+            {
+                var newWindow = new NewWindow();
+                newWindow.GetSetText = Code.Text;
+                newWindow.Text = "Исходный код";
+                newWindow.Show();
+                newWindow.Top = this.Top;
+                newWindow.Left = this.Right;
+            }
+
             if (tabControl2.SelectedTab == ThreeAddrCode_TabPage)
             {
                 var newWindow = new NewWindow();
@@ -236,7 +256,6 @@ namespace OptimizingCompilers2016.GUI
                 newWindow.Left = this.Right;
             }
             
-
         }
 
         private void NewWindow2_Click(object sender, EventArgs e)
@@ -252,43 +271,43 @@ namespace OptimizingCompilers2016.GUI
 
         private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //foreach (var block in blocks)
-            //    DeadCodeDeleting.optimizeDeadCode(block);
+            foreach (var block in blocks)
+                DeadCodeDeleting.optimizeDeadCode(block);
 
-            //Result.Text = PrintBlocks();
+            Result.Text = PrintBlocks();
         }
         
         private void свёрткаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //ConstantFolding.transform(blocks);
-            //Result.Text = PrintBlocks();
+            ConstantFolding.transform(blocks);
+            Result.Text = PrintBlocks();
         }
 
         private void оптимизацияОбщихПодвыраженийToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var opt = new CommonExpressions();
-            //foreach (var block in blocks)
-            //var optCode = opt.Optimize(block);
+            var opt = new CommonExpressions();
+            foreach (var block in blocks)
+                opt.Optimize(block);
 
-            //Result.Text = PrintBlocks();
+            Result.Text = PrintBlocks();
         }
 
         private void протяжкаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var opt = new ConstantPropagationOptimizator();
-            //foreach (var block in blocks)
-            //var optCode = opt.Optimize(block);
+            var opt = new ConstantPropagationOptimizator();
+            foreach (var block in blocks)
+                opt.Optimize(block);
 
-            //Result.Text = PrintBlocks();
+            Result.Text = PrintBlocks();
         }
 
         private void учетАлгебраическихТождествToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var opt = new AlgebraicIdentityOptimizator();
-            //foreach (var block in blocks)
-            //var optCode = opt.Optimize(block);
+            var opt = new AlgebraicIdentityOptimizator();
+            foreach (var block in blocks)
+                opt.Optimize(block);
 
-            //Result.Text = PrintBlocks();
+            Result.Text = PrintBlocks();
         }
 
         private void глобальнаяToolStripMenuItem_Click(object sender, EventArgs e)
@@ -298,17 +317,17 @@ namespace OptimizingCompilers2016.GUI
 
         private void внутриБлоковToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Result.Text = "";
-            //foreach (var block in blocks)
-            //{
-            //    var ldu = new InblockDefUse(block);
-            //    Result.Text += ldu.ToString();
-            //}
+            Result.Text = "";
+            foreach (var block in blocks)
+            {
+                var ldu = new InblockDefUse(block);
+                Result.Text += ldu.ToString();
+            }
         }
 
         private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var AV = new ActiveVariables(blocks);
+            //var AV = new ActiveVariables(new ControlFlowGraph(blocks));
             //foreach (var block in blocks)
             //    DeadCodeDeleting.optimizeDeadCode(block, AV[block.Name]);
             //Result.Text = PrintBlocks();
@@ -318,8 +337,9 @@ namespace OptimizingCompilers2016.GUI
         private void анализАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Result.Text = "";
-            //var AV = new ActiveVariables(blocks);
-            //Result.Text += AV.ToString();
+            var AV = new ActiveVariables(new ControlFlowGraph(blocks));
+            AV.runAnalys();
+            Result.Text = AV.ToString();
         }
 
         private void анализДоступныхВыраженийToolStripMenuItem_Click(object sender, EventArgs e)
@@ -329,11 +349,32 @@ namespace OptimizingCompilers2016.GUI
 
         private void деревоДоминаторовToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Result.Text = "";
-            ////Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
-            //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks[0], blocks);
+            //Tuple<BaseBlock, List<BaseBlock>> test_tree = DOM.get_testing_tree();
+            Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
             //DOM.test_printing(dom_relations);
-            //Result.Text += DOM.get_tree_root(dom_relations, test_tree.Item1).ToString();
+            Result.Text = DOM.get_tree_root(dom_relations, blocks[0]).ToString();
+        }
+
+        private void фронтДоминировнияToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var domFront = new DominanceFrontier(blocks.ToList());
+
+            Result.Text = domFront.ToString();
+
+        }
+
+        private void итерационныйФронтДоминированияToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Result.Text = "";
+            var domFront = new DominanceFrontier(blocks.ToList());
+
+            var IDF = new HashSet<string>();
+
+            foreach (var block in blocks)
+            {
+                IDF = domFront.ComputeIDF(block);
+                Result.Text += "IDF({" + block.Name + "}) = {" + string.Join(", ", IDF) + "}" + "\r\n";
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -343,15 +384,16 @@ namespace OptimizingCompilers2016.GUI
 
         private void tabControl2_Selecting(object sender, TabControlCancelEventArgs e)
         {
+            if (tabControl2.SelectedTab == SourceCode_TabPage)
+                Save.Enabled = false;
 
+            if (tabControl2.SelectedTab == ThreeAddrCode_TabPage)
+                Save.Enabled = false;
+
+            if (tabControl2.SelectedTab == BaseBlock_TabPage)
+                Save.Enabled = true;
         }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
+ 
     }
 }
 public static class ControlExtensions

@@ -1,0 +1,40 @@
+{
+  a = 2 + 3 + 4 + 5 + 6 + 7;
+  b = 3 + a;
+  c = b * a;
+  d = a + 2 * b + 3 * c + 2;
+  e = a * b + c * d + 3;
+  if d < e
+	b = 1;
+  else
+  {
+    b = 0;
+    a = 0;
+  }
+
+  f = 3 * a;
+  g = b * b;
+  
+   x = 5;
+  
+  if a < x
+	a = 1;
+  
+  while x <= 10 do
+  {
+	x = x + 1;
+  }
+  
+  cycle 3
+  {
+  a = a + a;
+  }
+  for i=1 to 10 do
+	a = a + i;
+  
+  k = a + 3;
+  l = d + d;
+  m = a + 2;
+  n = a + 2;
+  o = 3 + a;
+}

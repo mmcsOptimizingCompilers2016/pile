@@ -21,7 +21,7 @@ namespace OptimizingCompilers2016.Library
         {
             foreach (var block in blocks)
             {
-                if (block.Commands.Count == 0 && block.Predecessors.Count > 0)
+                if (block.Commands.Count == 0) // && block.Predecessors.Count > 0
                 {
                     foreach (var pred in block.Predecessors)
                     {
@@ -32,7 +32,7 @@ namespace OptimizingCompilers2016.Library
                 }
             }
 
-            blocks.RemoveAll(block => block.Commands.Count == 0 && block.Predecessors.Count > 0);
+            blocks.RemoveAll(block => block.Commands.Count == 0); // && block.Predecessors.Count > 0
         }
 
         public static ControlFlowGraph divide(List<LinearRepresentation> plainCode)
@@ -54,7 +54,12 @@ namespace OptimizingCompilers2016.Library
                     labels.Add(plainCode[i].Label, blocks.Count - 1);
                 }
                 blocks[blocks.Count - 1].Commands.Add(plainCode[i]);
-                if (plainCode[i].Operation == Operation.CondGoto)
+                if (plainCode[i].Operation == Operation.Goto)
+                {
+                    var block = makeBlock();
+                    blocks.Add(block);
+                }
+                else if (plainCode[i].Operation == Operation.CondGoto)
                 {
                     var block = makeBlock();
                     blocks[blocks.Count - 1].Output = block;

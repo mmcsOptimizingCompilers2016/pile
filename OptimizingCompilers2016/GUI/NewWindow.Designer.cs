@@ -48,6 +48,7 @@
             this.Controls.Add(this.ResultText);
             this.Name = "NewWindow";
             this.Text = "Новое окно";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
