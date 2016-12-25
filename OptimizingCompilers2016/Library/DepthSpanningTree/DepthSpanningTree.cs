@@ -5,11 +5,11 @@ using QuickGraph.Graphviz;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using OptimizingCompilers2016.Library;
 
 namespace OptimizingCompilers2016.Library
 {
-    class DepthSpanningTree
+
+    public class DepthSpanningTree
     {	
         HashSet<BaseBlock> Visited;
 		Dictionary<BaseBlock, int> Numbers;
@@ -46,12 +46,25 @@ namespace OptimizingCompilers2016.Library
 			{
 				if ( !Visited.Contains(predecessor) )
 				{
+                    if (!SpanningTree.Vertices.Contains(block))
+                        SpanningTree.AddVertex(block);
+
+                    if (!SpanningTree.Vertices.Contains(predecessor))
+                        SpanningTree.AddVertex(predecessor);
+
 					SpanningTree.AddEdge(new Edge<BaseBlock>(block, predecessor));
 					BuildTree(predecessor, ref currentNumber);
 				}
+
 				Numbers[block] = currentNumber;
 				currentNumber -= 1;
 			}
         }
-    }
+
+		public override string ToString()
+		{
+			var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(SpanningTree);
+			return graphviz.Generate();
+		}
+	}
 }
