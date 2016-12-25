@@ -104,6 +104,7 @@ bin_expr	: expr bin_sign expr { $$ = new BinExprNode($1, $2, $3); }
 expr		: m_d { $$ = $1; }
 			| expr PLUS m_d { $$ = new BinExprNode($1, BinSign.PLUS, $3); }
 			| expr MINUS m_d { $$ = new BinExprNode($1, BinSign.MINUS, $3); }
+			| MINUS expr { $$ = new BinExprNode(new IntNumNode(0), BinSign.MINUS, $2); }
 			;
 
 m_d			: in_br { $$ = $1; }
