@@ -64,5 +64,11 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
 				currentNumber -= 1;
 			}
         }
-    }
+
+		public override string ToString()
+		{
+			var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(SpanningTree);
+			return graphviz.Generate();
+		}
+	}
 }
