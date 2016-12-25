@@ -29,7 +29,8 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
             {
                 for (int i = 0; i < block.Commands.Count; i++)
                 {
-                    if (block.Commands[i].Operation.Equals(Operation.Assign))
+                    var command = block.Commands[i];
+                    if (isAssignment(block.Commands[i].Operation))
                     {
                         VariableValue newVar = new VariableValue();
                         newVar.type = VariableValueType.UNDEF;
@@ -42,10 +43,14 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
                 }
             }
 
-
             //Console.WriteLine(currentMap.ToString());
 
             return currentMap;
+        }
+
+        private bool isAssignment(Operation op) {
+            return (op.Equals(Operation.Assign)) || (op.Equals(Operation.Plus)) ||
+                (op.Equals(Operation.Minus)) || (op.Equals(Operation.Mult))  || (op.Equals(Operation.Div));
         }
 
         public override VariableMap Collect(VariableMap x, VariableMap y)
@@ -99,16 +104,22 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
 
             foreach (var line in b.Commands)
             {
-                if (line.Operation.Equals(Operation.Assign))
+                if (isAssignment(line.Operation))
                 {
                     if (line.RightOperand == null)
                     {
+                        //it is constant
                         if (line.LeftOperand is NumericValue)
                         {
                             VariableValue newValue = new VariableValue();
                             newValue.type = VariableValueType.CONSTANT;
                             newValue.constantValue = (line.LeftOperand as NumericValue).Value;
                             newM.variableTable[line.Destination as IdentificatorValue] = newValue;
+                        }
+                        //it is one variable
+                        else {
+                            newM.variableTable[line.Destination as IdentificatorValue] =
+                            Calculate(line, x);
                         }
 
                     }
@@ -126,24 +137,60 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
         {
             VariableValue newValue = new VariableValue();
             VariableValue x = currentTable.variableTable[line.LeftOperand as IdentificatorValue];
-            VariableValue y = currentTable.variableTable[line.RightOperand as IdentificatorValue];
-            Operation op = line.Operation;
+            if (line.RightOperand == null)
+            {
+                if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue))
+                {
+                    newValue.type = VariableValueType.CONSTANT;
+                    newValue.constantValue = x.constantValue;
+                }
+                else if (x.type.Equals(VariableValueType.NAC))
+                {
+                    newValue.type = VariableValueType.NAC;
+                }
+                else
+                {
+                    newValue.type = VariableValueType.UNDEF;
+                }
+            }
+            else {
+                if (line.RightOperand is NumericValue) {
+                    if (x.type.Equals(VariableValueType.CONSTANT))
+                    {
+                        newValue.type = VariableValueType.CONSTANT;
+                        newValue.constantValue = CalculateConstant(line.Operation, x.constantValue, (line.RightOperand as NumericValue).Value);
+                    }
+                    else if (x.type.Equals(VariableValueType.NAC))
+                    {
+                        newValue.type = VariableValueType.NAC;
+                    }
+                    else
+                    {
+                        newValue.type = VariableValueType.UNDEF;
+                    }
+                    return newValue;
+                }
 
-            if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue) &&
-               (y.type.Equals(VariableValueType.CONSTANT) || line.RightOperand is NumericValue))
-            {
-                newValue.type = VariableValueType.CONSTANT;
-                newValue.constantValue = CalculateConstant(op, x.constantValue, y.constantValue);
-            }
-            else
-            if (x.type.Equals(VariableValueType.NAC) &&
-               (y.type.Equals(VariableValueType.NAC)))
-            {
-                newValue.type = VariableValueType.NAC;
-            }
-            else
-            {
-                newValue.type = VariableValueType.UNDEF;
+
+                VariableValue y = currentTable.variableTable[line.RightOperand as IdentificatorValue];
+                Operation op = line.Operation;
+
+                if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue) &&
+                   (y.type.Equals(VariableValueType.CONSTANT) || line.RightOperand is NumericValue))
+                {
+                    newValue.type = VariableValueType.CONSTANT;
+                    newValue.constantValue = CalculateConstant(op, x.constantValue, y.constantValue);
+                }
+                else
+                if (x.type.Equals(VariableValueType.NAC) ||
+                   (y.type.Equals(VariableValueType.NAC)))
+                {
+                    newValue.type = VariableValueType.NAC;
+                }
+                else
+                {
+                    newValue.type = VariableValueType.UNDEF;
+                }
             }
             return newValue;
         }
