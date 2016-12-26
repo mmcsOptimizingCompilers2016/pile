@@ -122,6 +122,7 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
                             Calculate(line, x);
                         }
 
+
                     }
                     else
                     {
@@ -129,6 +130,8 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
                             Calculate(line, x);
                     }
                 }
+
+                x = newM;
             }
             return newM;
         }

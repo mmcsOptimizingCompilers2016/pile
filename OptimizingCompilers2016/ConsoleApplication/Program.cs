@@ -7,6 +7,7 @@ using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
+using OptimizingCompilers2016.Library.Analysis.ConstantPropagation;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -29,40 +30,40 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 if (!b)
                     Console.WriteLine("Ошибка");
                 else Console.WriteLine("Программа распознана");
-                var prettyVisitor = new PrettyPrintVisitor();
-                parser.root.Accept(prettyVisitor);
-                Console.WriteLine(prettyVisitor.Text);
+                //var prettyVisitor = new PrettyPrintVisitor();
+                //parser.root.Accept(prettyVisitor);
+                //Console.WriteLine(prettyVisitor.Text);
 
 
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                Console.WriteLine(linearCode.ToString());
+                //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
-                Console.WriteLine("Blocks:");
-                foreach (var block in blocks)
-                {
-                    //InblockDefUse DU = new InblockDefUse(block);
-                    //foreach (var item in DU.result)
-                    //{
-                    //    Console.Write(item.Key + " :");
-                    //    Console.Write("{");
-                    //    foreach (var item2 in item.Value)
-                    //    {
-                    //        Console.Write(item2 + "  ");
-                    //    }
-                    //    Console.Write("}");
-                    //    Console.WriteLine();
-                    //}
+                //Console.WriteLine("Blocks:");
+                //foreach (var block in blocks)
+                //{
+                //InblockDefUse DU = new InblockDefUse(block);
+                //foreach (var item in DU.result)
+                //{
+                //    Console.Write(item.Key + " :");
+                //    Console.Write("{");
+                //    foreach (var item2 in item.Value)
+                //    {
+                //        Console.Write(item2 + "  ");
+                //    }
+                //    Console.Write("}");
+                //    Console.WriteLine();
+                //}
 
-                    Console.WriteLine(block.ToString());
-                    DeadCodeDeleting.optimizeDeadCode(block);
-                    Console.WriteLine("After optimization:");
-                    Console.WriteLine(block.ToString());
+                //    Console.WriteLine(block.ToString());
+                //    DeadCodeDeleting.optimizeDeadCode(block);
+                //    Console.WriteLine("After optimization:");
+                //    Console.WriteLine(block.ToString());
 
-                    //console.writeline(block.tostring());
-                    Console.WriteLine("-------");
-                }
+                //    //console.writeline(block.tostring());
+                //    Console.WriteLine("-------");
+                //}
 
                 //var gdu = new GlobalDefUse();
                 //gdu.runAnalys(blocks);
@@ -75,6 +76,20 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine("-------");
                 //    Console.WriteLine("-------");
                 //}
+
+                String lines = "";
+                foreach (var block in blocks) {
+                    lines += block.ToString() + "\n\n";
+                }
+                System.IO.StreamWriter file = new System.IO.StreamWriter("blocks.txt");
+                file.WriteLine(lines);
+                file.Close();
+
+
+
+                var constantPropagation = new GlobalConstantPropagation();
+                constantPropagation.RunAnalysis(blocks);
+
             }
             catch (FileNotFoundException)
             {

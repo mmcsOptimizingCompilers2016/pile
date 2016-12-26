@@ -62,15 +62,27 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             bool areDifferent = true;
             int count = 0;
+            String lines = "";
             while (areDifferent)
             {
+                lines += "##########################";
+                lines += "Iteration " + count + "\n";
+                foreach (var bl in blocks) {
+                    lines += bl.Name + "\n";
+                    lines += "In: " + ins[bl].ToString() + "\n";
+                    lines += "Out: " + outs[bl].ToString() + "\n";
+                }
+                lines += "\n\n\n";
+
                 count++;
                 areDifferent = false;
+               
                 foreach (var block in blocks)
                 {
                     var predecessors = block.Predecessors;
                     foreach (var pred in predecessors)
                     {
+                       
                         ins[block] = Collect(ins[block], outs[pred]);
                     }
 
@@ -83,6 +95,11 @@ namespace OptimizingCompilers2016.Library.Analysis
                         areDifferent = true;
                 }
             }
+
+            System.IO.StreamWriter file = new System.IO.StreamWriter("iterations.txt");
+            file.WriteLine(lines);
+            file.Close();
+
 
             Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
