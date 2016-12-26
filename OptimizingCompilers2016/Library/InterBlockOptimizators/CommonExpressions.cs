@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 {
-    using System;
     using ExpressionSet = HashSet<BinaryExpression>;
 
     using IdentificatorSet = HashSet<IdentificatorValue>;
@@ -344,6 +343,7 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 
         private bool replaceCSE(ref List<BaseBlock> blocks)
         {
+            bool result = false;
             for (int i = 0; i < blocks.Count; ++i)
             {
                 var block = blocks[i];
@@ -367,10 +367,11 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                     replaceAllOccurences(ref block, inst, cur, ref iValue, ref wathcedBBs);
                     Debug.Assert(iValue != null);
                     block.Commands[j] = new LinearRepresentation(Operation.Assign, inst.Destination, iValue);
+                    result = true;
                 }
 
             }
-            return false;
+            return result;
         }
 
     }
