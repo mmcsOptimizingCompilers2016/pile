@@ -8,6 +8,7 @@ using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.Analysis.ConstantPropagation;
+using OptimizingCompilers2016.Library.Optimizators;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -15,7 +16,7 @@ namespace OptimizingCompilers2016.ConsoleApplication
     {
         static void Main(string[] args)
         {
-            string FileName = @"a.txt";
+            string FileName = @"a1.txt";
             try
             {
                 string text = File.ReadAllText(FileName);
@@ -77,19 +78,12 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine("-------");
                 //}
 
-                String lines = "";
-                foreach (var block in blocks) {
-                    lines += block.ToString() + "\n\n";
-                }
-                System.IO.StreamWriter file = new System.IO.StreamWriter("blocks.txt");
-                file.WriteLine(lines);
-                file.Close();
-
-
-
                 var constantPropagation = new GlobalConstantPropagation();
                 constantPropagation.RunAnalysis(blocks);
-
+                foreach (var block in blocks) {
+                    Console.WriteLine("Block " + block.Name + "\n");
+                    Console.WriteLine(block.ToString());
+                }
             }
             catch (FileNotFoundException)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.Optimizators;
 
 namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
 {
@@ -15,9 +16,19 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
             base.IterationAlgorithm(blocks);
             foreach (var block in blocks)
             {
-                Console.WriteLine("Block " + block.Name);
-                Console.WriteLine(outs[block].ToString());
-                Console.WriteLine("---------------------------------");
+                Dictionary<IdentificatorValue, VariableValue> constants = new Dictionary<IdentificatorValue, VariableValue>();
+                foreach (var val in ins[block].variableTable) {
+                    if (val.Value.type.Equals(VariableValueType.CONSTANT)) {
+                        constants.Add(val.Key, val.Value);
+                    }
+                }
+
+                ConstantPropagationOptimizator cpo = new ConstantPropagationOptimizator(constants);
+                cpo.Optimize(block);
+
+                //Console.WriteLine("Block " + block.Name);
+                //Console.WriteLine(outs[block].ToString());
+                //Console.WriteLine("---------------------------------");
             }
         }
 

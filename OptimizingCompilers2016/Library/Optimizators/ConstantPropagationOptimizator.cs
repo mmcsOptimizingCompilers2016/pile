@@ -1,13 +1,24 @@
 ﻿using OptimizingCompilers2016.Library.ThreeAddressCode;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
+using OptimizingCompilers2016.Library.Analysis.ConstantPropagation;
+using System.Collections.Generic;
 
 namespace OptimizingCompilers2016.Library.Optimizators
 {
     public class ConstantPropagationOptimizator : IOptimizator
     {
+        private Dictionary<IdentificatorValue, VariableValue> additionalConstants = new Dictionary<IdentificatorValue, VariableValue>();
+        public ConstantPropagationOptimizator(Dictionary<IdentificatorValue, VariableValue> additionalConstants)
+        {
+            this.additionalConstants = additionalConstants;
+        }
+
+        public ConstantPropagationOptimizator(){}
+
         public bool Optimize(BaseBlock baseBlock)
         {
             bool changed = false;
+            IdentificatorValue identificatorValue;
             for (int i = 0; i < baseBlock.Commands.Count; i++)
             {
                 if (baseBlock.Commands[i].Operation == Operation.Assign &&
@@ -21,7 +32,6 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             break;
                         }
 
-                        IdentificatorValue identificatorValue;
                         if (baseBlock.Commands[j].LeftOperand != null)
                         {
                             identificatorValue = baseBlock.Commands[j].LeftOperand as IdentificatorValue;
@@ -45,6 +55,28 @@ namespace OptimizingCompilers2016.Library.Optimizators
                         }
                     }
                 }
+
+                if (additionalConstants.Count > 0) {
+                    if (baseBlock.Commands[i].LeftOperand != null)
+                    {
+                        identificatorValue = baseBlock.Commands[i].LeftOperand as IdentificatorValue;
+                        if ((identificatorValue != null && additionalConstants.ContainsKey(identificatorValue))){
+                            baseBlock.Commands[i].LeftOperand = new NumericValue(additionalConstants[identificatorValue].constantValue);
+                            changed = true;
+                        }
+                    }
+
+                    if (baseBlock.Commands[i].RightOperand != null) 
+                    {
+                        identificatorValue = baseBlock.Commands[i].RightOperand as IdentificatorValue;
+                        if ((identificatorValue != null && additionalConstants.ContainsKey(identificatorValue)))
+                        {
+                            baseBlock.Commands[i].RightOperand = new NumericValue(additionalConstants[identificatorValue].constantValue);
+                            changed = true;
+                        }
+                    }
+                }
+                
             }
             return changed;
         }
