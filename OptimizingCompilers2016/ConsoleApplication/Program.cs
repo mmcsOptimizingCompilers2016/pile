@@ -10,6 +10,7 @@ using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library;
 using System.Collections.Generic;
+using OptimizingCompilers2016.Library.Analysis.DefUse;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -104,17 +105,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
                 //DOM.test_printing(dom_relations);
                 //Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
-                var domFront = new DominanceFrontier(blocks.ToList());
-                
-                Console.WriteLine(domFront.ToString());
+                //var domFront = new DominanceFrontier(blocks.ToList());
 
-                var IDF = new HashSet<string>();
+                //Console.WriteLine(domFront.ToString());
 
-                foreach (var block in blocks)
-                {
-                    IDF = domFront.ComputeIDF(block);
-                    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
-                }
+                //var IDF = new HashSet<string>();
+
+                //foreach (var block in blocks)
+                //{
+                //    IDF = domFront.ComputeIDF(block);
+                //    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
+                //}
 
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
                 //DOM.test_printing(dom_relations);
@@ -124,15 +125,18 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //ControlFlowGraph cfg = blocks;
                 //Console.WriteLine(cfg.GenerateGraphvizDotFile());
 
-                var CFG = blocks;
+                //var CFG = blocks;
 
-                var BackEdge = ControlFlowGraph.MakeEdge(blocks.ToList()[2], blocks.ToList()[0]);
+                //var BackEdge = ControlFlowGraph.MakeEdge(blocks.ToList()[2], blocks.ToList()[0]);
 
-                Console.WriteLine(CFG.ToString());
+                //Console.WriteLine(CFG.ToString());
 
-                var NatLoop = new NaturalLoop(CFG, BackEdge);
+                //var NatLoop = new NaturalLoop(CFG, BackEdge);
 
-                Console.WriteLine(NatLoop.ToString());
+                //Console.WriteLine(NatLoop.ToString());
+                GlobalDefUse gdf = new GlobalDefUse();
+                gdf.RunAnalysis(blocks.ToList());
+                
 
             }
             catch (FileNotFoundException)

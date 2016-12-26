@@ -5,8 +5,9 @@ using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddres
 
 namespace OptimizingCompilers2016.Library.Analysis.DefUse
 {
-    public class GlobalDefUse : BaseIterationAlgorithm<EqualsBitArray>
+    public class GlobalDefUse : ImprovedBaseIterationAlgorithm<EqualsBitArray>
     {
+        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)

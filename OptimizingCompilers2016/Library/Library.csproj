@@ -67,6 +67,7 @@
     <Compile Include="Analysis\DefUse\InblockDefUse.cs" />
     <Compile Include="Analysis\DominanceFrontier.cs" />
     <Compile Include="Analysis\EqualsBitArray.cs" />
+    <Compile Include="Analysis\ImprovedBaseIterationAlgorithm.cs" />
     <Compile Include="BaseBlock\BaseBlock.cs" />
     <Compile Include="BaseBlock\BaseBlockDivider.cs" />
     <Compile Include="ControlFlowGraph\ControlFlowGraph.cs" />

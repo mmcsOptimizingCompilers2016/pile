@@ -20,7 +20,6 @@ namespace OptimizingCompilers2016.Library.Analysis
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
 
-        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
 
@@ -32,7 +31,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         protected abstract T Transfer(T x, BaseBlock b);
 
-        protected void FillSupportingStructures(List<BaseBlock> blocks)
+        protected virtual void FillSupportingStructures(List<BaseBlock> blocks)
         {
             int counter = 0;
             foreach (var block in blocks)
@@ -52,7 +51,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
 
         //maybe it should implement Semilattice interface
-        protected void IterationAlgorithm(List<BaseBlock> blocks)
+        protected virtual void IterationAlgorithm(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {

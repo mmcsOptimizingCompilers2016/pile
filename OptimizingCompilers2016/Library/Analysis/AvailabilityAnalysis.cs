@@ -10,6 +10,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 {
     public class AvailabilityAnalysis : BaseIterationAlgorithm<EqualsBitArray>
     {
+        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
