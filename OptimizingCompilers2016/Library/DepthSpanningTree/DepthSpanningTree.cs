@@ -5,13 +5,9 @@ using QuickGraph.Graphviz;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OptimizingCompilers2016.Library.ControlFlowGraph;
-using OptimizingCompilers2016.Library.BaseBlock;
 
-namespace OptimizingCompilers2016.Library.DepthSpanningTree
+namespace OptimizingCompilers2016.Library
 {
-    using BaseBlock = BaseBlock.BaseBlock;
-    using ControlFlowGraph = ControlFlowGraph.ControlFlowGraph;
 
     public class DepthSpanningTree
     {	
@@ -50,20 +46,21 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
 			{
 				if ( !Visited.Contains(predecessor) )
 				{
+                    if (!SpanningTree.Vertices.Contains(block))
+                        SpanningTree.AddVertex(block);
+
+                    if (!SpanningTree.Vertices.Contains(predecessor))
+                        SpanningTree.AddVertex(predecessor);
+
 					SpanningTree.AddEdge(new Edge<BaseBlock>(block, predecessor));
 					BuildTree(predecessor, ref currentNumber);
 				}
+
 				Numbers[block] = currentNumber;
 				currentNumber -= 1;
 			}
         }
-
-        public string GenerateGraphvizDotFile()
-        {
-            var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(SpanningTree);
-            return graphviz.Generate();
-        }
-
+        
         public bool FindBackwardPath(BaseBlock source, BaseBlock target)
         {
             var result = false;
@@ -85,5 +82,11 @@ namespace OptimizingCompilers2016.Library.DepthSpanningTree
 
             return result;
         }
-    }
+
+		public override string ToString()
+		{
+			var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(SpanningTree);
+			return graphviz.Generate();
+		}
+	}
 }

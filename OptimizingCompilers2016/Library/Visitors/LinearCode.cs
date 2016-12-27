@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
@@ -137,7 +137,7 @@ namespace OptimizingCompilers2016.Library.Visitors
             var varIdent = new IdentificatorValue(s_constantPrefix + valueCounter++.ToString());
             code.Add(new LinearRepresentation(Operation.Assign, varIdent, new NumericValue(1)));
 
-            // l1:  
+            // l1:
             var conditionLabel = new LabelValue(s_labelPrefix + labelCounter++);
             code.Add(new LinearRepresentation(conditionLabel, Operation.NoOp));
 
@@ -168,7 +168,9 @@ namespace OptimizingCompilers2016.Library.Visitors
             LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
             var beforeEnd = new List<LinearRepresentation>();
             forNode.LeftLimit.Id.Accept(this);
+
             beforeEnd.Add(new LinearRepresentation(Operation.Plus, 
+
                 (IdentificatorValue)idOrNum, idOrNum, new NumericValue(1)));
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));
 
@@ -194,6 +196,7 @@ namespace OptimizingCompilers2016.Library.Visitors
         public void Visit(WhileNode whNode) 
         {
             LabelValue beginLabel = new LabelValue(s_labelPrefix + labelCounter++);
+
             code.Add(new LinearRepresentation(beginLabel, Operation.NoOp));
             var beforeEnd = new List<LinearRepresentation>();
             beforeEnd.Add(new LinearRepresentation(Operation.Goto, beginLabel));

@@ -3,15 +3,14 @@ using QuickGraph.Graphviz;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OptimizingCompilers2016.Library.ControlFlowGraph
+namespace OptimizingCompilers2016.Library
 {
-    using DepthSpanningTree;
-    using BaseBlock;
+    using ReverseControlFlowGraph = ReversedBidirectionalGraph<BaseBlock, Edge<BaseBlock>>;
 
     public class ControlFlowGraph
     {
-        public UndirectedGraph<BaseBlock, Edge<BaseBlock>> CFG = 
-            new UndirectedGraph<BaseBlock, Edge<BaseBlock>>();
+        public BidirectionalGraph<BaseBlock, Edge<BaseBlock>> CFG =
+            new BidirectionalGraph<BaseBlock, Edge<BaseBlock>>();
 
         public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; set; }
 
@@ -48,27 +47,64 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
         {
             return CFG.Vertices.Count();
         }
+
+        public IEnumerable<BaseBlock> GetVertices()
+        {
+
+            return CFG.Vertices;
+        }
+
         /// <summary>
         /// Сериализация графа в строку формата dot-файла для последующей визуализации с
         /// помощью graphviz
         /// </summary>
         /// <returns></returns>
-        public string GenerateGraphvizDotFile()
+        public override string ToString()
         {
             var graphviz = new GraphvizAlgorithm<BaseBlock, Edge<BaseBlock>>(CFG);
             return graphviz.Generate();
         }
+
+        public List<BaseBlock> ToList()
+        {
+            return CFG.Vertices.ToList();
+        }
+
+        public IEnumerator<BaseBlock> GetEnumerator()
+        {
+            return CFG.Vertices.ToList().GetEnumerator();
+        }
+
+
+        public static Edge<BaseBlock> MakeEdge(BaseBlock source, BaseBlock target) {
+            
+            return new Edge<BaseBlock>(source, target);
+        }
+
+        public bool CheckReducibility() {
+            DepthSpanningTree DFST = new DepthSpanningTree(this);
+
+            List<Edge<BaseBlock>> BackEdges = new List<Edge<BaseBlock>>();
+
+            List<Edge<BaseBlock>> RetreatingEdges = new List<Edge<BaseBlock>>();
+
+            var _BackEdges = new HashSet<Edge<BaseBlock>>(BackEdges);
+            var _RetreatingEdges = new HashSet<Edge<BaseBlock>>(RetreatingEdges);
+
+            return _BackEdges.SetEquals(_RetreatingEdges);
+        }
+
         public void Classification()
         {
             // TODO: Check when DepthSpanningTree will be fixed
             var depthTree = new DepthSpanningTree(this);
-            foreach(var edge in CFG.Edges)
+            foreach (var edge in CFG.Edges)
             {
                 if (depthTree.SpanningTree.ContainsEdge(edge))
                 {
                     EdgeTypes.Add(edge, EdgeType.Coming);
                 }
-                else if(depthTree.FindBackwardPath(edge.Source, edge.Target))
+                else if (depthTree.FindBackwardPath(edge.Source, edge.Target))
                 {
                     EdgeTypes.Add(edge, EdgeType.Retreating);
                 }
@@ -78,6 +114,52 @@ namespace OptimizingCompilers2016.Library.ControlFlowGraph
                 }
             }
         }
-        
+    }
+
+    public class NaturalLoop{
+        HashSet<BaseBlock> NatLoop = new HashSet<BaseBlock>();
+
+        public HashSet<BaseBlock> Loop { get { return NatLoop; } }
+
+        ReversedBidirectionalGraph<BaseBlock, Edge<BaseBlock>> reverseCFG;
+
+        public NaturalLoop(ControlFlowGraph CFG, Edge<BaseBlock> BackEdge) {
+            
+            reverseCFG = new ReversedBidirectionalGraph<BaseBlock, Edge<BaseBlock>>(CFG.CFG);
+
+            NatLoop.Add(BackEdge.Target);
+
+            NatLoop.Add(BackEdge.Source);
+
+            BuildNaturalLoop(BackEdge.Source);
+            
+        }
+
+        void BuildNaturalLoop(BaseBlock Source) {
+
+            foreach (var edge in reverseCFG.OutEdges(Source)) { 
+
+                if (!NatLoop.Contains(edge.Target)) 
+                {
+
+                    NatLoop.Add(edge.Target);
+
+                    BuildNaturalLoop(edge.Target);
+                }
+
+            }
+
+        }
+
+        public override string ToString()
+        {
+            string LoopStr = "";
+            foreach (var block in NatLoop)
+            {
+
+                LoopStr += block.ToString() + "\n";
+            }
+            return LoopStr;
+        }
     }
 }

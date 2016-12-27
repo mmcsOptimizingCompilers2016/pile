@@ -73,8 +73,8 @@ block		: BEGIN stlist END { $$ = $2; }
 cycle		: CYCLE common_expr statement { $$ = new CycleNode($2, $3); }
 			;
 
-if_st   	: IF common_expr THEN statement %prec IFX { $$ = new IfNode($2, $4); }
-			| IF common_expr THEN statement ELSE statement { $$ = new IfNode($2, $4, $6); }
+if_st   	: IF common_expr statement %prec IFX { $$ = new IfNode($2, $3); }
+			| IF common_expr statement ELSE statement { $$ = new IfNode($2, $3, $5); }
 			;
 
 rep_unt 	: REPEAT stlist UNTIL common_expr { $$ = new RepUntNode($2, $4 as BinExprNode); }
@@ -104,6 +104,7 @@ bin_expr	: expr bin_sign expr { $$ = new BinExprNode($1, $2, $3); }
 expr		: m_d { $$ = $1; }
 			| expr PLUS m_d { $$ = new BinExprNode($1, BinSign.PLUS, $3); }
 			| expr MINUS m_d { $$ = new BinExprNode($1, BinSign.MINUS, $3); }
+			| MINUS expr { $$ = new BinExprNode(new IntNumNode(0), BinSign.MINUS, $2); }
 			;
 
 m_d			: in_br { $$ = $1; }

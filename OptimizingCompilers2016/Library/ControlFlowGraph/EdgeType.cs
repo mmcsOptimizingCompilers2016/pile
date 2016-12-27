@@ -1,4 +1,4 @@
-﻿namespace OptimizingCompilers2016.Library.ControlFlowGraph
+﻿namespace OptimizingCompilers2016.Library
 {
     public enum EdgeType
     {
