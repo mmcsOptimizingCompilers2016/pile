@@ -79,9 +79,10 @@ namespace OptimizingCompilers2016.Library.Region
 		/// cycle entry 
 		public Region CycleStart { get; }
 		/// Regions, which are the start of reverse edges
+		/// TODO: consider removing this - as in this case the only reverse edge is from cycleStart to CycleStart
 		public List<Region> ReverseEdgeSources { get; }
 		public List<Edge<Region>> ReverseEdges { get; }
-		public CycleRegion(ref Region cycleStart) : base()
+		public CycleRegion(Region cycleStart) : base()
 		{
 			CycleStart = cycleStart;
 			ReverseEdgeSources = new List<Region>();
@@ -131,43 +132,74 @@ namespace OptimizingCompilers2016.Library.Region
 			var cycleStart = reverseEdge.Target;
 			var cycle = FindCycle(ref graph, reverseEdge);
 
-			// FIXME: Build new cycle body region 
 			var cycleBodyRegion = new CycleBodyRegion(cycleStart);
 			var cycleBodyRegionGraph = new BidirectionalGraph();
 
 			var visitedVertices = new HashSet<Region>();
 			visitedVertices.Add(cycleStart);
-			foreach (var edge in cycle)
+			foreach (var edge in graph.Edges)
 			{
-				if (!visitedVertices.Contains(edge.Source))
-				{
-					cycleBodyRegionGraph.AddVertex(edge.Source);
-					visitedVertices.Add(edge.Source);
-					edge.Source.ParentRegion = cycleBodyRegion;
-				}
+				var updatedSource = visitedVertices.Contains(edge.Source);
+				var updatedTarget = visitedVertices.Contains(edge.Target);
 
-				if (!visitedVertices.Contains(edge.Target))
+				var source = updatedSource ? cycleBodyRegion : edge.Source;
+				var target = updatedTarget ? cycleBodyRegion : edge.Target;
+
+				if (!updatedSource && !updatedTarget)
+					continue;
+
+				// do not update inner edges ( Hv, vv ), just delete them
+				if ( (updatedSource ^ updatedTarget) || edge.Target == cycleStart) // Hx vx xv xH - vH HH
 				{
-					cycleBodyRegionGraph.AddVertex(edge.Target);
-					visitedVertices.Add(edge.Target);
-					edge.Source.ParentRegion = cycleBodyRegion;
-				}
-				
-				cycleBodyRegionGraph.AddEdge(edge);
+					graph.AddEdge(new Edge<Region>(source, target));
+				} 
+
+				graph.RemoveEdge(edge);
 			}
 
 			cycleBodyRegion.HierarchyLevel = cycleBodyRegionGraph;
 			Hierarchy.Add(cycleBodyRegion);
 
-			// TODO: update graph: 
-			//			remove edges in cycle
-			//			update edges
+			graph.AddVertex(cycleBodyRegion);	
 
-			// TODO: add CycleRegion
-			// TODO: update graph: 
-			//			remove edges in cycle
-			//			update edges
+			// add CycleRegion
+			var newCycleEdge = graph.Edges.ToList().Find( x => x.Source == cycleBodyRegion && x.Target == cycleBodyRegion );
+			if (newCycleEdge != null)
+			{	
+				// create new cycle region
+				var cycleRegion = new CycleRegion(cycleBodyRegion);
+				cycleRegion.AddReverseEdge(cycleBodyRegion);
+
+				// set its child region to cycleBodyGraph
+				BidirectionalGraph cycleGraph = new BidirectionalGraph();
+				cycleGraph.AddVertex(cycleBodyRegion);
+				cycleGraph.AddEdge(new Edge<Region>(cycleBodyRegion, cycleBodyRegion));
+				cycleRegion.HierarchyLevel = cycleGraph;
+
+				// update parent region for cycle body region
+				Hierarchy.Add(cycleRegion);
+				cycleBodyRegion.ParentRegion = cycleRegion;
+
+				// TODO: refactor this
+				// update graph
+				foreach ( var edge in graph.Edges)
+				{
+					var source = edge.Source == cycleBodyRegion ? cycleRegion : edge.Source;
+					var target = edge.Target == cycleBodyRegion ? cycleRegion : edge.Target;
+
+					if ((source != edge.Source) || (target != edge.Target))
+					{
+						if (source != target )
+							graph.AddEdge(new Edge<Region>(source, target));
+						graph.RemoveEdge(edge);
+					}
+				}
+			}
 		}
+
+		// TODO: fix this method so that it could be used for subclasses of Region
+		
+		
 
 		//FIXME: get all reverse edges - they correspond to native cycles
 		// .............. waiting for implementation by DreamTeam
