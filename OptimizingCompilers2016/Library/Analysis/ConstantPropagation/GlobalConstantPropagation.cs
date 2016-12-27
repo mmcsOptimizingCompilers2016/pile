@@ -16,10 +16,10 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
             base.IterationAlgorithm(blocks);
             foreach (var block in blocks)
             {
-                Dictionary<IdentificatorValue, VariableValue> constants = new Dictionary<IdentificatorValue, VariableValue>();
+                Dictionary<IdentificatorValue, int> constants = new Dictionary<IdentificatorValue, int>();
                 foreach (var val in ins[block].variableTable) {
                     if (val.Value.type.Equals(VariableValueType.CONSTANT)) {
-                        constants.Add(val.Key, val.Value);
+                        constants.Add(val.Key, val.Value.constantValue);
                     }
                 }
 
@@ -150,10 +150,16 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
         private VariableValue Calculate(IThreeAddressCode line, VariableMap currentTable)
         {
             VariableValue newValue = new VariableValue();
-            VariableValue x = currentTable.variableTable[line.LeftOperand as IdentificatorValue];
-            if (line.RightOperand == null)
+
+            if ( line.LeftOperand is NumericValue )
             {
-                if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue))
+                newValue.type = VariableValueType.CONSTANT;
+                newValue.constantValue = (line.LeftOperand as NumericValue).Value;
+            }
+            else
+            {
+                VariableValue x = currentTable.variableTable[line.LeftOperand as IdentificatorValue];
+                if (x.type.Equals(VariableValueType.CONSTANT))
                 {
                     newValue.type = VariableValueType.CONSTANT;
                     newValue.constantValue = x.constantValue;
@@ -167,50 +173,37 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
                     newValue.type = VariableValueType.UNDEF;
                 }
             }
-            else {
-                if (line.RightOperand is NumericValue) {
-                    if (x.type.Equals(VariableValueType.CONSTANT))
-                    {
-                        newValue.type = VariableValueType.CONSTANT;
-                        newValue.constantValue = CalculateConstant(line.Operation, x.constantValue, (line.RightOperand as NumericValue).Value);
-                    }
-                    else if (x.type.Equals(VariableValueType.NAC))
-                    {
-                        newValue.type = VariableValueType.NAC;
-                    }
-                    else
-                    {
-                        newValue.type = VariableValueType.UNDEF;
-                    }
-                    return newValue;
-                }
 
+            if (line.RightOperand == null || newValue.type == VariableValueType.NAC)
+            {
+                return newValue;
+            }
 
-                VariableValue y = currentTable.variableTable[line.RightOperand as IdentificatorValue];
-                Operation op = line.Operation;
+            if (line.RightOperand is NumericValue) {
+                newValue.constantValue = CalculateConstant(line.Operation, newValue.constantValue, (line.RightOperand as NumericValue).Value);
+                return newValue;
+            }
 
-                if ((x.type.Equals(VariableValueType.CONSTANT) || line.LeftOperand is NumericValue) &&
-                   (y.type.Equals(VariableValueType.CONSTANT) || line.RightOperand is NumericValue))
-                {
-                    newValue.type = VariableValueType.CONSTANT;
-                    newValue.constantValue = CalculateConstant(op, x.constantValue, y.constantValue);
-                }
-                else
-                if (x.type.Equals(VariableValueType.NAC) ||
-                   (y.type.Equals(VariableValueType.NAC)))
-                {
-                    newValue.type = VariableValueType.NAC;
-                }
-                else
-                {
-                    newValue.type = VariableValueType.UNDEF;
-                }
+            VariableValue y = currentTable.variableTable[line.RightOperand as IdentificatorValue];
+
+            if (y.type.Equals(VariableValueType.CONSTANT))
+            {
+                newValue.constantValue = CalculateConstant(line.Operation, newValue.constantValue, y.constantValue);
+                return newValue;
+            }
+
+            if (y.type.Equals(VariableValueType.NAC))
+            {
+                newValue.type = VariableValueType.NAC;
+            }
+            else
+            {
+                newValue.type = VariableValueType.UNDEF;
             }
             return newValue;
         }
 
-        //TODO
-        private int CalculateConstant(Operation op, int x, int y)
+        public static int CalculateConstant(Operation op, int x, int y)
         {
             switch (op)
             {
