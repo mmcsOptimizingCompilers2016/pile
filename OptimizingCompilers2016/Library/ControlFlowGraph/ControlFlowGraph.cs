@@ -94,7 +94,7 @@ namespace OptimizingCompilers2016.Library
             return _BackEdges.SetEquals(_RetreatingEdges);
         }
 
-        public void Classification()
+        public void ClassificateEdges()
         {
             // TODO: Check when DepthSpanningTree will be fixed
             var depthTree = new DepthSpanningTree(this);
