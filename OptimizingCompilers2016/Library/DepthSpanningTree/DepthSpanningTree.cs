@@ -11,9 +11,9 @@ namespace OptimizingCompilers2016.Library
 
     public class DepthSpanningTree
     {	
-        HashSet<BaseBlock> Visited;
-		Dictionary<BaseBlock, int> Numbers;
-		BidirectionalGraph<BaseBlock, Edge<BaseBlock>> SpanningTree;
+        public HashSet<BaseBlock> Visited { get; }
+		public Dictionary<BaseBlock, int> Numbers { get; }
+		public BidirectionalGraph<BaseBlock, Edge<BaseBlock>> SpanningTree { get; }
 
 		/// <summary>
 		/// Depth spanning tree constructor. 
@@ -40,20 +40,33 @@ namespace OptimizingCompilers2016.Library
         {
 			if (block == null)
 				return;
-
+			
             Visited.Add(block);
-			foreach (var predecessor in block.Predecessors)
+
+			if (block.Output == null && block.JumpOutput == null)
 			{
-				if ( !Visited.Contains(predecessor) )
+				Numbers[block] = currentNumber;
+				return;
+			}
+
+			var children = new List<BaseBlock>();
+			if (block.Output != null )
+				children.Add(block.Output);
+			if (block.JumpOutput != null)
+				children.Add(block.JumpOutput);
+
+			foreach (var child in children)
+			{
+				if ( !Visited.Contains(child) )
 				{
                     if (!SpanningTree.Vertices.Contains(block))
                         SpanningTree.AddVertex(block);
 
-                    if (!SpanningTree.Vertices.Contains(predecessor))
-                        SpanningTree.AddVertex(predecessor);
+                    if (!SpanningTree.Vertices.Contains(child))
+                        SpanningTree.AddVertex(child);
 
-					SpanningTree.AddEdge(new Edge<BaseBlock>(block, predecessor));
-					BuildTree(predecessor, ref currentNumber);
+					SpanningTree.AddEdge(new Edge<BaseBlock>(block, child));
+					BuildTree(child, ref currentNumber);
 				}
 
 				Numbers[block] = currentNumber;
