@@ -12,7 +12,6 @@ namespace OptimizingCompilers2016.Library.Analysis
         where T : ICloneable
     {
         private Dictionary<BaseBlock, List<BaseBlock>> domRelations;
-        private List<DOM.link> directDominators;
 
         protected override abstract void FillGeneratorsAndKillers(List<BaseBlock> blocks);
 
@@ -47,11 +46,6 @@ namespace OptimizingCompilers2016.Library.Analysis
                 int count = 0;
 
                 domRelations = DOM.DOM_CREAT(blocks, blocks[0]);
-                directDominators = DOM.get_direct_dominators(domRelations, blocks[0]);
-
-                foreach (var link in directDominators) {
-                    Console.WriteLine(link.ToString());
-                }
 
                 blocks.Sort((b1, b2) => CompareBlocks(b1, b2));
                 Console.WriteLine("Sorted: ");
@@ -90,38 +84,8 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         private int CompareBlocks(BaseBlock b1, BaseBlock b2)
         {
-            if (b1.Name == b2.Name)
-            {
-                return 0;
-            }
-
-            BaseBlock directDom;
-            var dd = directDominators.Find(x => x.root.Name == b1.Name);
-            if (dd == null)
-            {
-                var dd2 = directDominators.Find(x => x.root.Name == b2.Name);
-                if (dd2 == null)
-                {
-                    return 0;
-                }
-                else {
-                    return -1;
-                }
-            }
-                
-            directDom = dd.root;
-
-            
-                var dch = directDominators.Find(x => x.child.Name == directDom.Name);
-                if (dch != null)
-                {
-                    var rootDom = dch.root;
-                    return CompareBlocks(rootDom, b2);
-                }
-                else {
-                    return 1;
-                }
-
+            if (b1 == b2) return 0;
+            return domRelations[b1].Contains(b2) ? 1 : -1;
         }
 
         public override abstract void RunAnalysis(List<BaseBlock> blocks);
