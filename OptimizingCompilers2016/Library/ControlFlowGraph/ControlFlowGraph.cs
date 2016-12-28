@@ -5,16 +5,14 @@ using System.Linq;
 
 namespace OptimizingCompilers2016.Library
 {
-    using ReverseControlFlowGraph = ReversedBidirectionalGraph<BaseBlock, Edge<BaseBlock>>;
-
     public class ControlFlowGraph
     {
         public BidirectionalGraph<BaseBlock, Edge<BaseBlock>> CFG =
             new BidirectionalGraph<BaseBlock, Edge<BaseBlock>>();
 
-        public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; set; }
+        public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; }
 
-        public HashSet<Edge<BaseBlock>> BackwardEdges { get; set; }
+        public HashSet<Edge<BaseBlock>> BackwardEdges { get; }
          
         /// <summary>
         /// Конструктор класса ControlFlowGraph
@@ -78,7 +76,6 @@ namespace OptimizingCompilers2016.Library
             return CFG.Vertices.ToList().GetEnumerator();
         }
 
-
         public static Edge<BaseBlock> MakeEdge(BaseBlock source, BaseBlock target) {
             
             return new Edge<BaseBlock>(source, target);
@@ -118,6 +115,7 @@ namespace OptimizingCompilers2016.Library
             }
         }
 
+        // before calling, need to fill EdgeTypes collection
         public void FindBackwardEdges(Dictionary<BaseBlock, List<BaseBlock>> dominatorsTree)
         {
             foreach (var edgeType in EdgeTypes)
