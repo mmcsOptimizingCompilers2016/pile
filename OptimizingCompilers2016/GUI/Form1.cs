@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
-using OptimizingCompilers2016.Library.LinearCode;
 using OptimizingCompilers2016.Library.Visitors;
 using OptimizingCompilers2016.Library.Analysis;
 using OptimizingCompilers2016.Library.Optimizators;
@@ -66,6 +62,52 @@ namespace OptimizingCompilers2016.GUI
             this.Invoke(Invoker);
             Thread.Sleep(100);
             this.Invoke(Invoker2);
+        }
+
+        private void LoadFile()
+        {
+            try
+            {
+                string text = Code.Text;
+
+                Scanner scanner = new Scanner();
+                scanner.SetSource(text, 0);
+
+                Parser parser = new Parser(scanner);
+
+                var b = parser.Parse();
+
+                var linearCode = new LinearCodeVisitor();
+                parser.root.Accept(linearCode);
+
+                ResultCode.Text = linearCode.ToString();
+
+                blocks = new List<BaseBlock>();
+                blocks = BaseBlockDivider.divide(linearCode.code).ToList();
+
+                BaseBlocks.Text = PrintBlocks();
+            }
+            catch (FileNotFoundException)
+            {
+                Console.Text = String.Format("Файл {0} не найден!\r\n", FileName);
+
+            }
+            catch (LexException exception)
+            {
+                Console.Text = "Лексическая ошибка. " + exception.Message;
+                Console.Text += "\r\n";
+                Console.Select(Console.Text.Length - 1, 0);
+                Blick = new Thread(ConsoleBlick);
+                Blick.Start();
+            }
+            catch (SyntaxException exception)
+            {
+                Console.Text = "Синтаксическая ошибка. " + exception.Message;
+                Console.Text += "\r\n";
+                Console.Select(Console.Text.Length - 1, 0);
+                Blick = new Thread(ConsoleBlick);
+                Blick.Start();
+            }
         }
 
         private string PrintBlocks()
@@ -140,6 +182,8 @@ namespace OptimizingCompilers2016.GUI
             Code.Resume();
             Code.TextChanged += Code_TextChanged;
 
+            LoadFile();
+
         }
 
         private void Code_TextChanged(object sender, EventArgs e)
@@ -181,48 +225,7 @@ namespace OptimizingCompilers2016.GUI
 
         private void Refresh_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string text = Code.Text;
-
-                Scanner scanner = new Scanner();
-                scanner.SetSource(text, 0);
-
-                Parser parser = new Parser(scanner);
-
-                var b = parser.Parse();
-
-                var linearCode = new LinearCodeVisitor();
-                parser.root.Accept(linearCode);
-
-                ResultCode.Text = linearCode.ToString();
-
-                blocks = new List<BaseBlock>();
-                blocks = BaseBlockDivider.divide(linearCode.code).ToList();
-
-                BaseBlocks.Text = PrintBlocks();
-            }
-            catch (FileNotFoundException)
-            {
-                Console.Text = String.Format("Файл {0} не найден!\r\n", FileName);
-
-            }
-            catch (LexException exception)
-            {
-                Console.Text = "Лексическая ошибка. " + exception.Message;
-                Console.Text += "\r\n";
-                Console.Select(Console.Text.Length - 1, 0);
-                Blick = new Thread(ConsoleBlick);
-                Blick.Start();
-            }
-            catch (SyntaxException exception)
-            {
-                Console.Text = "Синтаксическая ошибка. " + exception.Message;
-                Console.Text += "\r\n";
-                Console.Select(Console.Text.Length - 1, 0);
-                Blick = new Thread(ConsoleBlick);
-                Blick.Start();
-            }
+            LoadFile();
         }
 
         private void NewWindow_Click(object sender, EventArgs e)
@@ -289,35 +292,70 @@ namespace OptimizingCompilers2016.GUI
                 synchronScroll = false;
         }
 
-        private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
+        private void удалениеМёртвогоКодаToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             foreach (var block in blocks)
                 DeadCodeDeleting.optimizeDeadCode(block);
 
             Result.Text = PrintBlocks();
         }
-        
+
         private void свёрткаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ConstantFolding.transform(blocks);
             Result.Text = PrintBlocks();
         }
 
-        private void оптимизацияОбщихПодвыраженийToolStripMenuItem_Click(object sender, EventArgs e)
+        //private void оптимизацияОбщихПодвыраженийToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    //var opt = new CommonExpressions();
+        //    //foreach (var block in blocks)
+        //    //    opt.Optimize(block);
+
+        //    //Result.Text = PrintBlocks();
+        //}
+
+        private void блочныеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var opt = new CommonExpressions();
+            var opt = new OptimizingCompilers2016.Library.Optimizators.CommonExpressions();
             foreach (var block in blocks)
                 opt.Optimize(block);
 
             Result.Text = PrintBlocks();
         }
 
-        private void протяжкаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        private void межблочныеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var opt = new OptimizingCompilers2016.Library.InterBlockOptimizators.CommonExpressions();
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+            opt.Optimize(CFG);
+
+            Result.Text = PrintBlocks();
+        }
+
+        //private void протяжкаКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    var opt = new ConstantPropagationOptimizator();
+        //    foreach (var block in blocks)
+        //        opt.Optimize(block);
+
+        //    Result.Text = PrintBlocks();
+        //}
+
+        private void внутриБлоковToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var opt = new ConstantPropagationOptimizator();
             foreach (var block in blocks)
                 opt.Optimize(block);
 
+            Result.Text = PrintBlocks();
+        }
+
+        private void глобальнаяToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Result.Text = "";
+            var constantPropagation = new GlobalConstantPropagation();
+            constantPropagation.RunAnalysis(blocks);
             Result.Text = PrintBlocks();
         }
 
@@ -332,12 +370,12 @@ namespace OptimizingCompilers2016.GUI
 
         private void глобальнаяToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Result.Text = "";
+            Result.Text = "";
             //foreach (var block in blocks)
             //{
-            //    var gdu = new GlobalDefUse();
-            //    gdu.RunAnalysis(blocks);
-            //    Result.Text += gdu.ToString();
+                var gdu = new GlobalDefUse();
+                gdu.RunAnalysis(blocks);
+                Result.Text += gdu.ToString();
             //}
         }
 
@@ -351,15 +389,24 @@ namespace OptimizingCompilers2016.GUI
             }
         }
 
-        private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var AV = new ActiveVariables(new ControlFlowGraph(blocks));
             AV.runAnalys();
             foreach (var block in blocks)
                 DeadCodeDeleting.optimizeDeadCode(block, AV.result[block.Name]);
             Result.Text = PrintBlocks();
-
         }
+
+        //private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    var AV = new ActiveVariables(new ControlFlowGraph(blocks));
+        //    AV.runAnalys();
+        //    foreach (var block in blocks)
+        //        DeadCodeDeleting.optimizeDeadCode(block, AV.result[block.Name]);
+        //    Result.Text = PrintBlocks();
+
+        //}
 
         private void анализАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -410,6 +457,10 @@ namespace OptimizingCompilers2016.GUI
         {
             ControlFlowGraph CFG = new ControlFlowGraph(blocks);
             Result.Text = CFG.ToString();
+            if (CFG.CheckReducibility())
+                Result.Text += "Граф протока управления является приводимым";
+            else
+                Result.Text += "Граф потока управления не является приводимым";
         }
 
         private void глубинноеОстовноеДеревоToolStripMenuItem_Click(object sender, EventArgs e)
@@ -419,22 +470,45 @@ namespace OptimizingCompilers2016.GUI
             Result.Text = DST.ToString();
         }
 
-        private void распространениеКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        private void классификацияРёберToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+            Result.Text = CFG.EdgeTypes.ToString();
+        }
+
+        private void обратныеРёбраToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Result.Text = "";
-            var constantPropagation = new GlobalConstantPropagation();
-            constantPropagation.RunAnalysis(blocks);
-            Result.Text = PrintBlocks();
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+
+            foreach (var backEdge in CFG.BackwardEdges)
+                Result.Text += backEdge.ToString();
         }
 
         private void натуральныеЦиклыToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Result.Text = "";
+            var CFG = new ControlFlowGraph(blocks);
 
+            foreach (var backEdge in CFG.BackwardEdges)
+            {
+                var natLoop = new NaturalLoop(CFG, backEdge);
+                Result.Text += natLoop.ToString();
+            }
         }
+
+        //private void распространениеКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    Result.Text = "";
+        //    var constantPropagation = new GlobalConstantPropagation();
+        //    constantPropagation.RunAnalysis(blocks);
+        //    Result.Text = PrintBlocks();
+        //}
 
         private void Form1_Load(object sender, EventArgs e)
         {
             this.DesktopLocation = new Point(0, 0);
+            LoadFile();
         }
 
         private void tabControl2_Selecting(object sender, TabControlCancelEventArgs e)
@@ -448,7 +522,6 @@ namespace OptimizingCompilers2016.GUI
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
                 Save.Enabled = true;
         }
-
 
     }
 }
