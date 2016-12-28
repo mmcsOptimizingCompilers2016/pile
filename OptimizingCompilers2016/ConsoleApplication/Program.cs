@@ -28,6 +28,71 @@ namespace OptimizingCompilers2016.ConsoleApplication
             Console.WriteLine(text);
         }
 
+        static void print(List<BaseBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                Console.WriteLine("Block: {0}", block.Name);
+                foreach (var command in block.Commands)
+                {
+                    Console.WriteLine(command);
+                }
+                Console.WriteLine();
+            }
+
+        }
+
+        static Parser parse(string FileName)
+        {
+            string text = File.ReadAllText(FileName);
+
+            Scanner scanner = new Scanner();
+            scanner.SetSource(text, 0);
+
+            Parser parser = new Parser(scanner);
+
+            var b = parser.Parse();
+
+            if (!b)
+            {
+                Console.WriteLine("Ошибка");
+                return null;
+            }
+            else
+            {
+                Console.WriteLine("Программа распознана");
+            }
+
+            return parser;
+        }
+
+        static void prettyPrint(Parser parser)
+        {
+            var prettyVisitor = new PrettyPrintVisitor();
+            parser.root.Accept(prettyVisitor);
+            Console.WriteLine(prettyVisitor.Text);
+        }
+
+        static List<LinearRepresentation> getLinearCode(Parser parser)
+        {
+            var linearCode = new LinearCodeVisitor();
+            parser.root.Accept(linearCode);
+            //Console.WriteLine(linearCode.ToString());
+            return linearCode.code;
+        }
+
+        static ControlFlowGraph getBlocks(List<LinearRepresentation> linearCode)
+        {
+            var blocks = BaseBlockDivider.divide(linearCode);
+            //Console.WriteLine("Blocks:");
+            //foreach (var block in blocks)
+            //{
+            //    Console.WriteLine(block.ToString());
+            //    Console.WriteLine("-------");
+            //}
+            return blocks;
+        }
+
         static List<BaseBlock> getListOfBB(ControlFlowGraph graph)
         {
             List<BaseBlock> result = new List<BaseBlock>();
@@ -57,57 +122,24 @@ namespace OptimizingCompilers2016.ConsoleApplication
             return result;
 
         }
+                
 
-        static void print(List<BaseBlock> blocks)
-        {
-            foreach (var block in blocks)
-            {
-                Console.WriteLine("Block: {0}", block.Name);
-                foreach (var command in block.Commands)
-                {
-                    Console.WriteLine(command);
-                }
-                Console.WriteLine();
-            }
-
-        }
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
 
             try
             {
-                string text = File.ReadAllText(FileName);
-
-                Scanner scanner = new Scanner();
-                scanner.SetSource(text, 0);
-
-                Parser parser = new Parser(scanner);
-
-                var b = parser.Parse();
-
-                if (!b)
-                {
-                    Console.WriteLine("Ошибка");
+                var parser = parse(FileName);
+                if (parser == null)
                     return;
-                }
-                //else Console.WriteLine("Программа распознана");
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
 
-                //var linearCode = new LinearCodeVisitor();
-                //parser.root.Accept(linearCode);
+                //prettyPrint(parser);
+                var linearCode = getLinearCode(parser);
+                var blocks = getBlocks(linearCode);
 
-                //Console.WriteLine(linearCode.ToString());
-
-                //var blocks = BaseBlockDivider.divide(linearCode.code);
-                //Console.WriteLine("Blocks:");
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //}
+                Console.WriteLine("Edge Types:");
+                Console.WriteLine(blocks.EdgeTypes);
 
                 //var AV = new ActiveVariables(blocks);
 
@@ -127,28 +159,6 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //var optCode = opt.Optimize(block);
                 //Console.WriteLine("After:");
                 //print(block.Commands);
-
-                if (!b)
-                    Console.WriteLine("Ошибка");
-                else Console.WriteLine("Программа распознана");
-
-                //var prettyVisitor = new PrettyPrintVisitor();
-                //parser.root.Accept(prettyVisitor);
-                //Console.WriteLine(prettyVisitor.Text);
-                
-                var linearCode = new LinearCodeVisitor();
-                parser.root.Accept(linearCode);
-
-                var blocks = BaseBlockDivider.divide(linearCode.code);
-                Console.WriteLine("Edge Types:");
-                Console.WriteLine(blocks.EdgeTypes);
-
-                //Console.WriteLine("Blocks:");
-                //foreach (var block in blocks)
-                //{
-                //    Console.WriteLine(block.ToString());
-                //    Console.WriteLine("-------");
-                //}
 
                 //foreach (var block in blocks)
                 //{
@@ -188,23 +198,16 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 //Console.WriteLine(domFront.ToString());
 
-                var domFront = new DominanceFrontier(blocks.ToList());
+                //var domFront = new DominanceFrontier(blocks.ToList());
 
-                Console.WriteLine(domFront.ToString());
+                //Console.WriteLine(domFront.ToString());
 
-                var IDF = new HashSet<string>();
-
+                //var IDF = new HashSet<string>();
                 //foreach (var block in blocks)
                 //{
                 //    IDF = domFront.ComputeIDF(block);
-                //    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
+                //    Console.WriteLine("IDF(" + block.Name + ") = {" + string.Join(", ", IDF) + "}");
                 //}
-
-                foreach (var block in blocks)
-                {
-                    IDF = domFront.ComputeIDF(block);
-                    Console.WriteLine("IDF(" + block.Name + ") = {" + string.Join(", ", IDF) + "}");
-                }
 
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
                 //DOM.test_printing(dom_relations);
@@ -236,16 +239,16 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine(block.ToString());
                 //}
 
-                var opt = new Library.InterBlockOptimizators.CommonExpressions();
+                //var opt = new Library.InterBlockOptimizators.CommonExpressions();
 
-                var graph = BaseBlockDivider.divide(linearCode.code);
+                //var graph = BaseBlockDivider.divide(linearCode);
 
                 
-                Console.WriteLine("Before:");
-                print(getListOfBB(graph));
-                var optCode = opt.Optimize(graph);
-                Console.WriteLine("After:");
-                print(getListOfBB(graph));
+                //Console.WriteLine("Before:");
+                //print(getListOfBB(graph));
+                //var optCode = opt.Optimize(graph);
+                //Console.WriteLine("After:");
+                //print(getListOfBB(graph));
             }
             catch (FileNotFoundException)
             {

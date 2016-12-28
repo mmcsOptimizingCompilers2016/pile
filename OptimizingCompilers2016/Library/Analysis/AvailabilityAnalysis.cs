@@ -24,7 +24,8 @@ namespace OptimizingCompilers2016.Library.Analysis
                 {
                     foreach (var inOcc in ldur.Value)
                     {
-                        generators[block].Set(occToBitNumber[inOcc], true);
+                        int occNumber = occToBitNumber[inOcc];
+                        generators[block].Set(occNumber, true);
                         var variable = ldur.Key.Item2;
                         foreach (var e in occToBitNumber)
                             if (e.Key.Item2.Item2.Equals(ldur.Key.Item2))
