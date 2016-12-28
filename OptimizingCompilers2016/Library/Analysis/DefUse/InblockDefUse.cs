@@ -175,13 +175,10 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                 {
                     if (!useDefs.ContainsKey(use))
                     {
-                        HashSet<Occurrence> defs = new HashSet<Occurrence>();
-                        //defs.Add(defUse.Key);
-                        //useDefs.Add(use, defs);
+                        useDefs.Add(use, new HashSet<IntraOccurence>());
                     }
-                    else {
-                        useDefs[use].Add(defUse.Key);
-                    }
+                    
+                    useDefs[use].Add(defUse.Key);
                 }
             }
         }

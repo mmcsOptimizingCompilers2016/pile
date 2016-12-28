@@ -124,7 +124,18 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
         {
             useDefs = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
 
+            foreach (var defUse in defUses)
+            {
+                foreach (var use in defUse.Value)
+                {
+                    if (!useDefs.ContainsKey(use))
+                    {
+                        useDefs.Add(use, new HashSet<IntraOccurence>());
+                    }
 
+                    useDefs[use].Add(defUse.Key);
+                }
+            }
 
             return useDefs;
         }
