@@ -10,7 +10,7 @@ namespace OptimizingCompilers2016.Library
         public BidirectionalGraph<BaseBlock, Edge<BaseBlock>> CFG =
             new BidirectionalGraph<BaseBlock, Edge<BaseBlock>>();
 
-        public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; }
+        public EdgeTypes EdgeTypes { get; set; }
 
         public HashSet<Edge<BaseBlock>> BackwardEdges { get; }
          
@@ -35,8 +35,9 @@ namespace OptimizingCompilers2016.Library
                 }
             }
 
-            EdgeTypes = new Dictionary<Edge<BaseBlock>, EdgeType>();
             BackwardEdges = new HashSet<Edge<BaseBlock>>();
+            EdgeTypes = new EdgeTypes();
+            ClassificateEdges();
         }
 
         public BaseBlock GetRoot()
@@ -94,13 +95,13 @@ namespace OptimizingCompilers2016.Library
             return _BackEdges.SetEquals(_RetreatingEdges);
         }
 
-        public void ClassificateEdges()
+        private void ClassificateEdges()
         {
             // TODO: Check when DepthSpanningTree will be fixed
             var depthTree = new DepthSpanningTree(this);
             foreach (var edge in CFG.Edges)
             {
-                if (depthTree.SpanningTree.ContainsEdge(edge))
+                if (depthTree.SpanningTree.Edges.Any(e => e.Target.Equals(edge.Target) && e.Source.Equals(edge.Source)))
                 {
                     EdgeTypes.Add(edge, EdgeType.Coming);
                 }
