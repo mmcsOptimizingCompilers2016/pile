@@ -91,6 +91,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
+                Console.WriteLine("Edge Types:");
+                Console.WriteLine(blocks.EdgeTypes);
 
                 Console.WriteLine("Blocks:");
                 foreach (var block in blocks)
