@@ -111,20 +111,25 @@ namespace OptimizingCompilers2016.Library.Region
 			BidirectionalGraph graph = InitializeGraph(ref cfg);
 			Hierarchy = graph.Vertices.ToList();
 
-			//FIXME: get all reverse edges - they correspond to native cycles
-			// .............. waiting for implementation by DreamTeam
-			var reverseEdges = GetReverseEdges(graph);
+			var reverseEdges = buildCycleHeaderDependencies(ref cfg);
 
 			// FIX ME: iterate through reverse edges
 			while (reverseEdges.Count > 0)
 			{
-				// FIXME: take reverse edge - IN WHICH ORDER??
-				var reverseEdge = GetReverseEdgeForInnerCycle(ref reverseEdges);
+				var reverseEdge = reverseEdges.Last();
 
 				CreateCycleRegion(ref graph, reverseEdge);
-
-				// TODO: get next reverseEdge
+				// TODO: update reverseEdges
 			}
+		}
+
+		// TODO: implement me 
+		// this method should sort reverse edges so that they start with edges corresponding to outer
+		// cycles and end with those referring to the inner cycles
+		public static List<Edge<Region> > buildCycleHeaderDependencies(ref ControlFlowGraph cfg)
+		{	
+			// TODO: use cfg.BackwardEdges
+			return new List<Edge<Region>>();
 		}
 
 		public void CreateCycleRegion(ref BidirectionalGraph graph, Edge<Region> reverseEdge)
@@ -197,24 +202,7 @@ namespace OptimizingCompilers2016.Library.Region
 			}
 		}
 
-		// TODO: fix this method so that it could be used for subclasses of Region
-		
-		
-
-		//FIXME: get all reverse edges - they correspond to native cycles
-		// .............. waiting for implementation by DreamTeam
-		public static List<Edge<Region>> GetReverseEdges( BidirectionalGraph graph )
-		{	
-			return new List<Edge<Region>>();
-		}
-
-		// FIXME: make sure that the reverse edge is associated with an inner (i.e. non-outer) cycle
-		// if it corresponds to an outer cycle, take next
-		public static Edge<Region> GetReverseEdgeForInnerCycle(ref List<Edge<Region>> edges)
-		{
-			return edges.Last();
-		}
-
+		// TODO: this method should use NativeCycle
 		/// <summary>
 		/// Find cycle within graph which corresponds to the given reverseEdge.
 		/// This cycle should include no inner cycles.
