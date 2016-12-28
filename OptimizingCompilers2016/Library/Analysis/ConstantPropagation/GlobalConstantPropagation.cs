@@ -6,7 +6,7 @@ using OptimizingCompilers2016.Library.Optimizators;
 
 namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
 {
-    public class GlobalConstantPropagation : BaseIterationAlgorithm<VariableMap>
+    public class GlobalConstantPropagation : ImprovedBaseIterationAlgorithm<VariableMap>
     {
         List<BaseBlock> _blocks = new List<BaseBlock>();
 

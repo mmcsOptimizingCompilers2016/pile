@@ -166,16 +166,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 //Console.WriteLine(NatLoop.ToString());
 
+                //Console.WriteLine("GlobalDefUse:");
                 //GlobalDefUse gdf = new GlobalDefUse();
                 //gdf.RunAnalysis(blocks.ToList());
-                
+                //Console.WriteLine(gdf.ToString());
 
-                var constantPropagation = new GlobalConstantPropagation();
-                constantPropagation.RunAnalysis(blocks.ToList());
-                foreach (var block in blocks) {
-                    Console.WriteLine("Block " + block.Name + "\n");
-                    Console.WriteLine(block.ToString());
-                }
+                //var constantPropagation = new GlobalConstantPropagation();
+                //constantPropagation.RunAnalysis(blocks.ToList());
+                //foreach (var block in blocks) {
+                //    Console.WriteLine("Block " + block.Name + "\n");
+                //    Console.WriteLine(block.ToString());
+                //}
             }
             catch (FileNotFoundException)
             {

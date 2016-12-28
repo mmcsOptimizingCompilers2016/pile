@@ -5,8 +5,11 @@ using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddres
 
 namespace OptimizingCompilers2016.Library.Analysis.DefUse
 {
-    public class GlobalDefUse : ImprovedBaseIterationAlgorithm<EqualsBitArray>
+    public class GlobalDefUse : BaseIterationAlgorithm<EqualsBitArray>
     {
+        private Dictionary<IntraOccurence, HashSet<IntraOccurence>> defUses = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+        private Dictionary<IntraOccurence, HashSet<IntraOccurence>> useDefs = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+
         protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
@@ -31,7 +34,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                             generators[block].Set(occToBitNumber[e.Key], false);
                         }
                     }
-                    generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
+                    generators[block].Set(occToBitNumber[ldur.Key], true);
 
                     var variable = ldur.Key.Item2;
                     //check if variable is used somewhere in another block
@@ -91,13 +94,57 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
         public Dictionary<IntraOccurence, HashSet<IntraOccurence>> GetDefUses()
         {
-            Dictionary<IntraOccurence, HashSet<IntraOccurence>> defUses = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
-            foreach (var res in outs)
+            defUses = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+
+            foreach (var block in localDefUses.Keys)
             {
-                Console.WriteLine(res.Key.Name + " outs: ");
-                PrintKillOfGen(res.Value);
+                var inBlockDefUse = new InblockDefUse(block, outs[block], occToBitNumber, defUses);
+
+                //foreach (var occ in inBlockDefUse.defUses)
+                //{
+                //    var inOccHS = new HashSet<IntraOccurence>();
+                //    foreach (var locOcc in occ.Value)
+                //    {
+                //        inOccHS.Add(locOcc);
+                //    }
+                //    defUses.Add(occ.Key, inOccHS);
+                //}
+                
+                Console.WriteLine(block.Name + " : " + inBlockDefUse.ToString());
             }
-            return null;
+            //foreach (var res in outs)
+            //{
+            //    Console.WriteLine(res.Key.Name + " outs: ");
+            //    PrintKillOfGen(res.Value);
+            //}
+            return defUses;
+        }
+
+        public Dictionary<IntraOccurence, HashSet<IntraOccurence>> GetUseDefs()
+        {
+            useDefs = new Dictionary<IntraOccurence, HashSet<IntraOccurence>>();
+
+
+
+            return useDefs;
+        }
+
+        public override string ToString()
+        {
+            var res = "";
+
+            var defUses = GetDefUses();
+            foreach (var occp in defUses)
+            {
+                res += occp.Key.Item1.Name + ": ";
+                foreach (var right in occp.Value)
+                {
+                    res += right.Item2.Item2.Value + ", ";
+                }
+                res += "\n---\n";
+            }
+
+            return res;
         }
     }
 }

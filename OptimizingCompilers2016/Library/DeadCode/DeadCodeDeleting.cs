@@ -38,30 +38,30 @@ namespace OptimizingCompilers2016.Library.DeadCode
             {
                 if (activeVars == null)
                 {
-                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2))
+                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2))
                     {
-                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2);
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item2);
                     }
                     else
                     {
                         if (DU.defUses.ElementAt(i).Value.Count == 0)
                         {
-                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item1]);
+                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item2.Item1]);
                         }
 
                     }
                 }
                 else
                 {
-                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2) && !activeVars.Contains(DU.defUses.ElementAt(i).Key.Item2))
+                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2) && !activeVars.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2))
                     {
-                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2);
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item2);
                     }
                     else
                     {
                         if (DU.defUses.ElementAt(i).Value.Count == 0)
                         {
-                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item1]);
+                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item2.Item1]);
                         }
 
                     }
