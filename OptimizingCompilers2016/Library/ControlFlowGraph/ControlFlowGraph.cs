@@ -14,6 +14,8 @@ namespace OptimizingCompilers2016.Library
 
         public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; set; }
 
+        public List<Edge<BaseBlock>> BackwardEdges { get; set; }
+         
         /// <summary>
         /// Конструктор класса ControlFlowGraph
         /// </summary>
