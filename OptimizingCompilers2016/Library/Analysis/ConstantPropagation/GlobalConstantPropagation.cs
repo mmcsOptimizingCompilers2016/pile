@@ -6,7 +6,7 @@ using OptimizingCompilers2016.Library.Optimizators;
 
 namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
 {
-    public class GlobalConstantPropagation : ImprovedBaseIterationAlgorithm<VariableMap>
+    public class GlobalConstantPropagation : BaseIterationAlgorithm<VariableMap>
     {
         List<BaseBlock> _blocks = new List<BaseBlock>();
 
@@ -158,6 +158,11 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
             }
             else
             {
+                if (!currentTable.variableTable.ContainsKey(line.LeftOperand as IdentificatorValue)) {
+                    newValue.type = VariableValueType.NAC;
+                    return newValue;
+                }
+
                 VariableValue x = currentTable.variableTable[line.LeftOperand as IdentificatorValue];
                 if (x.type.Equals(VariableValueType.CONSTANT))
                 {
@@ -181,6 +186,12 @@ namespace OptimizingCompilers2016.Library.Analysis.ConstantPropagation
 
             if (line.RightOperand is NumericValue) {
                 newValue.constantValue = CalculateConstant(line.Operation, newValue.constantValue, (line.RightOperand as NumericValue).Value);
+                return newValue;
+            }
+
+            if (!currentTable.variableTable.ContainsKey(line.RightOperand as IdentificatorValue))
+            {
+                newValue.type = VariableValueType.NAC;
                 return newValue;
             }
 
