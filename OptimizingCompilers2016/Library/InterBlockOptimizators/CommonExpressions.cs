@@ -285,10 +285,14 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                         if (newName == null)
                         {
                             newName = eReplaceB[pred.Name][bInst];
+                            if (!eReplaceB[block.Name].ContainsKey(bInst))
+                                eReplaceB[block.Name].Add(bInst, newName);
                             continue;
                         }
                         if (newName.Equals(eReplaceB[pred.Name][bInst]))
                         {
+                            if (!eReplaceB[block.Name].ContainsKey(bInst))
+                                eReplaceB[block.Name].Add(bInst, newName);
                             continue;
                         }
                         // create new variable, aliasing the old one
@@ -362,12 +366,25 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                 ExpressionSet blockGen = eGenB[block.Name];
                 if (blockIn.Count == 0)
                     continue;
-
+                var killed = new HashSet<IValue>();
                 for (int j = 0; j < block.Commands.Count; ++j)
                 {
                     var inst = block.Commands[j];
+                    if (inst.Operation == Operation.Assign)
+                    {
+                        killed.Add(inst.Destination);
+                    }
                     if (!BinaryExpression.isModifiableOperation(inst.Operation))
                         continue;
+                    if (killed.Contains(inst.LeftOperand) ||
+                        killed.Contains(inst.RightOperand))
+                    {
+                        continue;
+                    }
+                    if (inst.Destination != null)
+                    {
+                        killed.Add(inst.Destination);
+                    }
                     var cur = new BinaryExpression(inst);
                     if (!blockIn.Contains(cur))
                         continue;

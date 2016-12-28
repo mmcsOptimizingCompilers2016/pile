@@ -78,7 +78,7 @@ namespace LibraryTests.InterBlockOptimizators
         }
         k = b + a;
        ";
-        
+
         static readonly string result2 =
       @"
         if a > 2
@@ -181,6 +181,35 @@ namespace LibraryTests.InterBlockOptimizators
         q = a / 2;
        ";
 
+        static readonly string text5 =
+          @"b = 2 + a;
+            if (a)
+            {
+                b = 2 + a;
+            }
+            else
+            {
+                c = a + 2;
+            }
+            a = a + 2;
+            d = a + 2;
+            ";
+
+        static readonly string result5 =
+          @"tmp0 = a + 2;
+            b = tmp0;
+            if (a)
+            {
+            b = tmp0;
+            }
+            else
+            {
+            c = tmp0;
+            }
+            a = tmp0;
+            d = a + 2;
+            ";
+
         private ControlFlowGraph getCFG(string text)
         {
             string resultantText = "{ " + text + " }";
@@ -246,6 +275,11 @@ namespace LibraryTests.InterBlockOptimizators
         public void cseIBTest4()
         {
             commonTestTemplate(text4, result4);
+        }
+        [TestMethod]
+        public void cseIBTest5()
+        {
+            commonTestTemplate(text5, result5);
         }
     }
 }
