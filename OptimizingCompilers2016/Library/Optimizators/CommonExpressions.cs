@@ -126,6 +126,8 @@ namespace OptimizingCompilers2016.Library.Optimizators
     public class CommonExpressions : IOptimizator
     {
 
+        public const string idPrefix = "%v_";
+
         private void createOrAdd(ref VariableOccurrence container,
                                  IdentificatorValue id,
                                  BinaryExpression expr)
@@ -226,7 +228,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                 if (substitution[i] != null)
                 {
                     // substitute with new variable
-                    var id = new IdentificatorValue("%v_" + commonExpressions.IndexOf(substitution[i].Value));
+                    var id = new IdentificatorValue(idPrefix + commonExpressions.IndexOf(substitution[i].Value));
                     // create new tmp, if it wasn't created yet
                     if (substitution[i].Value.expressions.ElementAt(0) == i)
                     {

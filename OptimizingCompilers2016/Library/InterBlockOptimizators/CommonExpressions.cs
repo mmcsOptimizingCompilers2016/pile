@@ -6,8 +6,6 @@ using System.Diagnostics;
 using OptimizingCompilers2016.Library.Optimizators;
 using System.Linq;
 
-//TODO: tests, especially loop tests
-
 namespace OptimizingCompilers2016.Library.InterBlockOptimizators
 {
     using ExpressionSet = HashSet<BinaryExpression>;
@@ -289,15 +287,26 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                             newName = eReplaceB[pred.Name][bInst];
                             continue;
                         }
-                        if (newName.Value.Equals(eReplaceB[pred.Name][bInst]))
+                        if (newName.Equals(eReplaceB[pred.Name][bInst]))
                         {
                             continue;
                         }
-                        pred.Commands.Add(new LinearRepresentation(Operation.Assign, newName, 
-                            eReplaceB[pred.Name][bInst]));
+                        // create new variable, aliasing the old one
+                        var rename = new LinearRepresentation(Operation.Assign, newName,
+                            eReplaceB[pred.Name][bInst]);
+                        if (pred.Commands.Last().Operation == Operation.CondGoto ||
+                            pred.Commands.Last().Operation == Operation.Goto)
+                        {
+                            pred.Commands.Insert(pred.Commands.Count - 1, rename);
+                        }
+                        else
+                        {
+                            pred.Commands.Add(rename);
+                        }
                         continue;
                     }
-                    for (int i = pred.Commands.Count-1; i >= 0; --i)
+                    int i = 0;
+                    for (i = pred.Commands.Count-1; i >= 0; --i)
                     {
                         var command = pred.Commands[i];
                         if (command.Destination != null)
@@ -321,7 +330,8 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                             pred.Commands[i + 1] = replacer;
 
                             Debug.Assert(eGenB[pred.Name].Contains(bInst));
-                            eReplaceB[block.Name].Add(bInst, newName);
+                            if (!eReplaceB[block.Name].ContainsKey(bInst))
+                                eReplaceB[block.Name].Add(bInst, newName);
                             eReplaceB[pred.Name].Add(bInst, newName);
 
                             break;
@@ -329,7 +339,7 @@ namespace OptimizingCompilers2016.Library.InterBlockOptimizators
                             
                         }
                     }
-                    Debug.Assert(true); // unreachable
+                    Debug.Assert(i >= 0); // equal inst was found
                 }
                 else
                 {
