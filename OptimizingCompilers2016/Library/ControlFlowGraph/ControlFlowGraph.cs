@@ -1,7 +1,9 @@
-﻿using QuickGraph;
+﻿using System;
+using QuickGraph;
 using QuickGraph.Graphviz;
 using System.Collections.Generic;
 using System.Linq;
+using OptimizingCompilers2016.Library.Analysis;
 
 namespace OptimizingCompilers2016.Library
 {
@@ -20,10 +22,12 @@ namespace OptimizingCompilers2016.Library
         /// <param name="blocks">Коллекция базовых блоков трёхадресного кода</param>
         public ControlFlowGraph(IEnumerable<BaseBlock> blocks)
         {
+            var baseBlocks = blocks as IList<BaseBlock> ?? blocks.ToList();
+
             // Добавление вершин в граф
-            CFG.AddVertexRange(blocks);
+            CFG.AddVertexRange(baseBlocks);
             // Теперь, когда граф содержит вершины, можно добавить и дуги
-            foreach (var block in blocks)
+            foreach (var block in baseBlocks)
             {
                 if (block.Output != null)
                 {
@@ -38,6 +42,8 @@ namespace OptimizingCompilers2016.Library
             BackwardEdges = new HashSet<Edge<BaseBlock>>();
             EdgeTypes = new EdgeTypes();
             ClassificateEdges();
+            var dominatorsTree = DOM.DOM_CREAT(baseBlocks, baseBlocks.ElementAt(0));
+            FindBackwardEdges(dominatorsTree);
         }
 
         public BaseBlock GetRoot()
@@ -82,17 +88,13 @@ namespace OptimizingCompilers2016.Library
             return new Edge<BaseBlock>(source, target);
         }
 
-        public bool CheckReducibility() {
-            DepthSpanningTree DFST = new DepthSpanningTree(this);
+        public bool CheckReducibility()
+        {
+            var retreatingEdges = EdgeTypes
+                .Where(edgeType => edgeType.Value == EdgeType.Retreating)
+                .Zip(EdgeTypes, (pair, valuePair) => pair.Key);
 
-            List<Edge<BaseBlock>> BackEdges = new List<Edge<BaseBlock>>();
-
-            List<Edge<BaseBlock>> RetreatingEdges = new List<Edge<BaseBlock>>();
-
-            var _BackEdges = new HashSet<Edge<BaseBlock>>(BackEdges);
-            var _RetreatingEdges = new HashSet<Edge<BaseBlock>>(RetreatingEdges);
-
-            return _BackEdges.SetEquals(_RetreatingEdges);
+            return BackwardEdges.SetEquals(retreatingEdges);
         }
 
         private void ClassificateEdges()
@@ -116,23 +118,31 @@ namespace OptimizingCompilers2016.Library
             }
         }
 
-        // before calling, need to fill EdgeTypes collection
-        public void FindBackwardEdges(Dictionary<BaseBlock, List<BaseBlock>> dominatorsTree)
+        private void FindBackwardEdges(Dictionary<BaseBlock, List<BaseBlock>> dominatorsTree)
         {
-            foreach (var edgeType in EdgeTypes)
+            var retreatingEdges = EdgeTypes
+                .Where(edgeType => edgeType.Value == EdgeType.Retreating)
+                .Zip(EdgeTypes, (pair, valuePair) => pair.Key);
+
+            foreach (var edge in retreatingEdges)
             {
-                if (edgeType.Value != EdgeType.Retreating) continue;
-                var edge = edgeType.Key;
                 var pretendentOne = dominatorsTree.
                     FirstOrDefault(dominator => dominator.Key.Equals(edge.Source)).Value.
                     FirstOrDefault(source => source.Equals(edge.Target));
                 if (pretendentOne != null)
                     BackwardEdges.Add(edge);
             }
+
+            //Console.WriteLine("Backward Edges");
+            //foreach (var backwardEdge in BackwardEdges)
+            //{
+            //    Console.WriteLine("[" + backwardEdge.Source.Name + " -> " + backwardEdge.Target.Name + "]");
+            //}
         }
     }
 
-    public class NaturalLoop{
+    public class NaturalLoop
+    {
         HashSet<BaseBlock> NatLoop = new HashSet<BaseBlock>();
 
         public HashSet<BaseBlock> Loop { get { return NatLoop; } }
