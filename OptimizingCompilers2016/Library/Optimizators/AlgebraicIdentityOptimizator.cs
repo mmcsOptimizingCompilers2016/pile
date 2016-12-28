@@ -2,13 +2,14 @@
 
 namespace OptimizingCompilers2016.Library.Optimizators
 {
-    public class AlgebraicIdentityOptimizator
+    public class AlgebraicIdentityOptimizator : IOptimizator
     {
-        public void Optimize(BaseBlock block)
+        bool IOptimizator.Optimize(BaseBlock baseBlock)
         {
-            for (var i = 0; i < block.Commands.Count; ++i)
+            var changed = false;
+            for (var i = 0; i < baseBlock.Commands.Count; ++i)
             {
-                var command = block.Commands[i];
+                var command = baseBlock.Commands[i];
                 if (command == null) continue;
                 var leftValue = command.LeftOperand as NumericValue;
                 var rightValue = command.RightOperand as NumericValue;
@@ -21,11 +22,13 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             {
                                 command.LeftOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             else if (rightValue?.Value == 0)
                             {
                                 command.RightOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             break;
                         case ThreeAddressCode.Operation.Minus:
@@ -34,17 +37,20 @@ namespace OptimizingCompilers2016.Library.Optimizators
                                 command.LeftOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
                                 command.RightOperand = new NumericValue(rightValue.Value * (-1));
+                                changed = true;
                             }
                             else if (rightValue?.Value == 0)
                             {
                                 command.RightOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             else if (rightValue?.Value == leftValue?.Value)
                             {
                                 command.RightOperand = null;
                                 command.LeftOperand = new NumericValue(0);
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             break;
                         case ThreeAddressCode.Operation.Mult:
@@ -52,11 +58,13 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             {
                                 command.LeftOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             else if (rightValue?.Value == 1)
                             {
                                 command.RightOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             break;
                         case ThreeAddressCode.Operation.Div:
@@ -64,11 +72,13 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             {
                                 command.RightOperand = null;
                                 command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
                             }
                             break;
                     }
                 }
             }
-        } // Optimize
+            return changed;
+        }
     }
 }
