@@ -5,8 +5,10 @@ using System.Collections;
 using OptimizingCompilers2016.Library.Semilattice;
 using OptimizingCompilers2016.Library.Analysis.DefUse;
 
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
-using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+// <номер строки, номер позиции в операторе, переменная>
+using Occurrence = System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+// <блок, <номер строки, номер позиции в операторе, переменная> >
+using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 
 namespace OptimizingCompilers2016.Library.Analysis
 {
@@ -17,6 +19,7 @@ namespace OptimizingCompilers2016.Library.Analysis
     public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
            where T : ICloneable
     {
+        // Перенумерация всех вхождений переменных в программе
         protected Dictionary<IntraOccurence, int> occToBitNumber = new Dictionary<IntraOccurence, int>();
        
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
@@ -33,11 +36,11 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         protected abstract T Transfer(T x, BaseBlock b);
 
-        private void addOccurenceFromOperand(BaseBlock block, Object operand, int lineN)
+        private void addOccurenceFromOperand(BaseBlock block, Object operand, int lineN, int pos)
         {
             if (operand is IdentificatorValue)
             {
-                var occ = new IntraOccurence(block, new Occurrence(lineN, operand as IdentificatorValue));
+                var occ = new IntraOccurence(block, new Occurrence(lineN, pos, operand as IdentificatorValue));
                 if (!occToBitNumber.ContainsKey(occ))
                 {
                     occToBitNumber.Add(occ, occToBitNumber.Count);
@@ -52,9 +55,9 @@ namespace OptimizingCompilers2016.Library.Analysis
                 for (int i = 0; i < block.Commands.Count; ++i)
                 {
                     var line = block.Commands[i];
-                    addOccurenceFromOperand(block, line.Destination, i);
-                    addOccurenceFromOperand(block, line.LeftOperand, i);
-                    addOccurenceFromOperand(block, line.RightOperand, i);
+                    addOccurenceFromOperand(block, line.Destination, i, 0);
+                    addOccurenceFromOperand(block, line.LeftOperand, i, 1);
+                    addOccurenceFromOperand(block, line.RightOperand, i, 2);
                 }
             }
         }

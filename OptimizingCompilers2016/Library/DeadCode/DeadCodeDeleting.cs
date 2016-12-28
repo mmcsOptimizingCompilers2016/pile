@@ -38,9 +38,9 @@ namespace OptimizingCompilers2016.Library.DeadCode
             {
                 if (activeVars == null)
                 {
-                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2))
+                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3))
                     {
-                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item2);
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item3);
                     }
                     else
                     {
@@ -53,9 +53,9 @@ namespace OptimizingCompilers2016.Library.DeadCode
                 }
                 else
                 {
-                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2) && !activeVars.Contains(DU.defUses.ElementAt(i).Key.Item2.Item2))
+                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3) && !activeVars.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3))
                     {
-                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item2);
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item3);
                     }
                     else
                     {

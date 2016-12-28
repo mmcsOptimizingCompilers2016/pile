@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+
+// <номер строки, номер позиции в операторе, переменная>
+using Occurrence = System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+// <блок, <номер строки, номер позиции в операторе, переменная> >
+using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 
 namespace OptimizingCompilers2016.Library.Analysis.DefUse
 {
@@ -150,7 +153,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                 res += occp.Key.Item1.Name + ": ";
                 foreach (var right in occp.Value)
                 {
-                    res += right.Item2.Item2.Value + ", ";
+                    res += right.Item2.Item3.Value + ", ";
                 }
                 res += "\n---\n";
             }
