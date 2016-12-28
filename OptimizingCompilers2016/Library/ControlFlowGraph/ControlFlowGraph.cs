@@ -14,7 +14,7 @@ namespace OptimizingCompilers2016.Library
 
         public Dictionary<Edge<BaseBlock>, EdgeType> EdgeTypes { get; set; }
 
-        public List<Edge<BaseBlock>> BackwardEdges { get; set; }
+        public HashSet<Edge<BaseBlock>> BackwardEdges { get; set; }
          
         /// <summary>
         /// Конструктор класса ControlFlowGraph
@@ -38,6 +38,7 @@ namespace OptimizingCompilers2016.Library
             }
 
             EdgeTypes = new Dictionary<Edge<BaseBlock>, EdgeType>();
+            BackwardEdges = new HashSet<Edge<BaseBlock>>();
         }
 
         public BaseBlock GetRoot()
@@ -114,6 +115,20 @@ namespace OptimizingCompilers2016.Library
                 {
                     EdgeTypes.Add(edge, EdgeType.Cross);
                 }
+            }
+        }
+
+        public void FindBackwardEdges(Dictionary<BaseBlock, List<BaseBlock>> dominatorsTree)
+        {
+            foreach (var edgeType in EdgeTypes)
+            {
+                if (edgeType.Value != EdgeType.Retreating) continue;
+                var edge = edgeType.Key;
+                var pretendentOne = dominatorsTree.
+                    FirstOrDefault(dominator => dominator.Key.Equals(edge.Source)).Value.
+                    FirstOrDefault(source => source.Equals(edge.Target));
+                if (pretendentOne != null)
+                    BackwardEdges.Add(edge);
             }
         }
     }

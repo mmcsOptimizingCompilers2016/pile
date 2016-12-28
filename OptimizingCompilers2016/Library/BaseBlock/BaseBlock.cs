@@ -1,8 +1,6 @@
 ﻿using OptimizingCompilers2016.Library.ThreeAddressCode;
-using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
-using OptimizingCompilers2016.Library.ThreeAddressCode.Values.Base;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OptimizingCompilers2016.Library
 {
@@ -24,17 +22,26 @@ namespace OptimizingCompilers2016.Library
             Predecessors = new List<BaseBlock>();
         }
 
+        public override bool Equals(object obj)
+        {
+            var second = obj as BaseBlock;
+            return second != null && Name.Equals(second.Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public override string ToString()
         {
-            string result = "Block " + Name + "\n";
+            var result = "Block " + Name + "\n";
 
             result += "Ins: [";
-            foreach (var ins in Predecessors)
-                result += ins.Name + ", ";
+            result = Predecessors.Aggregate(result, (current, ins) => current + (ins.Name + ", "));
             result += "]\n";
 
-            foreach (var line in Commands)
-                result += line.ToString() + "\n";
+            result = Commands.Aggregate(result, (current, line) => current + (line.ToString() + "\n"));
 
             result += "JumpOut: " + JumpOutput?.Name + "\n";
             result += "Out: " + Output?.Name + "\n";

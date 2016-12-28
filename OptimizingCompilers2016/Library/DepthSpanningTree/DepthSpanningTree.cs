@@ -69,7 +69,7 @@ namespace OptimizingCompilers2016.Library
             while(incomingEdges.Count() > 0)
             {
                 var edge = incomingEdges.First();
-                if (edge.Source == target)
+                if (edge.Source.Equals(target))
                 {
                     result = true;
                     break;
