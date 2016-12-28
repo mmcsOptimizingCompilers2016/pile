@@ -77,6 +77,7 @@
     <Compile Include="DepthSpanningTree\DepthSpanningTree.cs" />
     <Compile Include="Helpers\ParserHelper.cs" />
     <Compile Include="Helpers\PrinterHelper.cs" />
+    <Compile Include="InterBlockOptimizators\CommonExpressions.cs" />
     <Compile Include="InterBlockOptimizators\IInterBlockOptimizator.cs" />
     <Compile Include="LinearCode\LinearRepresentation.cs" />
     <Compile Include="Nodes\AssignNode.cs" />

@@ -1,18 +1,17 @@
 ﻿using System;
 using System.IO;
-using OptimizingCompilers2016.Library.Analysis;
-using OptimizingCompilers2016.Library.DeadCode;
+using System.Collections.Generic;
+using OptimizingCompilers2016.Library;
 using OptimizingCompilers2016.Library.Helpers;
 using OptimizingCompilers2016.Library.LinearCode;
-using OptimizingCompilers2016.Library.Optimizators;
-using OptimizingCompilers2016.Library.ThreeAddressCode;
-using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.Visitors;
-using OptimizingCompilers2016.Library;
-using System.Collections.Generic;
+using OptimizingCompilers2016.Library.Optimizators;
 using OptimizingCompilers2016.Library.Analysis.DefUse;
 using OptimizingCompilers2016.Library.Analysis.ConstantPropagation;
-using OptimizingCompilers2016.Library.Optimizators;
+using OptimizingCompilers2016.Library.ThreeAddressCode;
+using OptimizingCompilers2016.Library.Analysis;
+using OptimizingCompilers2016.Library.DeadCode;
+using OptimizingCompilers2016.Library.InterBlockOptimizators;
 
 namespace OptimizingCompilers2016.ConsoleApplication
 {
@@ -29,6 +28,49 @@ namespace OptimizingCompilers2016.ConsoleApplication
             Console.WriteLine(text);
         }
 
+        static List<BaseBlock> getListOfBB(ControlFlowGraph graph)
+        {
+            List<BaseBlock> result = new List<BaseBlock>();
+            Queue<BaseBlock> blocks = new Queue<BaseBlock>();
+            blocks.Enqueue(graph.GetRoot());
+            HashSet<BaseBlock> used = new HashSet<BaseBlock>();
+
+            while (blocks.Count > 0)
+            {
+                var current = blocks.Dequeue();
+                if (used.Contains(current))
+                    continue;
+
+                result.Add(current);
+
+                used.Add(current);
+                if (current.Output != null && !used.Contains(current.Output))
+                {
+                    blocks.Enqueue(current.Output);
+                }
+                if (current.JumpOutput != null && !used.Contains(current.JumpOutput))
+                {
+                    blocks.Enqueue(current.JumpOutput);
+                }
+            }
+            //Debug.Assert(graph.Count == result.Count);
+            return result;
+
+        }
+
+        static void print(List<BaseBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                Console.WriteLine("Block: {0}", block.Name);
+                foreach (var command in block.Commands)
+                {
+                    Console.WriteLine(command);
+                }
+                Console.WriteLine();
+            }
+
+        }
         static void Main(string[] args)
         {
             string FileName = @"a.txt";
@@ -44,12 +86,16 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 var b = parser.Parse();
 
-                //if (!b)
-                //    Console.WriteLine("Ошибка");
+                if (!b)
+                {
+                    Console.WriteLine("Ошибка");
+                    return;
+                }
                 //else Console.WriteLine("Программа распознана");
                 //var prettyVisitor = new PrettyPrintVisitor();
                 //parser.root.Accept(prettyVisitor);
                 //Console.WriteLine(prettyVisitor.Text);
+
                 //var linearCode = new LinearCodeVisitor();
                 //parser.root.Accept(linearCode);
 
@@ -89,10 +135,9 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //var prettyVisitor = new PrettyPrintVisitor();
                 //parser.root.Accept(prettyVisitor);
                 //Console.WriteLine(prettyVisitor.Text);
-
+                
                 var linearCode = new LinearCodeVisitor();
                 parser.root.Accept(linearCode);
-                //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
                 Console.WriteLine("Edge Types:");
@@ -190,6 +235,17 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //    Console.WriteLine("Block " + block.Name + "\n");
                 //    Console.WriteLine(block.ToString());
                 //}
+
+                var opt = new Library.InterBlockOptimizators.CommonExpressions();
+
+                var graph = BaseBlockDivider.divide(linearCode.code);
+
+                
+                Console.WriteLine("Before:");
+                print(getListOfBB(graph));
+                var optCode = opt.Optimize(graph);
+                Console.WriteLine("After:");
+                print(getListOfBB(graph));
             }
             catch (FileNotFoundException)
             {
