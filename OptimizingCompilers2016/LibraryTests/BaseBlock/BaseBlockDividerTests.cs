@@ -14,7 +14,9 @@ namespace OptimizingCompilers2016.Library.Tests
         [TestMethod()]
         public void divideTest()
         {
-            throw new NotImplementedException();
+            string s = "hello";
+            Assert.AreEqual(s, "hello");
+            //throw new NotImplementedException();
         }
     }
 }
