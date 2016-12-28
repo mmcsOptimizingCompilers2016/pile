@@ -10,6 +10,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 {
     public class AvailabilityAnalysis : BaseIterationAlgorithm<EqualsBitArray>
     {
+        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
@@ -21,11 +22,14 @@ namespace OptimizingCompilers2016.Library.Analysis
                 killers.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
                 foreach (var ldur in localDefUses[block].defUses)
                 {
-                    generators[block].Set(occToBitNumber[new Tuple<BaseBlock, Occurrence>(block, ldur.Key)], true);
-                    var variable = ldur.Key.Item2;
-                    foreach (var e in occToBitNumber)
-                        if (e.Key.Item2.Item2.Equals(ldur.Key.Item2))
-                            killers[block].Set(occToBitNumber[e.Key], true);
+                    foreach (var inOcc in ldur.Value)
+                    {
+                        generators[block].Set(occToBitNumber[inOcc], true);
+                        var variable = ldur.Key.Item2;
+                        foreach (var e in occToBitNumber)
+                            if (e.Key.Item2.Item2.Equals(ldur.Key.Item2))
+                                killers[block].Set(occToBitNumber[e.Key], true);
+                    }
                 }
             }
         }

@@ -34,11 +34,11 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// <summary>
     /// represent the right side of expression, i.e in 'a := b + 3' stands for 'b + 3'
     /// </summary>
-    struct BinaryExpression
+    public struct BinaryExpression
     {
         Operation Operation;
-        IValue LeftOperand;
-        IValue RightOperand;
+        public IValue LeftOperand;
+        public IValue RightOperand;
 
         public BinaryExpression(IThreeAddressCode instruction)
         {
@@ -51,6 +51,11 @@ namespace OptimizingCompilers2016.Library.Optimizators
             RightOperand = instruction.RightOperand;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns> if Operation can be used by CSE</returns>
         public static bool isModifiableOperation(Operation op)
         {
             return
@@ -100,8 +105,6 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// </summary>
     struct RelevantCSEWatcher
     {
-        /// supposed to be used in interblocked CSE
-        public bool isValid;
         /// indecies of BaseBlock's IThreeAddressCode
         public List<int> expressions;
 
@@ -109,12 +112,6 @@ namespace OptimizingCompilers2016.Library.Optimizators
         {
             expressions = new List<int>();
             expressions.Add(instructionNumber);
-
-            isValid = true;
-        }
-        public void Invalidate()
-        {
-            isValid = false;
         }
     }
 
@@ -128,6 +125,9 @@ namespace OptimizingCompilers2016.Library.Optimizators
     /// </summary>
     public class CommonExpressions : IOptimizator
     {
+
+        public const string idPrefix = "%v_";
+
         private void createOrAdd(ref VariableOccurrence container,
                                  IdentificatorValue id,
                                  BinaryExpression expr)
@@ -190,7 +190,6 @@ namespace OptimizingCompilers2016.Library.Optimizators
                 {
                     if (expressionToEqClass.ContainsKey(item))
                     {
-                        expressionToEqClass[item].Invalidate();
                         expressionToEqClass.Remove(item);
                     }
                 }
@@ -229,7 +228,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                 if (substitution[i] != null)
                 {
                     // substitute with new variable
-                    var id = new IdentificatorValue("%v_" + commonExpressions.IndexOf(substitution[i].Value));
+                    var id = new IdentificatorValue(idPrefix + commonExpressions.IndexOf(substitution[i].Value));
                     // create new tmp, if it wasn't created yet
                     if (substitution[i].Value.expressions.ElementAt(0) == i)
                     {

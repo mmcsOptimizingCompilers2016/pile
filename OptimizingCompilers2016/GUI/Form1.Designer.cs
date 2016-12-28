@@ -40,8 +40,11 @@
             this.анализАктивныхПеременныхToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализДоступныхВыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.деревоДоминаторовToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.фронтДоминировнияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.итерационныйФронтДоминированияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.графПотоковУправленияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.глубинноеОстовноеДеревоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.натуральныеЦиклыToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацииToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.удалениеМёртвогоКодаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.оптимизацияОбщихПодвыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,6 +52,7 @@
             this.протяжкаКонстантToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.учетАлгебраическихТождествToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.распространениеКонстантToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SourceCode_TabPage = new System.Windows.Forms.TabPage();
@@ -63,6 +67,7 @@
             this.Result = new System.Windows.Forms.RichTextBox();
             this.NewWindow2 = new System.Windows.Forms.Button();
             this.Save = new System.Windows.Forms.Button();
+            this.synchronScrolling = new System.Windows.Forms.CheckBox();
             this.menuStrip1.SuspendLayout();
             this.SourceCode_TabPage.SuspendLayout();
             this.tabControl2.SuspendLayout();
@@ -123,8 +128,11 @@
             this.анализАктивныхПеременныхToolStripMenuItem,
             this.анализДоступныхВыраженийToolStripMenuItem,
             this.деревоДоминаторовToolStripMenuItem,
+            this.фронтДоминировнияToolStripMenuItem,
             this.итерационныйФронтДоминированияToolStripMenuItem,
-            this.фронтДоминировнияToolStripMenuItem});
+            this.графПотоковУправленияToolStripMenuItem,
+            this.глубинноеОстовноеДеревоToolStripMenuItem,
+            this.натуральныеЦиклыToolStripMenuItem});
             this.анализToolStripMenuItem.Name = "анализToolStripMenuItem";
             this.анализToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.анализToolStripMenuItem.Text = "Анализ";
@@ -173,6 +181,13 @@
             this.деревоДоминаторовToolStripMenuItem.Text = "Дерево доминаторов";
             this.деревоДоминаторовToolStripMenuItem.Click += new System.EventHandler(this.деревоДоминаторовToolStripMenuItem_Click);
             // 
+            // фронтДоминировнияToolStripMenuItem
+            // 
+            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
+            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
+            this.фронтДоминировнияToolStripMenuItem.Click += new System.EventHandler(this.фронтДоминировнияToolStripMenuItem_Click);
+            // 
             // итерационныйФронтДоминированияToolStripMenuItem
             // 
             this.итерационныйФронтДоминированияToolStripMenuItem.Name = "итерационныйФронтДоминированияToolStripMenuItem";
@@ -180,12 +195,26 @@
             this.итерационныйФронтДоминированияToolStripMenuItem.Text = "Итерационный фронт доминирования";
             this.итерационныйФронтДоминированияToolStripMenuItem.Click += new System.EventHandler(this.итерационныйФронтДоминированияToolStripMenuItem_Click);
             // 
-            // фронтДоминировнияToolStripMenuItem
+            // графПотоковУправленияToolStripMenuItem
             // 
-            this.фронтДоминировнияToolStripMenuItem.Name = "фронтДоминировнияToolStripMenuItem";
-            this.фронтДоминировнияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
-            this.фронтДоминировнияToolStripMenuItem.Text = "Фронт доминирования";
-            this.фронтДоминировнияToolStripMenuItem.Click += new System.EventHandler(this.фронтДоминировнияToolStripMenuItem_Click);
+            this.графПотоковУправленияToolStripMenuItem.Name = "графПотоковУправленияToolStripMenuItem";
+            this.графПотоковУправленияToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.графПотоковУправленияToolStripMenuItem.Text = "Граф потоков управления";
+            this.графПотоковУправленияToolStripMenuItem.Click += new System.EventHandler(this.графПотоковУправленияToolStripMenuItem_Click);
+            // 
+            // глубинноеОстовноеДеревоToolStripMenuItem
+            // 
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Name = "глубинноеОстовноеДеревоToolStripMenuItem";
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Text = "Глубинное остовное дерево";
+            this.глубинноеОстовноеДеревоToolStripMenuItem.Click += new System.EventHandler(this.глубинноеОстовноеДеревоToolStripMenuItem_Click);
+            // 
+            // натуральныеЦиклыToolStripMenuItem
+            // 
+            this.натуральныеЦиклыToolStripMenuItem.Name = "натуральныеЦиклыToolStripMenuItem";
+            this.натуральныеЦиклыToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.натуральныеЦиклыToolStripMenuItem.Text = "Натуральные циклы";
+            this.натуральныеЦиклыToolStripMenuItem.Click += new System.EventHandler(this.натуральныеЦиклыToolStripMenuItem_Click);
             // 
             // оптимизацииToolStripMenuItem
             // 
@@ -195,7 +224,8 @@
             this.свёрткаКонстантToolStripMenuItem,
             this.протяжкаКонстантToolStripMenuItem,
             this.учетАлгебраическихТождествToolStripMenuItem,
-            this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem});
+            this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem,
+            this.распространениеКонстантToolStripMenuItem});
             this.оптимизацииToolStripMenuItem.Name = "оптимизацииToolStripMenuItem";
             this.оптимизацииToolStripMenuItem.Size = new System.Drawing.Size(95, 20);
             this.оптимизацииToolStripMenuItem.Text = "Оптимизации";
@@ -241,6 +271,13 @@
             this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem.Size = new System.Drawing.Size(304, 22);
             this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem.Text = "На основе анализа активных переменных";
             this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem.Click += new System.EventHandler(this.наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click);
+            // 
+            // распространениеКонстантToolStripMenuItem
+            // 
+            this.распространениеКонстантToolStripMenuItem.Name = "распространениеКонстантToolStripMenuItem";
+            this.распространениеКонстантToolStripMenuItem.Size = new System.Drawing.Size(304, 22);
+            this.распространениеКонстантToolStripMenuItem.Text = "Распространение констант";
+            this.распространениеКонстантToolStripMenuItem.Click += new System.EventHandler(this.распространениеКонстантToolStripMenuItem_Click);
             // 
             // openFileDialog1
             // 
@@ -347,6 +384,7 @@
             this.Result.Size = new System.Drawing.Size(596, 432);
             this.Result.TabIndex = 9;
             this.Result.Text = "";
+            this.Result.VScroll += new System.EventHandler(this.Result_VScroll);
             // 
             // NewWindow2
             // 
@@ -369,12 +407,24 @@
             this.Save.UseVisualStyleBackColor = true;
             this.Save.Click += new System.EventHandler(this.Save_Click);
             // 
+            // synchronScrolling
+            // 
+            this.synchronScrolling.AutoSize = true;
+            this.synchronScrolling.Location = new System.Drawing.Point(818, 508);
+            this.synchronScrolling.Name = "synchronScrolling";
+            this.synchronScrolling.Size = new System.Drawing.Size(141, 17);
+            this.synchronScrolling.TabIndex = 12;
+            this.synchronScrolling.Text = "Синхронная прокрутка";
+            this.synchronScrolling.UseVisualStyleBackColor = true;
+            this.synchronScrolling.CheckedChanged += new System.EventHandler(this.synchronScrolling_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(962, 665);
+            this.Controls.Add(this.synchronScrolling);
             this.Controls.Add(this.Save);
             this.Controls.Add(this.NewWindow2);
             this.Controls.Add(this.Result);
@@ -435,6 +485,11 @@
         private System.Windows.Forms.ToolStripMenuItem итерационныйФронтДоминированияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem фронтДоминировнияToolStripMenuItem;
         private System.Windows.Forms.Button Save;
+        private System.Windows.Forms.ToolStripMenuItem графПотоковУправленияToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem глубинноеОстовноеДеревоToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem натуральныеЦиклыToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem распространениеКонстантToolStripMenuItem;
+        private System.Windows.Forms.CheckBox synchronScrolling;
     }
 }
 

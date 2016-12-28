@@ -13,14 +13,13 @@ namespace OptimizingCompilers2016.Library.Analysis
     /// (например: BitArray)
     /// </typeparam>
     public abstract class BaseIterationAlgorithm<T> : Semilattice<T>
-        where T : ICloneable
+           where T : ICloneable
     {
         protected Dictionary<Tuple<BaseBlock, Occurrence>, int> occToBitNumber = new Dictionary<Tuple<BaseBlock, Occurrence>, int>();
        
         protected Dictionary<BaseBlock, T> outs = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> ins = new Dictionary<BaseBlock, T>();
 
-        protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected Dictionary<BaseBlock, T> generators = new Dictionary<BaseBlock, T>();
         protected Dictionary<BaseBlock, T> killers = new Dictionary<BaseBlock, T>();
 
@@ -32,7 +31,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 
         protected abstract T Transfer(T x, BaseBlock b);
 
-        protected void FillSupportingStructures(List<BaseBlock> blocks)
+        protected virtual void FillSupportingStructures(List<BaseBlock> blocks)
         {
             int counter = 0;
             foreach (var block in blocks)
@@ -52,7 +51,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         }
 
         //maybe it should implement Semilattice interface
-        protected void IterationAlgorithm(List<BaseBlock> blocks)
+        protected virtual void IterationAlgorithm(List<BaseBlock> blocks)
         {
             foreach (var block in blocks)
             {
@@ -66,16 +65,17 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 count++;
                 areDifferent = false;
+               
                 foreach (var block in blocks)
                 {
                     var predecessors = block.Predecessors;
                     foreach (var pred in predecessors)
                     {
+                       
                         ins[block] = Collect(ins[block], outs[pred]);
                     }
 
                     var prevOut = outs[block].Clone();
-
                     outs[block] = Transfer(ins[block], block);
                     //outs[block] = transferFunction(generators[block], SubstractSets(ins[block], killers[block]));
                     if (prevOut.Equals(outs[block]) && !areDifferent)
@@ -84,10 +84,8 @@ namespace OptimizingCompilers2016.Library.Analysis
                         areDifferent = true;
                 }
             }
-
             Console.WriteLine("COUNT OF ITERATIONS: " + count);
         }
-
         public abstract void RunAnalysis(List<BaseBlock> blocks);
 
     }

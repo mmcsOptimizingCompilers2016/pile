@@ -34,10 +34,10 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             foreach (var block in blocks)
             {
-                if (block.Name != "B0")
+                if (block.Predecessors.Count > 1)
                 {
                     var directDominator = directDominators.Find(x => x.child.Name == block.Name).root;
-                    if (block.Predecessors.Count > 1)
+                    //if (block.Predecessors.Count > 1)
                         foreach (var predecessor in block.Predecessors)
                         {
                             var r = predecessor;

@@ -17,6 +17,7 @@ using OptimizingCompilers2016.Library.Optimizators;
 using OptimizingCompilers2016.Library.DeadCode;
 using OptimizingCompilers2016.Library.Transformations;
 using OptimizingCompilers2016.Library.Analysis.DefUse;
+using OptimizingCompilers2016.Library.Analysis.ConstantPropagation;
 using System.Threading;
 using System.Text.RegularExpressions;
 
@@ -29,6 +30,7 @@ namespace OptimizingCompilers2016.GUI
         Thread Blick;
         string FileName;
 
+        bool synchronScroll = false;
 
 
         public Form1()
@@ -269,6 +271,24 @@ namespace OptimizingCompilers2016.GUI
             
         }
 
+        private void Result_VScroll(object sender, EventArgs e)
+        {
+            if (synchronScroll)
+            {
+                int i = Result.GetLineFromCharIndex(Result.GetCharIndexFromPosition(new Point(1, 1)));
+                BaseBlocks.SelectionStart = BaseBlocks.GetFirstCharIndexFromLine(i);
+                BaseBlocks.ScrollToCaret();
+            }
+        }
+
+        private void synchronScrolling_CheckedChanged(object sender, EventArgs e)
+        {
+            if (synchronScrolling.Checked)
+                synchronScroll = true;
+            else
+                synchronScroll = false;
+        }
+
         private void удалениеМёртвогоКодаToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (var block in blocks)
@@ -313,6 +333,12 @@ namespace OptimizingCompilers2016.GUI
         private void глобальнаяToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //Result.Text = "";
+            //foreach (var block in blocks)
+            //{
+            //    var gdu = new GlobalDefUse();
+            //    gdu.RunAnalysis(blocks);
+            //    Result.Text += gdu.ToString();
+            //}
         }
 
         private void внутриБлоковToolStripMenuItem_Click(object sender, EventArgs e)
@@ -327,10 +353,11 @@ namespace OptimizingCompilers2016.GUI
 
         private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var AV = new ActiveVariables(new ControlFlowGraph(blocks));
-            //foreach (var block in blocks)
-            //    DeadCodeDeleting.optimizeDeadCode(block, AV[block.Name]);
-            //Result.Text = PrintBlocks();
+            var AV = new ActiveVariables(new ControlFlowGraph(blocks));
+            AV.runAnalys();
+            foreach (var block in blocks)
+                DeadCodeDeleting.optimizeDeadCode(block, AV.result[block.Name]);
+            Result.Text = PrintBlocks();
 
         }
 
@@ -344,7 +371,9 @@ namespace OptimizingCompilers2016.GUI
 
         private void анализДоступныхВыраженийToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            AvailabilityAnalysis AA = new AvailabilityAnalysis();
+            AA.RunAnalysis(blocks);
+            Result.Text = AA.ToString();
         }
 
         private void деревоДоминаторовToolStripMenuItem_Click(object sender, EventArgs e)
@@ -377,6 +406,32 @@ namespace OptimizingCompilers2016.GUI
             }
         }
 
+        private void графПотоковУправленияToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+            Result.Text = CFG.ToString();
+        }
+
+        private void глубинноеОстовноеДеревоToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlFlowGraph CFG = new ControlFlowGraph(blocks);
+            DepthSpanningTree DST = new DepthSpanningTree(CFG);
+            Result.Text = DST.ToString();
+        }
+
+        private void распространениеКонстантToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Result.Text = "";
+            var constantPropagation = new GlobalConstantPropagation();
+            constantPropagation.RunAnalysis(blocks);
+            Result.Text = PrintBlocks();
+        }
+
+        private void натуральныеЦиклыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             this.DesktopLocation = new Point(0, 0);
@@ -393,7 +448,8 @@ namespace OptimizingCompilers2016.GUI
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
                 Save.Enabled = true;
         }
- 
+
+
     }
 }
 public static class ControlExtensions
