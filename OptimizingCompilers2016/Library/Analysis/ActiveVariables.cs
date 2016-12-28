@@ -32,7 +32,7 @@ namespace OptimizingCompilers2016.Library.Analysis
                 var ldu = new InblockDefUse(blocks[i]);
                 var Set = new HashSet<IdentificatorValue>();
                 foreach (var key in ldu.defUses.Keys)
-                    Set.Add(key.Item2.Item2);
+                    Set.Add(key.Item2.Item3);
                 Def[blocks[i].Name] = Set;
             }
 
@@ -42,7 +42,7 @@ namespace OptimizingCompilers2016.Library.Analysis
                 var Set = new HashSet<IdentificatorValue>();
                 foreach (var sets in ldu.defUses.Values)
                     foreach (var itemSet in sets)
-                        Set.Add(itemSet.Item2.Item2);
+                        Set.Add(itemSet.Item2.Item3);
                 Use[blocks[i].Name] = Set;
             }
 

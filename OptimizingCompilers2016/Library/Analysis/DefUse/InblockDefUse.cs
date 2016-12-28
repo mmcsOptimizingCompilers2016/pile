@@ -3,13 +3,16 @@ using OptimizingCompilers2016.Library.ThreeAddressCode.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DefsMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+
 using DefsMultiMap = System.Collections.Generic.Dictionary<OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue
                                                          , System.Collections.Generic.HashSet<System.Tuple<OptimizingCompilers2016.Library.BaseBlock
                                                                                                          , System.Tuple<int
+                                                                                                                      , int
                                                                                                                       , OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>>>;
-using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
-using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
+// <номер строки, номер позиции в операторе, переменная>
+using Occurrence = System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
+// <блок, <номер строки, номер позиции в операторе, переменная> >
+using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
 
 namespace OptimizingCompilers2016.Library.Analysis.DefUse
 {
@@ -46,7 +49,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
             if (globalDefUses != null && !globalDefUses.Keys.Contains(occurrence))
             {
-                    globalDefUses.Add(occurrence, new HashSet<Tuple<BaseBlock, Tuple<int, IdentificatorValue>>>());
+                    globalDefUses.Add(occurrence, new HashSet<Tuple<BaseBlock, Tuple<int, int, IdentificatorValue>>>());
             }
         }
 
@@ -65,7 +68,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
             if (globalDefUses != null && !globalDefUses.Keys.Contains(occurrence))
             {
-                globalDefUses.Add(occurrence, new HashSet<Tuple<BaseBlock, Tuple<int, IdentificatorValue>>>());
+                globalDefUses.Add(occurrence, new HashSet<Tuple<BaseBlock, Tuple<int, int, IdentificatorValue>>>());
             }
         }
 
@@ -108,7 +111,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
             {
                 if (ins.Bits[occs.Value])
                 {
-                    addLastDef(occs.Key.Item2.Item2, occs.Key);
+                    addLastDef(occs.Key.Item2.Item3, occs.Key);
                 }
             }
         }
@@ -124,7 +127,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                 return true;
         }
 
-        private void addUse(IValue term, int index)
+        private void addUse(IValue term, int index, int pos)
         {
             if (!(term is IdentificatorValue))
                 return;
@@ -137,11 +140,11 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                 {
                     foreach (var inOcc in ld.Value)
                     {
-                        defUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, variable)));
+                        defUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
 
                         if (globalDefUses != null)
                         {
-                            globalDefUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, variable)));
+                            globalDefUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
                         }
                     }
                 }
@@ -155,11 +158,11 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
             int index = 0;
             foreach (var line in code)
             {
-                addUse(line.LeftOperand, index);
-                addUse(line.RightOperand, index);
+                addUse(line.LeftOperand, index, 1);
+                addUse(line.RightOperand, index, 2);
 
                 if (line.Destination is IdentificatorValue)
-                    setLastDef(line.Destination as IdentificatorValue, new IntraOccurence(block, new Occurrence(index, line.Destination as IdentificatorValue)));
+                    setLastDef(line.Destination as IdentificatorValue, new IntraOccurence(block, new Occurrence(index, 0, line.Destination as IdentificatorValue)));
 
                 index++;
             }
