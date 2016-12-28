@@ -72,10 +72,10 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //var opt = new CommonExpressions();
 
                 //BaseBlock block = new BaseBlock();
-                
+
                 //block.Commands.AddRange(linearCode.code);
-                
-                
+
+
                 //Console.WriteLine("Before:");
                 //print(block.Commands);
                 //var optCode = opt.Optimize(block);
@@ -95,6 +95,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Console.WriteLine(linearCode.ToString());
 
                 var blocks = BaseBlockDivider.divide(linearCode.code);
+                Console.WriteLine("Edge Types:");
+                Console.WriteLine(blocks.EdgeTypes);
 
                 //Console.WriteLine("Blocks:");
                 //foreach (var block in blocks)
@@ -136,17 +138,28 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(test_tree.Item2, test_tree.Item1);
                 //DOM.test_printing(dom_relations);
                 //Console.WriteLine(DOM.get_tree_root(dom_relations, test_tree.Item1).ToString());
+
                 //var domFront = new DominanceFrontier(blocks.ToList());
 
                 //Console.WriteLine(domFront.ToString());
 
-                //var IDF = new HashSet<string>();
+                var domFront = new DominanceFrontier(blocks.ToList());
+
+                Console.WriteLine(domFront.ToString());
+
+                var IDF = new HashSet<string>();
 
                 //foreach (var block in blocks)
                 //{
                 //    IDF = domFront.ComputeIDF(block);
                 //    Console.WriteLine("IDF(" + block.Name+ ") = {" + string.Join(", ", IDF) + "}");
                 //}
+
+                foreach (var block in blocks)
+                {
+                    IDF = domFront.ComputeIDF(block);
+                    Console.WriteLine("IDF(" + block.Name + ") = {" + string.Join(", ", IDF) + "}");
+                }
 
                 //Dictionary<BaseBlock, List<BaseBlock>> dom_relations = DOM.DOM_CREAT(blocks, blocks[0]);
                 //DOM.test_printing(dom_relations);

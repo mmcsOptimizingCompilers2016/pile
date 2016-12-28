@@ -11,8 +11,7 @@ namespace OptimizingCompilers2016.Library
 
         private static BaseBlock makeBlock()
         {
-            var newblock = new BaseBlock();
-            newblock.Name = "B" + blockNum.ToString();
+            var newblock = new BaseBlock {Name = "B" + blockNum};
             ++blockNum;
             return newblock;
         }

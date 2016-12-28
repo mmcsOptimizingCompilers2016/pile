@@ -283,7 +283,7 @@ namespace OptimizingCompilers2016.Library.Analysis
         /// <param name="blocks">All programm blocks</param>
         /// <param name="root_block">Inner block</param>
         /// <returns>Dictionary: key - block, value - list of dominators for block</returns>
-        public static Dictionary<BaseBlock, List<BaseBlock>> DOM_CREAT(List<BaseBlock> blocks, BaseBlock root_block)
+        public static Dictionary<BaseBlock, List<BaseBlock>> DOM_CREAT(IEnumerable<BaseBlock> blocks, BaseBlock root_block)
         {
             //key is block, value: block`s dominators
             Dictionary<BaseBlock, List<BaseBlock>> dominators = new Dictionary<BaseBlock, List<BaseBlock>>();
