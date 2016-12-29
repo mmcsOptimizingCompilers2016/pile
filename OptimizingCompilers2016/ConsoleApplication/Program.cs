@@ -254,10 +254,10 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 gd.RunAnalysis(blocks.ToList());
                 Console.WriteLine(gd.ToString());
 
-                //foreach (var block in blocks) {
+                //foreach (var block in blocks)
+                //{
                 //    InblockDefUse df = new InblockDefUse(block);
                 //    Console.WriteLine(df.ToString());
-
                 //}
             }
             catch (FileNotFoundException)

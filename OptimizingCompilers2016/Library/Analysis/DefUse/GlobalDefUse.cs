@@ -148,27 +148,16 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
         {
             var res = "";
 
-            var defUses = GetDefUses();
-            var useDefs = GetUseDefs();
+            var dUses = GetDefUses();
+            var uDefs = GetUseDefs();
 
             var defUseString = defUses.Select(item => item.Key.Item1.Name + "#" + item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item1.Name + "#" + occ.Item2)) + "}");
-            var sdu = "defUse: " + String.Join("\n", defUseString) + "\n";
+            var sdu = "defUse: \n" + String.Join("\n", defUseString) + "\n";
             var useDefString = useDefs.Select(item => item.Key.Item1.Name + "#" + item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item1.Name + "#" + occ.Item2)) + "}");
-            var sud = "useDef: " + String.Join("\n", useDefString) + "\n";
-
-
-
-            //res += .Name + ": \n" + sud + sdu;
-            //foreach (var occp in defUses)
-            //{
-            //    //res += occp.Key.Item1.Name + ": ";
-            //    //foreach (var right in occp.Value)
-            //    //{
-            //    //    res += right.Item2.Item3.Value + ", ";
-            //    //}
-            //    //res += "\n---\n";
-            //}
-
+            var sud = "useDef: \n" + String.Join("\n", useDefString) + "\n";
+            
+            res = sud + sdu;
+            
             return res;
         }
     }

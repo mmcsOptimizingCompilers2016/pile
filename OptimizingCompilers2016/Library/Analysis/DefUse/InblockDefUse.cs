@@ -136,16 +136,13 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
             if (checkLastDefs(variable))
             {
-                foreach (var ld in lastDef)
+                foreach (var inOcc in lastDef[variable])
                 {
-                    foreach (var inOcc in ld.Value)
-                    {
-                        defUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
+                    defUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
 
-                        if (globalDefUses != null)
-                        {
-                            globalDefUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
-                        }
+                    if (globalDefUses != null)
+                    {
+                        globalDefUses[inOcc].Add(new IntraOccurence(block, new Occurrence(index, pos, variable)));
                     }
                 }
             }
