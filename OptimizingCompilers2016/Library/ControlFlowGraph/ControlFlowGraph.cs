@@ -132,12 +132,14 @@ namespace OptimizingCompilers2016.Library
                 if (pretendentOne != null)
                     BackwardEdges.Add(edge);
             }
+        }
 
-            //Console.WriteLine("Backward Edges");
-            //foreach (var backwardEdge in BackwardEdges)
-            //{
-            //    Console.WriteLine("[" + backwardEdge.Source.Name + " -> " + backwardEdge.Target.Name + "]");
-            //}
+        public string GetBackwardsString()
+        {
+            var result = "Backward Edges: \n";
+            foreach (var backwardEdge in BackwardEdges)
+                result += "[" + backwardEdge.Source.Name + " -> " + backwardEdge.Target.Name + "]\n";
+            return result;
         }
     }
 
