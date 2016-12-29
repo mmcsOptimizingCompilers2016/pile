@@ -1,0 +1,1211 @@
+<h1 id="документация-проекта-оптимизирующий-компилятор-pile">Документация проекта <a href="https://github.com/mmcsOptimizingCompilers2016/pile">Оптимизирующий компилятор Pile</a></h1>
+<h1 id="содержание">Содержание</h1>
+<ol style="list-style-type: decimal">
+<li><a href="#введение">Введение</a></li>
+<li><a href="#вспомогательные-задачи">Вспомогательные задачи</a>
+<ol start="2" style="list-style-type: decimal">
+<li><a href="#парсер-языка-ast">Парсер языка + AST</a></li>
+<li><a href="#трехадресный-код">Трехадресный код</a>
+<ol style="list-style-type: decimal">
+<li><a href="#представление-трехадресного-кода">Представление трехадресного кода</a></li>
+<li><a href="#генерация-трехадресного-кода">Генерация трехадресного кода</a></li>
+</ol></li>
+<li><a href="#базовые-блоки">Базовые блоки</a>
+<ol style="list-style-type: decimal">
+<li><a href="#представление-базового-блока">Представление Базового Блока</a></li>
+<li><a href="#задача-разбиения-на-базовые-блоки">Задача разбиения на базовые блоки</a></li>
+</ol></li>
+<li><a href="#граф-потока-управления-представление-и-построение">Граф потока управления: представление и построение</a></li>
+</ol></li>
+<li><a href="#оптимизации-внутри-базового-блока">Оптимизации внутри базового блока</a>
+<ol style="list-style-type: decimal">
+<li>Def-Use информация о переменных</li>
+<li><a href="#удаление-мертвого-кода">Удаление мертвого кода</a></li>
+<li>Свертка констант</li>
+<li><a href="#протяжка-констант">Протяжка констант</a></li>
+<li><a href="#учёт-алгебраических-тождеств">Учёт алгебраических тождеств</a></li>
+<li><a href="#оптимизация-общих-подвыражений">Оптимизация общих подвыражений</a></li>
+<li>Анализ алгоритмов упрощения выражений</li>
+</ol></li>
+<li><a href="#оптимизации-между-базовыми-блоками">Оптимизации между базовыми блоками</a>
+<ol style="list-style-type: decimal">
+<li><a href="#общий-итерационный-алгоритм">Общий итерационный алгоритм</a></li>
+<li><a href="#оператор-сбора">Оператор сбора</a></li>
+<li><a href="#передаточная-функция">Передаточная функция</a></li>
+<li><a href="#задачи-оптимизации">Задачи оптимизации</a>
+<ol style="list-style-type: decimal">
+<li>Достигающие определения</li>
+<li><a href="#анализ-активных-переменных-между-базовыми-блоками">Активные переменные</a>
+<ol style="list-style-type: decimal">
+<li><a href="#анализ-активных-переменных-между-базовыми-блоками">Анализ (итерационный алгоритм)</a></li>
+<li><a href="#оптимизация-по-результатам-анализа-активных-переменных">Оптимизация по результатам анализа</a></li>
+</ol></li>
+</ol></li>
+<li><a href="#доступные-выражения">Доступные выражения</a>
+<ol style="list-style-type: decimal">
+<li><a href="#анализ-доступности-выражений-между-базовыми-блоками">Анализ доступности выражений</a></li>
+<li><a href="#оптимизация-по-результатам-анализа-доступных-выражений">Оптимизация по результатам анализа</a></li>
+</ol></li>
+<li><a href="#задача-распространения-констант-между-базовыми-блоками">Распространение констант</a></li>
+<li><a href="#оптимизация-общего-итерационного-алгоритма">Оптимизация общего итерационного алгоритма</a>
+<ol style="list-style-type: decimal">
+<li><a href="#отношение-доминирования">Отношение доминирования</a>
+<ol style="list-style-type: decimal">
+<li><a href="#задача-об-определении-доминаторов">Задача об определении доминаторов</a></li>
+<li><a href="#непосредственные-доминаторы-построение-дерева-доминаторов">Непосредственные доминаторы. Построение дерева доминаторов</a></li>
+<li><a href="#построение-фронта-доминирования-df-и-итерационного-фронта-доминирования-idf">Фронт доминирования. Итерационный фронт доминирования</a></li>
+</ol></li>
+<li><a href="">Выделение областей</a>
+<ol style="list-style-type: decimal">
+<li><a href="#построение-глубинного-остовного-дерева">Построение глубинного остовного дерева</a></li>
+<li><a href="#классификация-ребёр-наступающие-отступающие-поперечные">Классификация ребёр</a></li>
+<li><a href="#нахождение-обратных-рёбер">Нахождение обратных рёбер</a></li>
+<li><a href="#граф-потока-управления-проверка-приводимости">Определение приводимости CFG</a></li>
+<li><a href="#граф-потока-управления-выделение-естественных-циклов">Выделение естественных циклов</a></li>
+<li><a href="#построение-восходящей-последовательности-областей">Построение восходящей последовательности областей</a></li>
+</ol></li>
+<li>Оптимизированная версия итерационного алгоритма
+<ol style="list-style-type: decimal">
+<li>Сравнение с неоптимизированной версией</li>
+<li>Реализация алгоритма на основе областей</li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li>Заключение</li>
+</ol>
+<hr />
+<h1 id="введение">Введение</h1>
+<p>Была поставлена задача разработки оптимизирующего компилятора для языка, описываемого выбранной грамматикой.</p>
+<p>В связи с тем, что для кода проекта был выбран язык C#, было решено использовать генератор синтаксического анализатора Yacc и генератор лексического анализатора Lex.</p>
+<h2 id="структура-проекта">Структура проекта</h2>
+<p>Проект состоит из трех основных компонентов:</p>
+<ul>
+<li>библиотеки, реализующей оптимизации;</li>
+<li>консольного приложения;</li>
+<li>реализации графического интерфейса</li>
+<li>проекта с тестами</li>
+</ul>
+<h2 id="описание-грамматики">Описание грамматики</h2>
+<p>Была поставлена задача разработки оптимизирующего компилятора для языка, описываемого грамматикой:</p>
+<h4 id="типы-данных">Типы данных:</h4>
+<ul>
+<li>целое число</li>
+<li>вещественное число</li>
+<li>строка</li>
+</ul>
+<pre><code>// SimpleYacc.y
+
+        public double dVal;
+        public int iVal;
+        public string sVal;</code></pre>
+<h4 id="поддерживаемые-операции">Поддерживаемые операции:</h4>
+<ul>
+<li>операции сравнения ( &lt;, &gt;, &lt;=, &gt;=, ==, !=)</li>
+<li>арифметические операции (+, -, /, *)</li>
+</ul>
+<pre><code>bin_sign    : LS { $$ = BinSign.LS; } // &lt;
+            | GT { $$ = BinSign.GT; } 
+            | LE { $$ = BinSign.LE; }
+            | GE { $$ = BinSign.GE; }
+            | EQ { $$ = BinSign.EQ; }
+            | NE { $$ = BinSign.NE; }</code></pre>
+<h4 id="поддерживаемые-операторы">Поддерживаемые операторы:</h4>
+<ul>
+<li>оператор присваивания</li>
+<li>блок кода</li>
+<li>условный оператор (if-then, if-then-else)</li>
+<li>циклы
+<ul>
+<li>cycle - выполнение указанного кол-ва итераций</li>
+<li>for</li>
+<li>repeat-until</li>
+<li>while</li>
+</ul></li>
+</ul>
+<pre><code>// SimpleYacc.y
+
+statement   : assign SEMICOLON { $$ = $1; }
+            | block { $$ = $1; }
+            | cycle { $$ = $1; }
+            | if_st { $$ = $1; }
+            | for_st { $$ = $1; }
+            | rep_unt { $$ = $1; }
+            | while_st { $$ = $1; }
+            ;</code></pre>
+<p>Операторы отделяются с помощью точки с запятой ( ; )</p>
+<p>Блоки выделяются с помощью begin и end :</p>
+<pre><code>block       : BEGIN stlist END { $$ = $2; }</code></pre>
+<hr />
+<h1 id="вспомогательные-задачи">Вспомогательные задачи</h1>
+<h2 id="парсер-языка-ast">Парсер языка + AST</h2>
+<p>Задача является основой всей последующей работы</p>
+<h4 id="постановка-задачи">Постановка задачи</h4>
+<p>Эта задача подразумевает создание парсера языка и построения абстрактного синтаксического дерева по тексту программы</p>
+<h4 id="описание-алгортима">Описание алгортима</h4>
+<p>При разработке использовались следующие срества: <em>GPLex</em> - лексический анализатор <em>GPPG</em> - синтаксический анализатор</p>
+<h4 id="входные-данные">Входные данные</h4>
+<p>Текст программы</p>
+<h4 id="выходные-данные">Выходные данные</h4>
+<p>Абстрактное синтаксическое дерево</p>
+<h4 id="пример-применения">Пример применения</h4>
+<p>//в переменной text находится текст программы</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">Scanner scanner = <span class="kw">new</span> <span class="fu">Scanner</span>();
+scanner.<span class="fu">SetSource</span>(text, <span class="dv">0</span>);
+
+Parser parser = <span class="kw">new</span> <span class="fu">Parser</span>(scanner);
+<span class="dt">var</span> b = parser.<span class="fu">Parse</span>();
+
+<span class="kw">if</span> (!b)
+    Console.<span class="fu">WriteLine</span>(<span class="st">&quot;Ошибка&quot;</span>);
+<span class="kw">else</span> Console.<span class="fu">WriteLine</span>(<span class="st">&quot;Программа распознана&quot;</span>);
+
+<span class="dt">var</span> prettyVisitor = <span class="kw">new</span> <span class="fu">PrettyPrintVisitor</span>();
+parser.<span class="fu">root</span>.<span class="fu">Accept</span>(prettyVisitor);
+Console.<span class="fu">WriteLine</span>(prettyVisitor.<span class="fu">Text</span>);</code></pre></div>
+<p><strong>Пример правильной программы</strong></p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">{
+   b = -<span class="dv">2</span>;
+   a = <span class="dv">3</span>;
+   a = -b;
+   c = b + <span class="dv">2</span>;
+   d = a * b + c * d + <span class="dv">3</span>;
+
+   <span class="kw">if</span> <span class="dv">1</span>
+      b = <span class="dv">1</span>;
+   <span class="kw">else</span>
+   {
+    b = <span class="dv">0</span>;
+   }
+
+   <span class="kw">if</span> a
+      a = <span class="dv">1</span>;
+
+   <span class="kw">while</span> x &lt;= <span class="dv">10</span> <span class="kw">do</span>
+   {
+    x = x + <span class="dv">1</span>;
+   }
+
+   cycle <span class="dv">3</span>
+   {
+    a = a + a;
+   }
+
+   <span class="kw">for</span> i=<span class="dv">1</span> to <span class="dv">10</span> <span class="kw">do</span>
+    a = a + i;
+}</code></pre></div>
+<h2 id="трехадресный-код">Трехадресный код</h2>
+<h3 id="представление-трехадресного-кода">Представление трехадресного кода</h3>
+<p>Это задача требуется для выполнения Задачи <a href="https://github.com/mmcsOptimizingCompilers2016/pile/issues/5">Генерация 3-адресного кода по AST</a>.</p>
+<h4 id="постановка-задачи-1">Постановка задачи</h4>
+<p>Написать классы для представления 3-адресного кода</p>
+<h4 id="входные-данные-1">Входные данные</h4>
+<p>3-адресный код</p>
+<h4 id="выходные-данные-1">Выходные данные</h4>
+<p>Класс ThreeAddressCode</p>
+<h4 id="пример-применения-1">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> threeAddressCode = <span class="kw">new</span> ThreeAddressCode
+    {
+        Operation = Operation.<span class="fu">Minus</span>,
+        Destination = <span class="kw">new</span> <span class="fu">IdentificatorValue</span>(<span class="st">&quot;variable_name1&quot;</span>),
+        LeftOperand = <span class="kw">new</span> <span class="fu">IdentificatorValue</span>(<span class="st">&quot;variable_name2&quot;</span>),
+        RightOperand = <span class="kw">new</span> <span class="fu">NumericValue</span>(<span class="dv">12</span>)
+    };</code></pre></div>
+<h3 id="генерация-трехадресного-кода">Генерация трехадресного кода</h3>
+<h4 id="интерфейс-для-работы-с-трехадресным-кодом">Интерфейс для работы с трехадресным кодом</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="co">// ../Library/ThreeAddressCode/IThreeAddressCode.cs</span>
+
+<span class="kw">using</span> OptimizingCompilers2016.<span class="fu">Library</span>.<span class="fu">ThreeAddressCode</span>.<span class="fu">Values</span>.<span class="fu">Base</span>;
+
+<span class="kw">namespace</span> OptimizingCompilers2016.<span class="fu">Library</span>.<span class="fu">ThreeAddressCode</span>
+{
+    <span class="kw">using</span> Values;
+    <span class="kw">public</span> <span class="kw">interface</span> IThreeAddressCode
+    {
+        Operation Operation { <span class="kw">get</span>; <span class="kw">set</span>; }
+        IValue LeftOperand { <span class="kw">get</span>; <span class="kw">set</span>; }
+        IValue RightOperand { <span class="kw">get</span>; <span class="kw">set</span>; }
+        StringValue Destination { <span class="kw">get</span>; <span class="kw">set</span>; }
+        LabelValue Label { <span class="kw">get</span>; <span class="kw">set</span>; }
+    }
+}</code></pre></div>
+<p>Каждая команда трехадресного кода имеет следующий вид: &gt; Label: Destination = LeftOperand Operation RightOperand</p>
+<p>где</p>
+<ul>
+<li>Label - метка</li>
+<li>Destination
+<ul>
+<li>либо переменная, которой присваивается значение (ее имя - идентификатор),</li>
+<li>либо команда, к которой будет осуществлен переход ( по метке )</li>
+</ul></li>
+<li><a href="../../OptimizingCompilers2016/Library/ThreeAddressCode/Operation.cs">Operation - операция/оператор</a>
+<ul>
+<li>бинарные
+<ul>
+<li>арифметические: -, +, -, /, *</li>
+<li>сравнение: &lt;, &lt;=, &gt;, &gt;=, ==, !=</li>
+</ul></li>
+<li>унарные
+<ul>
+<li>знак ( +, - )</li>
+</ul></li>
+<li>пустая операция (NoOp) - для реализации переходов goto</li>
+<li>присваивание</li>
+<li>оператор перехода Goto</li>
+<li>оператор условного перехода CondGoto</li>
+</ul></li>
+<li>LeftOperand
+<ul>
+<li>либо левый операнд бинарной операции</li>
+<li>либо единственный операнд унарной операции</li>
+</ul></li>
+<li>RightOperand - правый операнд бинарной операции</li>
+</ul>
+<blockquote>
+<p><em>Пример</em> // если поле не указано, то оно равно null Оператор присваивания:</p>
+<p>а) label : dest = leftOp op rightOp б) label : dest = leftOp в) label : dest = op leftOp где op - арифметическая или бинарная операция Оператор перехода: а) label: dest goto</p>
+</blockquote>
+<h4 id="обход-синтаксического-дерева">Обход синтаксического дерева</h4>
+<p>Для обхода синтаксического дерева используется паттерн Visitor:</p>
+<ul>
+<li>класс <a href="../../OptimizingCompilers2016/Library/Visitors/LinearCode.cs">LinearCode.cs</a> реализует генерацию линейного кода ( реализация интерфейса <a href="../../OptimizingCompilers2016/Library/Visitors/IVisitor.cs">iVisitor</a> )</li>
+<li>класс <a href="../../OptimizingCompilers2016/Library/Visitors/PrettyPrintVisitor.cs">PrettyPrintVisitor</a> используется для печати трехадресного кода.</li>
+</ul>
+<h4 id="генерация-линейного-кода">Генерация линейного кода</h4>
+<p>Имена меток - &quot;%l<номер команды>&quot; Имена временных переменных - &quot;$t<номер переменной>&quot;</p>
+<h5 id="условный-оператор">Условный оператор:</h5>
+<p>Исходный код</p>
+<pre><code>if условие then оп_1 else оп_2</code></pre>
+<p>Линейный код</p>
+<pre><code> %l1: $t1 = условие
+ %l2: if $t1 goto %l5
+ %l3: oп_2
+ %l4: goto %l6
+ %l5: оп_1 
+ %l6: noOp</code></pre>
+<h5 id="оператор-цикла-while">Оператор цикла while:</h5>
+<p>Исходный код</p>
+<pre><code>while условие do  оп_1</code></pre>
+<p>Линейный код</p>
+<pre><code>  %l1: $t1 = условие
+  %l2: if $t1 goto %l5
+  %l3: goto %l6
+  %l4: оп_1
+  %l5: goto %l1
+  %l6: noOp</code></pre>
+<h5 id="оператор-цикла-cycle">Оператор цикла cycle</h5>
+<p>Исходный код</p>
+<pre><code>cycle 5 do оп_1 </code></pre>
+<p>Линейный код</p>
+<pre><code>  %l1: $t1 = 1
+  %l2: $t2 = t1 GT 5
+  %l3: if $t1 goto %l7
+  %l4: оп_1
+  %l5: $t1 = $t1 + 1
+  %l6: goto %l2
+  %l7: no op</code></pre>
+<h2 id="базовые-блоки">Базовые блоки</h2>
+<h3 id="представление-базового-блока">Представление Базового Блока</h3>
+<p>Класс, представляющий Базовый Блок.</p>
+<h4 id="постановка-задачи-2">Постановка задачи</h4>
+<p>Создать представление для Базового Блока.</p>
+<h4 id="входные-данные-2">Входные данные</h4>
+<p>Имя блока, трехадресный код, входной блок (опционально), выходной блок (опционально)</p>
+<h4 id="выходные-данные-2">Выходные данные</h4>
+<p>Класс BaseBlock</p>
+<h4 id="пример-применения-2">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">BaseBlock b1 = <span class="kw">new</span> <span class="fu">BaseBlock</span>();
+b2.<span class="fu">Name</span> = <span class="st">&quot;B2&quot;</span>;</code></pre></div>
+<h3 id="задача-разбиения-на-базовые-блоки">Задача разбиения на базовые блоки</h3>
+<p>От этой задачи зависит большинство последующих задач.</p>
+<h4 id="постановка-задачи-3">Постановка задачи</h4>
+<p>Разбить программу на базовые блоки.</p>
+<h4 id="описание-алгоритма">Описание алгоритма</h4>
+<p>Началом базового блока считаются метки, концом базового блока считаются переходы. После прохода алгоритма могут появиться путсые блоки, поэтому в конце алгоритма выполняется удаление лишних пустых блоков.</p>
+<h4 id="входные-данные-3">Входные данные</h4>
+<p>Трехадресный код</p>
+<h4 id="выходные-данные-3">Выходные данные</h4>
+<p>Граф потока управления, построенный на основе получившихся блоков.</p>
+<h4 id="пример-использования">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> linearCode = <span class="kw">new</span> <span class="fu">LinearCodeVisitor</span>();
+parser.<span class="fu">root</span>.<span class="fu">Accept</span>(linearCode);
+<span class="dt">var</span> blocks = BaseBlockDivider.<span class="fu">divide</span>(linearCode.<span class="fu">code</span>);</code></pre></div>
+<h2 id="граф-потока-управления-представление-и-построение">Граф потока управления: представление и построение</h2>
+<p>Класс, представляющий граф потока упраления.</p>
+<h4 id="постановка-задачи-4">Постановка задачи</h4>
+<p>Выбрать представление для графа потока управления.</p>
+<p>В качестве внутреннего представления используется обобщенная реализация двунаправленного графа, предоставляемая библиотекой <a href="https://quickgraph.codeplex.com/">QuickGraph</a></p>
+<h3 id="описание-алгоритма-1">Описание алгоритма</h3>
+<p>Построение CFG:</p>
+<ol style="list-style-type: decimal">
+<li>Добавляем в граф все узлы (базовые блоки)</li>
+<li>Устанавливаем связи между узлами (исходя из связей, указанных в ББ)</li>
+</ol>
+<pre><code>// Добавление вершин в граф
+CFG.AddVertexRange(blocks);
+// Теперь, когда граф содержит вершины, можно добавить и дуги
+foreach (var block in blocks)
+{
+    if (block.Output != null)
+    {
+        CFG.AddEdge(new Edge&lt;BaseBlock.BaseBlock&gt;(block, block.Output));
+    }
+    if (block.JumpOutput != null)
+    {
+        CFG.AddEdge(new Edge&lt;BaseBlock.BaseBlock&gt;(block, block.JumpOutput));
+    }
+}</code></pre>
+<h4 id="входные-данные-4">Входные данные</h4>
+<p>Конструктору класса CFG подаётся на вход список базовых коллекция базовых блоков трёхадресного кода (<code>IEnumerable&lt;BaseBlock.BaseBlock&gt;</code>).</p>
+<h4 id="выходные-данные-4">Выходные данные</h4>
+<p>Конструктор инициализирует поле класса типа <code>BidirectionalGraph&lt;BaseBlock.BaseBlock, Edge&lt;BaseBlock.BaseBlock&gt;&gt;</code></p>
+<h4 id="пример-применения-3">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> blocks = BaseBlockDivider.<span class="fu">divide</span>(linearCode.<span class="fu">code</span>);
+<span class="dt">var</span> CFG = <span class="kw">new</span> <span class="fu">ControlFlowGraph</span>(blocks);</code></pre></div>
+<hr />
+<h2 id="оптимизации-внутри-базового-блока">Оптимизации внутри базового блока</h2>
+<h2 id="удаление-мертвого-кода">Удаление мертвого кода</h2>
+<p>Задача является основой для удаления мертвого кода</p>
+<h4 id="постановка-задачи-5">Постановка задачи</h4>
+<p>Эта задача подразумевает удаление мертвого кода в рамках одного базового блока</p>
+<h4 id="описание-алгортима-1">Описание алгортима</h4>
+<p>Проходимся по элементам трехадресного кода в рамках блока (в обратном направлении) переменная может быть активной и неактивной, изначально все переменные считаются актиными (они могут использоваться в других блоках) удаляем элементы трехадресного кода, которые явдяются присвоением и переменная, которой присваивается значение, является неактивной если переменной присваивается значение, она помечается как неактивная если переменная используется в правой части, она помечается как активная</p>
+<p>Повторяем вышеизложенные действия пока количество элементов в трехадресном коде не перестанет меняться</p>
+<h4 id="входные-данные-5">Входные данные</h4>
+<p>Базовый блок</p>
+<h4 id="выходные-данные-5">Выходные данные</h4>
+<p>Базовый блок без мертвого кода</p>
+<h4 id="пример-применения-4">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">foreach</span> (var block <span class="kw">in</span> blocks)
+{
+    Console.<span class="fu">WriteLine</span>(block.<span class="fu">ToString</span>());
+    DeadCodeDeleting.<span class="fu">optimizeDeadCode</span>(block);
+    Console.<span class="fu">WriteLine</span>(<span class="st">&quot;After optimization:&quot;</span>);
+    Console.<span class="fu">WriteLine</span>(block.<span class="fu">ToString</span>());
+    Console.<span class="fu">WriteLine</span>(<span class="st">&quot;-------&quot;</span>);
+}</code></pre></div>
+<h4 id="пример1">Пример1</h4>
+<pre><code>{
+  b = 2;
+  a = 3;
+  a = b;
+  c = b + 2;
+  d = a * b;
+}</code></pre>
+<h5 id="результат">Результат:</h5>
+<p>Block B0 Ins: [] b := 2 a := 3 a := b c := b + 2 d := a * b JumpOut: Out:</p>
+<p>After optimization: Block B0 Ins: [] b := 2 a := b c := b + 2 d := a * b JumpOut: Out:</p>
+<h4 id="пример2">Пример2</h4>
+<pre><code>{
+  b = 2;
+  a = 3;
+  a = 5;
+  c = b + 2;
+  b = 4;
+  d = a * b;
+  c = 3;
+}</code></pre>
+<h5 id="результат-1">Результат:</h5>
+<pre><code>Block B0
+Ins: []
+          b := 2
+          a := 3
+          a := 5
+          c := b + 2
+          b := 4
+          d := a * b
+          c := 3
+JumpOut: 
+Out: 
+
+After optimization:
+Block B0
+Ins: []
+          a := 5
+          b := 4
+          d := a * b
+          c := 3
+JumpOut: 
+Out: </code></pre>
+<h2 id="протяжка-констант">Протяжка констант</h2>
+<p>Задача позволяет протянуть константы внутри базового блока</p>
+<h4 id="постановка-задачи-6">Постановка задачи</h4>
+<p>Эта задача подразумевает протяжку констант в рамках одного базового блока</p>
+<h4 id="описание-алгоритма-2">Описание алгоритма</h4>
+<ol style="list-style-type: decimal">
+<li>Находим первое присваивание константы какой-либо перемонной.</li>
+<li>Заменяем все вхождения данной переменной в правой части, пока не дойдет до присваивания этой переменной нового значения или не дойдем до конца блока.</li>
+<li>Повторять пункты 1-2, пока количество замен больше 0.</li>
+</ol>
+<h4 id="входные-данные-6">Входные данные</h4>
+<p>Базовый блок</p>
+<h4 id="выходные-данные-6">Выходные данные</h4>
+<p>Базовый блок, где протянуты все константы</p>
+<h4 id="пример-применения-5">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> blocks = BaseBlockDivider.<span class="fu">divide</span>(linearCode.<span class="fu">code</span>);
+IOptimizator optimizator = <span class="kw">new</span> <span class="fu">ConstantPropagationOptimizator</span>();
+<span class="kw">foreach</span> (var block <span class="kw">in</span> blocks)
+{
+    optimizator.<span class="fu">Optimize</span>(block);
+}</code></pre></div>
+<h2 id="учёт-алгебраических-тождеств">Учёт алгебраических тождеств</h2>
+<h4 id="постановка-задачи-7">Постановка задачи</h4>
+<p>Реализовать учет алгебраических тождеств внутри Базового Блока. Список алгебраических тождеств:</p>
+<pre><code>1 * a = a
+a * 1 = a
+0 + a = a
+a + 0 = a
+a - 0 = a
+a / 1 = a</code></pre>
+<h4 id="входные-данные-7">Входные данные</h4>
+<p>Базовый Блок</p>
+<h4 id="выходные-данные-7">Выходные данные</h4>
+<p>Модифицированный Базовый Блок, внутри которого проведены оптимизации по учету алгебраических тождеств.</p>
+<h4 id="пример-применения-6">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">  <span class="dt">var</span> opt = <span class="kw">new</span> <span class="fu">AlgebraicIdentityOptimizator</span>();
+  <span class="kw">foreach</span> (var block <span class="kw">in</span> blocks)
+    opt.<span class="fu">Optimize</span>(block);</code></pre></div>
+<h2 id="оптимизация-общих-подвыражений">Оптимизация общих подвыражений</h2>
+<h4 id="постановка-задачи-8">Постановка задачи</h4>
+<p>Задача подразумевает оптимизацию одинаковых выражений в рамках одного базового блока.</p>
+<h4 id="описание-алгортима-2">Описание алгортима</h4>
+<p>Алгоритм реализован в 2 прохода. При первом проходе мы ищем одинаковые подвыражения среди элементов трёхадресного кода базового блока и запоминаем их местоположение в базовом блоке. Далее, при втором проходе происходит создание вспомогательной переменной и замена общего подвыражения. Для хранения подвыражений создана структура <code>BinaryExpression</code>, которая также отвечает за сравнение подвыражений.</p>
+<h4 id="входные-данные-8">Входные данные</h4>
+<p>Базовый блок</p>
+<h4 id="выходные-данные-8">Выходные данные</h4>
+<p>Базовый блок с замененными общими подвыражениями</p>
+<h4 id="пример-применения-7">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">{
+    <span class="dt">var</span> block = <span class="kw">new</span> <span class="fu">BaseBlock</span>();
+    ...
+    <span class="dt">var</span> cse = <span class="kw">new</span> <span class="fu">CommonExperssions</span>();
+    Console.<span class="fu">WriteLine</span>(block);
+    cse.<span class="fu">Optimize</span>(block);
+    Console.<span class="fu">WriteLine</span>(<span class="st">&quot;After optimization:&quot;</span>);
+    Console.<span class="fu">WriteLine</span>(block);
+}</code></pre></div>
+<h4 id="пример">Пример</h4>
+<pre><code>{
+  ...
+  b = 2 + a;
+  a = 3;
+  c = 2 + a;
+  d = a + 2;
+}</code></pre>
+<h5 id="результат-2">Результат:</h5>
+<pre><code>  b = 2 + a;
+  a = 3;
+  tmp0 = 2 + a;
+  c = tmp0;
+  d = tmp0;</code></pre>
+<hr />
+<h1 id="оптимизации-между-базовыми-блоками">Оптимизации между базовыми блоками</h1>
+<h2 id="общий-итерационный-алгоритм">Общий итерационный алгоритм</h2>
+<h4 id="постановка-задачи-9">Постановка задачи</h4>
+<p>Реализовать базовый итерационный алгоритм и предусмотреть возможности для его использования в связанных задачах.</p>
+<h3 id="описание-класса">Описание класса</h3>
+<p>Абстрактный класс <code>BaseIterationAlgorithm&lt;T&gt;</code> находится в пространстве имён <code>OptimizingCompilers2016.Library.Analysis</code>.</p>
+<p>На тип <code>T</code> поставлено ограничение <code>IClonable</code>.</p>
+<p>Класс реализует интерфейс <code>Semilattice</code>.</p>
+<p>В классе <code>BaseIterationAlgorithm</code> определены следующие методы:</p>
+<ul>
+<li><p>Оператор сбора:</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">abstract</span> T <span class="fu">Collect</span>(T x, T y);</code></pre></div></li>
+<li><p>Передаточная функция:</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="kw">abstract</span> T <span class="fu">Transfer</span>(T x, BaseBlock b);</code></pre></div></li>
+<li><p>Функция, необходимая для установки начального значения элемента данных:</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="kw">abstract</span> T <span class="fu">SetStartingSet</span>();</code></pre></div></li>
+<li><p>Функция, необходимая для заполнения сущностей <code>generators</code> и <code>killers</code>, используемых в связанных задачах:</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="kw">abstract</span> <span class="dt">void</span> <span class="fu">FillGeneratorsAndKillers</span>(List&lt;BaseBlock&gt; blocks);</code></pre></div></li>
+<li><p>Функция, необходимая для заполнения вспомогательных сущностей, общих для связанных задач</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="dt">void</span> <span class="fu">FillSupportingStructures</span>(List&lt;BaseBlock&gt; blocks);</code></pre></div></li>
+<li><p>Публичный метод, необходимый для запуска анализа на основе итерационного алгоритма</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">abstract</span> <span class="dt">void</span> <span class="fu">RunAnalysis</span>(List&lt;BaseBlock&gt; blocks);</code></pre></div></li>
+<li><p>Итерационный алгоритм</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="kw">virtual</span> <span class="dt">void</span> <span class="fu">IterationAlgorithm</span>(List&lt;BaseBlock&gt; blocks);</code></pre></div></li>
+</ul>
+<h3 id="описание-алгоритма-3">Описание алгоритма</h3>
+<p>Работа алгоритма заключается в следующем:</p>
+<pre><code>foreach B - базовый блок + Вход
+{
+    OUT[B] = {}  //инициализируем пустым множеством
+    while OUT меняется
+    {
+        foreach B - базовый блок do
+        IN[B] = ∧ OUT[P], где P - предшественники B, - оператор сбора
+        OUT[B] = fb(IN[B]), где fb - передаточная функция
+    }
+}
+</code></pre>
+<h4 id="входные-данные-9">Входные данные</h4>
+<p>Список базовых блоков программы.</p>
+<h4 id="выходные-данные-9">Выходные данные</h4>
+<p>Словари <code>ins</code> и <code>outs</code>, содержашие в себе множества для каждого блока, получившиеся на последней итерации алгоритма.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> Dictionary&lt;BaseBlock, T&gt; outs = <span class="kw">new</span> Dictionary&lt;BaseBlock, T&gt;();
+<span class="kw">protected</span> Dictionary&lt;BaseBlock, T&gt; ins = <span class="kw">new</span> Dictionary&lt;BaseBlock, T&gt;();</code></pre></div>
+<h2 id="оператор-сбора">Оператор сбора</h2>
+<p>Интерфейс, классы, реализующие этот интерфейс должны предоставлять реализацию оператора сбора (Collect)</p>
+<h4 id="постановка-задачи-10">Постановка задачи</h4>
+<p>Проектирование интерфейса для работы с оператором сбора.</p>
+<h4 id="входные-данные-10">Входные данные</h4>
+<p>Типовый параметр T --- множество, на котором вводится полурешётка (например: мн-во всех подмножеств множества определений в случае задачи о достигающих определениях)</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">interface</span> Semilattice&lt;T&gt;
+{
+    T <span class="fu">Collect</span>(T x, T y);
+}</code></pre></div>
+<h2 id="передаточная-функция">Передаточная функция</h2>
+<p>Классы, наслудуемые от <a href="../../OptimizingCompilers2016/Library/Analysis/BaseIterationAlgorithm.cs">BaseIterationAlgorithm<T></a>, должны определять передаточную функцию (Transfer)</p>
+<h4 id="постановка-задачи-11">Постановка задачи</h4>
+<p>Проектирование абстрактной функции для представления оператора сбора</p>
+<h4 id="входные-данные-11">Входные данные</h4>
+<p>Типовый параметр T --- множество, на котором вводится полурешётка (например: мн-во всех подмножеств множества определений в случае задачи о достигающих определениях)</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">protected</span> <span class="kw">abstract</span> T <span class="fu">Transfer</span>(T x, BaseBlock b);</code></pre></div>
+<hr />
+<h2 id="задачи-оптимизации">Задачи оптимизации</h2>
+<h3 id="анализ-активных-переменных-между-базовыми-блоками">Анализ активных переменных между базовыми блоками</h3>
+<h4 id="постановка-задачи-12">Постановка задачи</h4>
+<p>Определить какие переменные являются активными(живыми) для каждого базового блока.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">class</span> ActiveVariables
+{
+    <span class="kw">public</span> <span class="kw">new</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;IdentificatorValue&gt;&gt; result;
+
+    <span class="kw">private</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;IdentificatorValue&gt;&gt; IN;
+    <span class="kw">private</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;IdentificatorValue&gt;&gt; OUT;
+    <span class="kw">private</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;IdentificatorValue&gt;&gt; Def;
+    <span class="kw">private</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;IdentificatorValue&gt;&gt; Use;
+    <span class="kw">private</span> List&lt;BaseBlock&gt; blocks;
+
+    <span class="kw">public</span> <span class="fu">ActiveVariables</span>(List&lt;BaseBlock&gt; blocks)
+}</code></pre></div>
+<h4 id="описание-алгоритма-4">Описание алгоритма</h4>
+<p>Сначала получаем Def-Use информацию. Затем выполняем итерационный алгоритм.</p>
+<pre><code>
+// итерационный алгоритм
+    foreach B - базовый блок + Выход
+    {
+        IN[B] = {}  //инициализируем пустым множеством
+        while IN[B] - меняется
+        {
+            foreach B - базовый блок do
+            OUT[B] = U IN[P], где P - потомки B
+            IN[B] = USE[B] U (OUT[B] - DEF[B])
+        }
+     }
+</code></pre>
+<h4 id="входные-данные-12">Входные данные</h4>
+<p>Граф потока управления.</p>
+<h4 id="выходные-данные-10">Выходные данные</h4>
+<p>Объект класса ActiveVariables, хранящий для каждого базового блока информацию об активных переменных.</p>
+<h4 id="пример-использования-1">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"> <span class="dt">var</span> AV = <span class="kw">new</span> <span class="fu">ActiveVariables</span>(<span class="kw">new</span> <span class="fu">ControlFlowGraph</span>(blocks));
+ AV.<span class="fu">runAnalys</span>(); 
+ <span class="co">//AV.result - Dictionary, ключ - имя блока, значение - список активных переменных для данного блока.</span></code></pre></div>
+<h2 id="оптимизация-по-результатам-анализа-активных-переменных">Оптимизация по результатам анализа активных переменных</h2>
+<p>Это задача требует выполнение задачи <a href="https://github.com/mmcsOptimizingCompilers2016/pile/issues/17">анализ активных переменных</a>.</p>
+<h4 id="постановка-задачи-13">Постановка задачи</h4>
+<p>Провести оптимизацию после выполнения анализа активных переменных</p>
+<h4 id="описание-алгоритма-5">Описание алгоритма</h4>
+<p>В оптимизации по удалению мертвого кода мы не предполагаем, что переменныя живая. Это значение мы берем из анализа активных переменных</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">if</span> (!viewed.<span class="fu">Contains</span>(DU.<span class="fu">defUses</span>.<span class="fu">ElementAt</span>(i).<span class="fu">Key</span>.<span class="fu">Item2</span>.<span class="fu">Item2</span>) &amp;&amp; !activeVars.<span class="fu">Contains</span>(DU.<span class="fu">defUses</span>.<span class="fu">ElementAt</span>(i).<span class="fu">Key</span>.<span class="fu">Item2</span>.<span class="fu">Item2</span>))
+{
+    viewed.<span class="fu">Add</span>(DU.<span class="fu">defUses</span>.<span class="fu">ElementAt</span>(i).<span class="fu">Key</span>.<span class="fu">Item2</span>.<span class="fu">Item2</span>);
+}
+<span class="kw">else</span>
+{
+    <span class="kw">if</span> (DU.<span class="fu">defUses</span>.<span class="fu">ElementAt</span>(i).<span class="fu">Value</span>.<span class="fu">Count</span> == <span class="dv">0</span>)
+    {
+        toDelete.<span class="fu">Add</span>(block.<span class="fu">Commands</span>[DU.<span class="fu">defUses</span>.<span class="fu">ElementAt</span>(i).<span class="fu">Key</span>.<span class="fu">Item2</span>.<span class="fu">Item1</span>]);
+    }
+
+}</code></pre></div>
+<h4 id="входные-данные-13">Входные данные</h4>
+<p>Базовые блоки и результат анализа активных переменных</p>
+<h4 id="выходные-данные-11">Выходные данные</h4>
+<p>Оптимизированные базовые блоки</p>
+<h4 id="пример-применения-8">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> blocks = BaseBlockDivider.<span class="fu">divide</span>(linearCode.<span class="fu">code</span>);
+<span class="dt">var</span> AV = <span class="kw">new</span> <span class="fu">ActiveVariables</span>(<span class="kw">new</span> <span class="fu">ControlFlowGraph</span>(blocks));
+AV.<span class="fu">runAnalys</span>();
+<span class="kw">foreach</span> (var block <span class="kw">in</span> blocks)
+{
+    DeadCodeDeleting.<span class="fu">optimizeDeadCode</span>(block, AV.<span class="fu">result</span>[block]);
+}</code></pre></div>
+<h2 id="доступные-выражения">Доступные выражения</h2>
+<h2 id="анализ-доступности-выражений-между-базовыми-блоками">Анализ доступности выражений между базовыми блоками</h2>
+<h4 id="постановка-задачи-14">Постановка задачи</h4>
+<p>Определить какие выражения являются доступными для каждого базового блока.</p>
+<h4 id="описание-алгоритма-6">Описание алгоритма</h4>
+<p>Сначала генерируем множества gen и kill для каждого базового блока. Затем выполняем итерационный алгоритм.</p>
+<pre><code>// итерационный алгоритм
+    foreach B - базовый блок + Выход
+    {
+        OUT[B] = 0 // инициализируем пустым множеством
+    }
+        while OUT[B] - меняется
+        {
+            foreach B - базовый блок do
+            IN[B] = U OUT[P], где P -  предок B
+            OUT[B] = gen[B] U (x - kill[B]) // x = IN[B]
+        }
+     }</code></pre>
+<h4 id="входные-данные-14">Входные данные</h4>
+<p>Список базовых блоков</p>
+<h4 id="выходные-данные-12">Выходные данные</h4>
+<p>Список доступных выражений для каждого базового блока</p>
+<h4 id="пример-применения-9">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">AvailabilityAnalysis AA = <span class="kw">new</span> <span class="fu">AvailabilityAnalysis</span>();
+AA.<span class="fu">RunAnalysis</span>(blocks);</code></pre></div>
+<h2 id="оптимизация-по-результатам-анализа-доступных-выражений">Оптимизация по результатам анализа доступных выражений</h2>
+<h4 id="постановка-задачи-15">Постановка задачи</h4>
+<p>По результатам анализа доступных выражений выполнить оптимизацию по удалению общих подвыражений.</p>
+<h4 id="описание-алгоритма-7">Описание алгоритма</h4>
+<p>Производится проход по каждому базовому блоку. Если для базового блока IN[B] есть какие-либо общие подвыражения, то проходим по элементам трёхадресного кода в поиске данных подвыражений. В случае, если мы нашли совпадающее подвыражение, то производим его замену согласно следующему алгоритму (метод <code>replaceAllOccurences</code>): Просматривается каждый предшественник Pred базового блока Cur.</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Если Gen[Pred] содержит данное подвыражение, ищем его, начиная с последней инструкции. Найдя инструкцию, создаём вспомогательную переменную, проинициализировав её нашим подвыражением и заменяем вхождение данного выражения в блоке-предшественнике.</p></li>
+<li><p>Если же Gen[Pred] не содержит подвыражения, то применяем данный алгоритм для базового блока Pred.</p></li>
+</ol>
+<p>Более подробное описание см. в файле Library/InterBlockOptimizators/CommonExpressions.cs</p>
+<h4 id="входные-данные-15">Входные данные</h4>
+<p>Граф потока управления</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">ControlFlowGraph cfg;</code></pre></div>
+<h4 id="выходные-данные-13">Выходные данные</h4>
+<p>Работа алгоритма изменяет базовые блоки cfg</p>
+<h4 id="пример-использования-2">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> cse = <span class="kw">new</span> <span class="fu">CommonExpressions</span>();
+cse.<span class="fu">Optimize</span>(blocks);</code></pre></div>
+<h4 id="пример-1">Пример</h4>
+<pre><code>{
+  ...
+  b = 2 + a;
+  if (a)
+  {
+    b = 2 + a;
+  }
+  else
+  {
+    c = a + 2;
+  }
+  a = a + 2;
+  d = a + 2;
+}</code></pre>
+<h5 id="результат-3">Результат:</h5>
+<pre><code>  ...
+  tmp0 = 2 + a;
+  b = tmp0;
+  if (a)
+  {
+    b = tmp0;
+  }
+  else
+  {
+    c = tmp0;
+  }
+  a = tmp0;
+  d = a + 2;</code></pre>
+<h2 id="задача-распространения-констант-между-базовыми-блоками">Задача распространения констант между базовыми блоками</h2>
+<h4 id="постановка-задачи-16">Постановка задачи</h4>
+<ol style="list-style-type: decimal">
+<li>Выполнить анализ на основе базового итерационного алгоритма для задачи распространения констант.</li>
+<li>По результатам анализа выполнить оптимизацию по распространению и свертке констант.</li>
+</ol>
+<h4 id="описание-алгоритма-8">Описание алгоритма</h4>
+<ul>
+<li><p>Элементом данных в данной задаче является отображение <code>m: Vars -&gt; {NAC, CONSTANT(int), UNDEF}</code></p></li>
+<li><p>Класс, реализующий распространение констант является наследником базового итерационного алгоритма и предоставляет свою реализацию оператора сбора и передаточной функции.</p></li>
+<li><p>Оператор сбора определяется следующим образом:</p></li>
+</ul>
+<pre><code>m ∧ m/&#39; = m&#39;&#39; &lt;=&gt; m(v) ∧ m&#39;(v) = m&#39;&#39;(v), для всех v - переменных</code></pre>
+<p>Причем <code>m(v) ∧ m'(v)</code> вычисляется по следующим правилам: * <code>UNDEF ∧ v = v</code> * <code>NAC ∧ v = NAC</code> * <code>CONSTANT(c) ∧ CONSTANT(c) = CONSTANT(c)</code> * <code>CONSTANT(c1) ∧ CONSTANT(c2) = NAC</code></p>
+<ul>
+<li><p>Передаточная функция fb(x) определяется следующим образом:</p>
+<pre><code>s - statement
+Если s - не присваивание =&gt; fb = I (тождественная функция)
+Если s - присваивание =&gt; {
+Для всех v =&gt; {
+    Если v!=x =&gt; m&#39;(v) = m(v)
+    Если v = x {
+        Если (statement: x := c){
+            m&#39;(x) = CONSTANT(c)
+        }
+        Если (statement: x := y &lt;operation&gt; z){
+            m&#39;(x) = m(y) &lt;operation&gt; m(z), если (m(z) == CONSTANT) &amp;&amp; (m(y) == CONSTANT)
+
+            m&#39;(x) = NAC, если (m(y) == NAC) || (m(z) == NAC)
+
+            m&#39;(x) = UNDEF, иначе
+        }
+    }
+} 
+}</code></pre></li>
+<li><p>После построения анализа, для каждого блока формируется список констант, пришедших с других блоков и вызывается внутриблочная функция протягивания и свертки констант</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">foreach</span> (var block <span class="kw">in</span> blocks)
+{
+    Dictionary&lt;IdentificatorValue, <span class="dt">int</span>&gt; constants = <span class="kw">new</span> Dictionary&lt;IdentificatorValue, <span class="dt">int</span>&gt;();
+    <span class="co">//...</span>
+    ConstantPropagationOptimizator cpo = <span class="kw">new</span> <span class="fu">ConstantPropagationOptimizator</span>(constants);
+    cpo.<span class="fu">Optimize</span>(block);
+}</code></pre></div>
+<h4 id="входные-данные-16">Входные данные</h4>
+<p>Список базовых блоков программы.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs">List&lt;BaseBlock&gt; blocks</code></pre></div>
+<h4 id="выходные-данные-14">Выходные данные</h4>
+<p>Работа алгоритма изменяет базовые блоки, поступивщие на вход.</p>
+<h4 id="пример-использования-3">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> constantPropagation = <span class="kw">new</span> <span class="fu">GlobalConstantPropagation</span>();
+constantPropagation.<span class="fu">RunAnalysis</span>(blocks);</code></pre></div>
+<hr />
+<h2 id="оптимизация-общего-итерационного-алгоритма">Оптимизация общего итерационного алгоритма</h2>
+<h3 id="задача-об-определении-доминаторов">Задача об определении доминаторов</h3>
+<p>Задача является основой для оптимизаций, связанных с определением доминаторов</p>
+<h4 id="постановка-задачи-17">Постановка задачи</h4>
+<p>Эта задача подразумевает определение всех отношений доминирования</p>
+<h4 id="описание-алгортима-3">Описание алгортима</h4>
+<p>Изначально для всех узлов (кроме входного, для входного множество пустое) определяем множество out как множество всех узлов и множество in (пустое для всех узлов)</p>
+<p>Проходим по всем узлам, в цикле множество in для узла определяется как пересечение множеств out для всех предшественников узла множество out для узла определяется как in объединенное с текущим узлом</p>
+<p>Предыдущий цикл выполняется пока множества in и out для узлов изменяются множества out для узлов являются результатом</p>
+<h4 id="входные-данные-17">Входные данные</h4>
+<p>Список узлов и Входной узел</p>
+<h4 id="выходные-данные-15">Выходные данные</h4>
+<p>Словарь (ключ - узел, значение - список его доминаторов)</p>
+<h4 id="пример-применения-10">Пример применения</h4>
+<p>Код программы:</p>
+<pre><code>{
+   a := 3;
+   a := b;
+   x := 5;
+  
+   if a then
+     a := 1;
+  
+   while x &lt;= 10 do
+   {
+     x := x + 1;
+   }
+}</code></pre>
+<h5 id="вывод">Вывод:</h5>
+<p>Blocks:</p>
+<pre><code>
+Block B0
+Ins: []
+          a := 3
+          a := b
+          x := 5
+          if a goto %l0
+JumpOut: B2
+Out: B1
+
+
+Block B1
+Ins: [B0, ]
+          goto %l1
+JumpOut: B3
+Out: B2
+
+
+Block B2
+Ins: [B1, B0, ]
+%l0:      nop
+          a := 1
+JumpOut: 
+Out: B3
+
+
+Block B3
+Ins: [B2, B1, ]
+%l1:      nop
+JumpOut: 
+Out: B4
+
+
+Block B4
+Ins: [B3, B6, ]
+%l2:      nop
+          $t0 := x &lt;= 10
+          if $t0 goto %l3
+JumpOut: B6
+Out: B5
+
+
+Block B5
+Ins: [B4, ]
+          goto %l4
+JumpOut: B7
+Out: B6
+
+
+Block B6
+Ins: [B5, B4, ]
+%l3:      nop
+          x := x + 1
+          goto %l2
+JumpOut: B4
+Out: B7
+
+
+Block B7
+Ins: [B6, B5, ]
+%l4:      nop
+JumpOut: 
+Out: </code></pre>
+<pre><code>D(B1) = {B1}
+D(B2) = {B1, B2}
+D(B3) = {B1, B3}
+D(B4) = {B1, B3, B4}
+D(B5) = {B1, B3, B4, B5}
+D(B6) = {B1, B3, B4, B6}
+D(B7) = {B1, B3, B4, B7}
+D(B8) = {B1, B3, B4, B7, B8}
+D(B9) = {B1, B3, B4, B7, B8, B9}
+D(B10) = {B1, B3, B4, B7, B8, B10}</code></pre>
+<h3 id="непосредственные-доминаторы-построение-дерева-доминаторов">Непосредственные доминаторы, построение дерева доминаторов</h3>
+<p>Задача является основой для оптимизаций, связанных с определением доминаторов</p>
+<h4 id="постановка-задачи-18">Постановка задачи</h4>
+<p>Эта задача подразумевает определение непосредственных доминаторов и построение дерева доминаторов</p>
+<h4 id="описание-алгортима-4">Описание алгортима</h4>
+<p>Построение списка непосредственных доминаторов Изначально считаем все доминаторы узлов непосредственными Помечаем на удаление связи удовлетворяющие условию: если список доминаторов доминатора узла отличается от списка доминаторов потомка не на самого потомка</p>
+<p>По списку непосредственных доминаторов строится дерево(список непосредственных доминаторов и текущий узел) Строим узел дерева по текущему узлу Для рекурсивного вызова создаем новый список непосредственных доминаторов (в котором нет текущего узла в качестве доминатора) Для каждого элемента из списка непосредственных доминаторов, где текущий узел являтся доминатором вызываем рекурсивно построение потомка для текущего узла</p>
+<h4 id="входные-данные-18">Входные данные</h4>
+<p>Словарь отношений доминирования (ключ - узел, значение - список его доминаторов), Входной узел</p>
+<h4 id="выходные-данные-16">Выходные данные</h4>
+<p>Список непосредственных отношений доминирования Дерево доминаторов</p>
+<h4 id="пример-применения-11">Пример применения</h4>
+<p>Код программы:</p>
+<pre><code>{
+   a := 3;
+   a := b;
+   x := 5;
+   if a then
+     a := 1;
+
+   while x &lt;= 10 do
+   {
+     x := x + 1;
+   }
+}</code></pre>
+<h5 id="вывод-1">Вывод:</h5>
+<pre><code>Blocks:
+Block B0
+Ins: []
+          a := 3
+          a := b
+          x := 5
+          if a goto %l0
+JumpOut: B2
+Out: B1
+
+
+Block B1
+Ins: [B0, ]
+          goto %l1
+JumpOut: B3
+Out: B2
+
+
+Block B2
+Ins: [B1, B0, ]
+%l0:      nop
+          a := 1
+JumpOut: 
+Out: B3
+
+
+Block B3
+Ins: [B2, B1, ]
+%l1:      nop
+JumpOut: 
+Out: B4
+
+
+Block B4
+Ins: [B3, B6, ]
+%l2:      nop
+          $t0 := x &lt;= 10
+          if $t0 goto %l3
+JumpOut: B6
+Out: B5
+
+
+Block B5
+Ins: [B4, ]
+          goto %l4
+JumpOut: B7
+Out: B6
+
+
+Block B6
+Ins: [B5, B4, ]
+%l3:      nop
+          x := x + 1
+          goto %l2
+JumpOut: B4
+Out: B7
+
+
+Block B7
+Ins: [B6, B5, ]
+%l4:      nop
+JumpOut: 
+Out: </code></pre>
+<p>Дерево непосредственных доминаторов:</p>
+<pre><code>  B1
+      B2
+
+      B3
+          B4
+              B5
+
+              B6
+
+              B7
+                  B8
+                      B9
+
+                      B10</code></pre>
+<h3 id="построение-фронта-доминирования-df-и-итерационного-фронта-доминирования-idf">Построение фронта доминирования (DF) и итерационного фронта доминирования (IDF)</h3>
+<h4 id="постановка-задачи-19">Постановка задачи</h4>
+<p><strong>Фронт доминирования узла n</strong></p>
+<p>DF(n) - множество узлов m:</p>
+<ol style="list-style-type: decimal">
+<li>n доминирует над p, где p - предшественник m</li>
+<li>n не доминирует над m или n = m</li>
+</ol>
+<p><strong>Итерационный фронт доминирования</strong></p>
+<p>S - множество узлов</p>
+<p>DF(S) = U DF(x), где x - узел из S</p>
+<p>IDF<code>1</code>(S) = DF(S)</p>
+<p>IDF<code>i+1</code>(S) = DF(S U DF<code>i</code>(S))</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">class</span> DominanceFrontier
+{
+    <span class="kw">public</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;<span class="dt">string</span>&gt;&gt; DF = <span class="kw">new</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;<span class="dt">string</span>&gt;&gt;();
+    <span class="kw">public</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;<span class="dt">string</span>&gt;&gt; IDF = <span class="kw">new</span> Dictionary&lt;<span class="dt">string</span>, HashSet&lt;<span class="dt">string</span>&gt;&gt;();
+    <span class="kw">private</span> List&lt;BaseBlock.<span class="fu">BaseBlock</span>&gt; blocks;
+
+    <span class="kw">public</span> <span class="fu">DominanceFrontier</span>(List&lt;BaseBlock.<span class="fu">BaseBlock</span>&gt; blocks)
+}</code></pre></div>
+<h4 id="описание-алгоритма-9">Описание алгоритма</h4>
+<p>Вычисление всех DF(x):</p>
+<pre><code>    foreach n - узел
+    {
+        if n имеет больше одного предшественника
+        foreach p - предшественник n
+        {
+            r = p
+            while r != IDom(n) // IDom(n) - непосредственный доминатор n
+            {
+                DF(r) += n
+                r = IDom(r)
+            }
+        }
+    }
+</code></pre>
+<h4 id="входные-данные-19">Входные данные</h4>
+<p>Список базовых блоков.</p>
+<h4 id="выходные-данные-17">Выходные данные</h4>
+<p>Объект класса DominanceFrontier, хранящий для каждого базового блока информацию об его фронте доминирования.</p>
+<h4 id="пример-использования-4">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> block = <span class="kw">new</span> <span class="fu">BaseBlock</span>();
+<span class="dt">var</span> blocks = <span class="kw">new</span> List&lt;BaseBlock&gt;();
+<span class="dt">var</span> domFront = <span class="kw">new</span> <span class="fu">DominanceFrontier</span>(blocks);
+<span class="co">//domFront.DF - Dictionary, ключ - имя блока, значение - список узлов, входящих во фронт доминирования блока.</span>
+<span class="dt">var</span> IDF = <span class="kw">new</span> HashSet&lt;<span class="dt">string</span>&gt;();
+IDF = domFront.<span class="fu">ComputeIDF</span>(block); <span class="co">// итерационный фронт доминирования блока.</span>
+IDF = domFront.<span class="fu">ComputeIDF</span>(blocks); <span class="co">// итерационный фронт доминирования множества блоков.</span></code></pre></div>
+<h2 id="отношение-доминирования">Отношение доминирования</h2>
+<h2 id="построение-глубинного-остовного-дерева">Построение глубинного остовного дерева</h2>
+<h4 id="постановка-задачи-20">Постановка задачи</h4>
+<p>Построение глубинного остовного дерева на основе данного графа потока управления, нумерация блоков.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">class</span> DepthSpanningTree
+{   
+        HashSet&lt;BaseBlock&gt; Visited;
+        Dictionary&lt;BaseBlock, <span class="dt">int</span>&gt; Numbers;
+        BidirectionalGraph&lt;BaseBlock, Edge&lt;BaseBlock&gt;&gt; SpanningTree;
+
+        <span class="kw">public</span> <span class="fu">DepthSpanningTree</span>(ControlFlowGraph controlFlowGraph)
+}</code></pre></div>
+<h4 id="описание-алгоритма-10">Описание алгоритма</h4>
+<p>Узлы графа потока управления обходятся в прямом порядке, в процессе прохода они нумеруются.</p>
+<pre><code>
+// шаг построения дерева
+build(узел n, cчетчик с) {
+    помечаем узел n как просмотренный
+    foreach m - потомок n
+    {
+        если m не посещен
+        {
+            добавляем в дерево дугу из n в m
+            build(m)
+        }
+        присваиваем узлу n номер с
+        уменьшаем счетчик с на 1
+     }
+ }
+
+build(корневой узел, кол-во узлов в графе)</code></pre>
+<h4 id="входные-данные-20">Входные данные</h4>
+<p>Граф потока управления.</p>
+<h4 id="выходные-данные-18">Выходные данные</h4>
+<p>Объект класса DepthSpanningTree, хранящий нумерацию, множество посещенных узлов и граф - остовное дерево.</p>
+<h4 id="пример-использования-5">Пример использования</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> depthSpanningTree = <span class="kw">new</span> <span class="fu">DepthSpanningTree</span>(cfg); 
+<span class="co">// остовное дерево лежит в поле depthSpanningTree.SpanningTree</span>
+<span class="co">// нумерация - маппинг между блоком и его номером depthSpanningTree.Numbers</span></code></pre></div>
+<h2 id="классификация-ребёр-наступающие-отступающие-поперечные">Классификация ребёр: наступающие, отступающие, поперечные</h2>
+<p>Данная задача нужны для определения типов ребер в графе потока управления (далее CFG).</p>
+<h4 id="постановка-задачи-21">Постановка задачи</h4>
+<p>Данн CFG. Необходимо классифицировать каждое его ребро. Для решения данной задачи необходимо <a href="#глубинное-островное-дерево">глубинное островное дерево</a></p>
+<h4 id="типы-ребер">Типы ребер</h4>
+<p>Был создан enum тип для представления типов ребер</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">enum</span> EdgeType
+{
+    Unknown = <span class="dv">0</span>,
+    Coming = <span class="dv">1</span>,
+    Retreating = <span class="dv">2</span>,
+    Cross = <span class="dv">3</span>,
+    Backward = <span class="dv">4</span>
+}</code></pre></div>
+<p>Так же был создан класс, который представляет собой Dictionary, где Key имеет тип Edge, а Value - EdgeType</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> EdgeTypes: Dictionary&lt;Edge&lt;BaseBlock&gt;, EdgeType&gt;
+{
+    <span class="kw">public</span> <span class="kw">override</span> <span class="dt">string</span> <span class="fu">ToString</span>()
+    {
+        <span class="kw">return</span> <span class="dt">string</span>.<span class="fu">Join</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, <span class="kw">this</span>.<span class="fu">Select</span>(ed =&gt; $<span class="st">&quot;[{ed.Key.Source.Name} -&gt; {ed.Key.Target.Name}]: {ed.Value}&quot;</span>));
+    }
+}</code></pre></div>
+<p>В класс ControlFlowGraph было добавленно свойство EdgeTypes, которое по каждому ребру в CFG возвращает его тип</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> ControlFlowGraph
+{
+    ...
+    <span class="kw">public</span> EdgeTypes EdgeTypes { <span class="kw">get</span>; <span class="kw">set</span>; }
+    ...
+}</code></pre></div>
+<h4 id="описание-алгоритма-11">Описание алгоритма</h4>
+<ol style="list-style-type: decimal">
+<li>Строим глубинное островное дерево для CFG</li>
+<li>Проходим по всем ребрам в CFG и классифицирем их согласно определению</li>
+</ol>
+<h4 id="входные-данные-21">Входные данные</h4>
+<p>Список базовых блоков</p>
+<h4 id="выходные-данные-19">Выходные данные</h4>
+<p>CFG с классифицированными ребрами</p>
+<h4 id="пример-применения-12">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="dt">var</span> blocks = BaseBlockDivider.<span class="fu">divide</span>(linearCode.<span class="fu">code</span>);
+Console.<span class="fu">WriteLine</span>(<span class="st">&quot;Edge Types:&quot;</span>);
+Console.<span class="fu">WriteLine</span>(blocks.<span class="fu">EdgeTypes</span>);</code></pre></div>
+<h2 id="нахождение-обратных-рёбер">Нахождение обратных рёбер</h2>
+<h4 id="постановка-задачи-22">Постановка задачи</h4>
+<p>Определить обратные ребра в CFG</p>
+<h4 id="входные-данные-22">Входные данные</h4>
+<p>Список классифицированных(наступающие, отступающие, поперечные) ребер CFG, дерево доминаторов.</p>
+<h4 id="выходные-данные-20">Выходные данные</h4>
+<p>Список обратных ребер CFG(поле BackwardEdges в классе ControlFlowGraph)</p>
+<h4 id="пример-применения-13">Пример применения</h4>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="fu">ClassificateEdges</span>();
+<span class="dt">var</span> dominatorsTree = DOM.<span class="fu">DOM_CREAT</span>(baseBlocks, baseBlocks.<span class="fu">ElementAt</span>(<span class="dv">0</span>));
+<span class="fu">FindBackwardEdges</span>(dominatorsTree);</code></pre></div>
+<h2 id="граф-потока-управления-проверка-приводимости">Граф потока управления: проверка приводимости</h2>
+<p>Экземплярный метод класса CFG</p>
+<h4 id="постановка-задачи-23">Постановка задачи</h4>
+<p><strong>Определение</strong> Граф потока управления является приводимым, если в глубинном остовном дереве графа любое отступающее ребро является обратным.</p>
+<p>По данному графу потока управления проверять, является ли он приводимым или нет.</p>
+<h3 id="описание-алгоритма-12">Описание алгоритма</h3>
+<ol style="list-style-type: decimal">
+<li>Сконструировать глубинное остовное дерево данного графа потока управления</li>
+<li>Получить множество обратных рёбер дерева.</li>
+<li>Получить множество отступающих дерева.</li>
+<li>Сравнить полученные множества на равенство.</li>
+</ol>
+<h4 id="входные-данные-23">Входные данные</h4>
+<p>Объект класса CFG</p>
+<h4 id="выходные-данные-21">Выходные данные</h4>
+<p>Логическое значение приводимости CFG</p>
+<h2 id="граф-потока-управления-выделение-естественных-циклов">Граф потока управления: выделение естественных циклов</h2>
+<p>Класс <code>NaturalLoop</code> в пространстве имён <code>OptimizingCompilers2016.Library.ControlFlowGraph</code>.</p>
+<p>Алгоритм построение запускается вызовом конструктора. Конструктор инициализирует поле <code>loop</code> типа <code>HashSet&lt;BaseBlock.BaseBlock&gt;</code>, значение которого в дальнейшем доступно через свойство <code>Loop</code>.</p>
+<h4 id="постановка-задачи-24">Постановка задачи</h4>
+<p>Свойства естественных циклов:</p>
+<ol style="list-style-type: decimal">
+<li>Цикл должен иметь единственную входную точку, называемую &quot;заголовком&quot; (header). Эта входная точка доминирует над всеми узлами в цикле.</li>
+<li>Должен быть как минимум один путь итерации цикла, т.е. как минимум один путь назад к заголовку.</li>
+</ol>
+<p>По данному графу потока управления проверять, является ли он приводимым или нет.</p>
+<h3 id="описание-алгоритма-13">Описание алгоритма</h3>
+<p>Основная работа происходит в функции <code>BuildNaturalLoop</code>, которая работает с обращённым графом потока управления и совершает поиск в глубину (начиная с входного узла обратной дуги) и собирает узлы цикла.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="fu">NaturalLoop</span>(ControlFlowGraph CFG, Edge&lt;BaseBlock.<span class="fu">BaseBlock</span>&gt; BackEdge) {
+    reverseCFG = <span class="kw">new</span> ReversedBidirectionalGraph&lt;BaseBlock.<span class="fu">BaseBlock</span>, Edge&lt;BaseBlock.<span class="fu">BaseBlock</span>&gt;&gt;(CFG.<span class="fu">CFG</span>);
+    loop.<span class="fu">Add</span>(BackEdge.<span class="fu">Target</span>);
+    loop.<span class="fu">Add</span>(BackEdge.<span class="fu">Source</span>);
+    <span class="fu">BuildNaturalLoop</span>(BackEdge.<span class="fu">Source</span>);
+}
+
+<span class="dt">void</span> <span class="fu">BuildNaturalLoop</span>(BaseBlock.<span class="fu">BaseBlock</span> Source) {
+    <span class="kw">foreach</span> (var edge <span class="kw">in</span> reverseCFG.<span class="fu">OutEdges</span>(Source)) { 
+        <span class="kw">if</span> (!loop.<span class="fu">Contains</span>(edge.<span class="fu">Target</span>)) 
+        {
+            loop.<span class="fu">Add</span>(edge.<span class="fu">Target</span>);
+            <span class="fu">BuildNaturalLoop</span>(edge.<span class="fu">Target</span>);
+        }
+    }
+}</code></pre></div>
+<h4 id="входные-данные-24">Входные данные</h4>
+<p>Объект класса <code>CFG</code> G и обратная дуга n -&gt; d (значение типа Edge&lt;BaseBlock.BaseBlock&gt;)</p>
+<h4 id="выходные-данные-22">Выходные данные</h4>
+<p>Множество всех узлов естественного цикла (значение типа <code>HashSet&lt;BaseBlock.BaseBlock&gt;</code>)</p>
+<h2 id="построение-восходящей-последовательности-областей">Построение восходящей последовательности областей</h2>
+<h4 id="постановка-задачи-25">Постановка задачи</h4>
+<p>Необходимо разбить граф потока управления на области и расположить их в порядке вложенности. То есть, если R1 - примитивная область, соответствующая базовому блоку, а R2 непосредственно содержит R1, то R1 должна идти раньше, чем R2.</p>
+<p>Области создаются либо на основе базовых блоков, либо на основе циклов. Таким образом, каждый новый уровень иерархии содержит меньше циклов, чем предыдущий.</p>
+<p>Логику поиска областей реализует класс RegionHierarchy: Hierarchy - список областей, упорядоченный по возрастанию количества уровней вложенности.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> RegionHierarchy
+    {   
+        <span class="co">/// ascending sequence of regions</span>
+        <span class="kw">public</span> List&lt;Region&gt; Hierarchy { <span class="kw">get</span>; }
+    }</code></pre></div>
+<p>Виды областей: - базовый класс области (Region) - примитивная область (BaseBlockRegion) - область тела цикла (CycleBodyRegion) - область цикла (CycleRegion)</p>
+<h5 id="базовая-область">Базовая область</h5>
+<p>Содержит информацию о - родительской области - дочерних областях (граф внутренности области)</p>
+<p>В данном случае, внутренность области будет хранить области, составляющие тело цикла.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> Region
+    {
+        <span class="kw">public</span> Region ParentRegion { <span class="kw">get</span>; <span class="kw">set</span>; } <span class="co">/// область, непосредственно содержащая данную                              </span>
+        <span class="kw">public</span> BidirectionalGraph HierarchyLevel { <span class="kw">get</span>; <span class="kw">set</span>; } <span class="co">/// граф непосредственных потомков (для тела цикла)</span>
+        <span class="kw">public</span> IEnumerable&lt;Edge&lt;Region&gt;&gt; ChildEdges { <span class="kw">get</span> { <span class="kw">return</span> HierarchyLevel.<span class="fu">Edges</span>; } }
+
+        <span class="kw">public</span> <span class="fu">Region</span>() { HierarchyLevel = <span class="kw">new</span> <span class="fu">BidirectionalGraph</span>(); }
+    }</code></pre></div>
+<h5 id="примитивная-область">Примитивная область</h5>
+<p>Область, соответствующая некоторому BaseBlock.</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> BaseBlockRegion : Region
+    {
+        <span class="kw">public</span> BaseBlock Block { <span class="kw">get</span>; }
+
+        <span class="kw">public</span> <span class="fu">BaseBlockRegion</span>(BaseBlock block): <span class="kw">base</span>() { Block = block; }
+    }</code></pre></div>
+<h5 id="область-тела-цикла">Область тела цикла</h5>
+<p>Область, соответствующая телу цикла (без обратного ребра)</p>
+<p>CycleBodyStart - заголовок цикла. Тело цикла должно храниться в поле Region::HierarchyLevel</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> CycleBodyRegion : Region
+    {
+        <span class="co">// region that dominates all the other regions in the cycle</span>
+        <span class="kw">public</span> Region CycleBodyStart { <span class="kw">get</span>; }
+        <span class="kw">public</span> <span class="fu">CycleBodyRegion</span>(Region cycleBodyStart) : <span class="kw">base</span>()
+        {
+            CycleBodyStart = cycleBodyStart;
+        }
+    }</code></pre></div>
+<h5 id="область-цикла">Область цикла</h5>
+<p>Область цикла - это тело цикла + обратное ребро</p>
+<div class="sourceCode"><pre class="sourceCode cs"><code class="sourceCode cs"><span class="kw">public</span> <span class="kw">class</span> CycleRegion : Region
+    {
+        <span class="co">/// cycle entry </span>
+        <span class="kw">public</span> Region CycleStart { <span class="kw">get</span>; }
+        <span class="co">/// Regions, which are the start of reverse edges</span>
+        <span class="co">/// TODO: consider removing this - as in this case the only reverse edge is from cycleStart to cycleStart</span>
+        <span class="kw">public</span> List&lt;Region&gt; ReverseEdgeSources { <span class="kw">get</span>; }
+        <span class="kw">public</span> List&lt;Edge&lt;Region&gt;&gt; ReverseEdges { <span class="kw">get</span>; }
+    }</code></pre></div>
+<h4 id="описание-алгоритма-14">Описание алгоритма</h4>
+<p>Если граф является приводимым, строим первый уровень иерархии - создаем области, соответствующие базовым блокам. Находим обратные ребра, каждому из них соответствует естетсвенный цикл. Если цикл не имеет вложенных циклов, создаем область тела цикла, добавляем ее в иерархию. Создаем область цикла, добавляем ее в иерархию. И так до тех пор, пока циклы не закончатся. Оставшиеся области формируют последний уровень иерархии.</p>
+<h4 id="входные-данные-25">Входные данные</h4>
+<p>Граф потока данных</p>
+<h4 id="выходные-данные-23">Выходные данные</h4>
+<p>Объект класса REgionHierarchy, хранящий список областей Region, который представляет собой восходящую последовательность областей.</p>
