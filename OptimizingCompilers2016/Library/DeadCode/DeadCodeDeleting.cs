@@ -8,18 +8,14 @@ using Occurrence = System.Tuple<int, OptimizingCompilers2016.Library.ThreeAddres
 
 namespace OptimizingCompilers2016.Library.DeadCode
 {
-
-    using IntraOccurence = System.Tuple<OptimizingCompilers2016.Library.BaseBlock, System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>>;
-
     public class DeadCodeDeleting
     {
-
         public static void optimizeDeadCode(BaseBlock block, HashSet<IdentificatorValue> activeVars = null)
         {
             int count_commands = block.Commands.Count;
 
             iteration(block, activeVars);
-            while (block.Commands.Count != count_commands)
+            while(block.Commands.Count != count_commands)
             {
                 count_commands = block.Commands.Count;
                 iteration(block, activeVars);
@@ -28,44 +24,50 @@ namespace OptimizingCompilers2016.Library.DeadCode
 
         private static void iteration(BaseBlock block, HashSet<IdentificatorValue> activeVars = null)
         {
-            HashSet<IThreeAddressCode> toDelete = new HashSet<IThreeAddressCode>();
+            //throw new NotImplementedException("Not implemented deleting dead code");
 
-            InblockDefUse DU = new InblockDefUse(block);
-            List<IntraOccurence> ordering = new List<IntraOccurence>(DU.defUses.Keys);
 
+            //Dictionary<Occurrence, HashSet<Occurrence>>
+
+            HashSet<IThreeAddressCode> toDelete  = new HashSet<IThreeAddressCode>();
             HashSet<IdentificatorValue> viewed = new HashSet<IdentificatorValue>();
-            if (activeVars == null)
+            InblockDefUse DU = new InblockDefUse(block);
+
+            for (int i = DU.defUses.Count-1; i >=0; i--)
             {
-                foreach (var item in DU.defUses.Keys)
+                if (activeVars == null)
                 {
-                    viewed.Add(item.Item2.Item3);
-                }
-            }
-            else
-            {
-                foreach (var item in DU.defUses.Keys)
-                {
-                    if (!activeVars.Contains(item.Item2.Item3))
-                        viewed.Add(item.Item2.Item3);
-                }
-            }
-            
-            ordering = new List<IntraOccurence>(ordering.OrderBy((IntraOccurence val) => { return val.Item1; }));
-            for (int i = ordering.Count - 1; i >= 0; i--)
-            {
-                if (!viewed.Contains(ordering[i].Item2.Item3))
-                {
-                    viewed.Add(ordering[i].Item2.Item3);
+                    //if (DU.defUses[ordering[i]].Count == 0)
+                    //if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3) && !activeVars.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3))
+
+                    if (!viewed.Contains(DU.defUses.ElementAt(i).Key.Item2.Item3))
+                    {
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item3);
+                    }
+                    else
+                    {
+                        if (DU.defUses.ElementAt(i).Value.Count == 0)
+                        {
+                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item2.Item1]);
+                        }
+
+                    }
                 }
                 else
                 {
-                    //var elem = DU.defUses.ElementAt(i).Key.Item2.Item3;
-                    //if (!viewed.Contains(elem) && activeVars.Contains(elem))
-                    if (DU.defUses[ordering[i]].Count == 0)
+                    var elem = DU.defUses.ElementAt(i).Key.Item2.Item3;
+                    if (!viewed.Contains(elem) && activeVars.Contains(elem))
                     {
-                        toDelete.Add(block.Commands[ordering[i].Item2.Item1]);
+                        viewed.Add(DU.defUses.ElementAt(i).Key.Item2.Item3);
                     }
+                    else
+                    {
+                        if (DU.defUses.ElementAt(i).Value.Count == 0)
+                        {
+                            toDelete.Add(block.Commands[DU.defUses.ElementAt(i).Key.Item2.Item1]);
+                        }
 
+                    }
                 }
             }
 
