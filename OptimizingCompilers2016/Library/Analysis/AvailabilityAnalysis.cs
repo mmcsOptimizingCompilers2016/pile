@@ -16,14 +16,32 @@ namespace OptimizingCompilers2016.Library.Analysis
         protected Dictionary<BaseBlock, InblockDefUse> localDefUses = new Dictionary<BaseBlock, InblockDefUse>();
         protected override void FillGeneratorsAndKillers(List<BaseBlock> blocks)
         {
-            foreach (var block in blocks)
+            var newBlocks = new List<BaseBlock>(blocks);
+            foreach (var block in newBlocks)
+            {
+                for (var i = 0; i < block.Commands.Count; ++i)
+                {
+                    var command = block.Commands[i];
+                    if (command.Operation != ThreeAddressCode.Operation.Assign &&
+                        command.Operation != ThreeAddressCode.Operation.Plus &&
+                        command.Operation != ThreeAddressCode.Operation.Minus &&
+                        command.Operation != ThreeAddressCode.Operation.Mult &&
+                        command.Operation != ThreeAddressCode.Operation.Div)
+                    {
+                        block.Commands.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+
+            foreach (var block in newBlocks)
                 localDefUses.Add(block, new InblockDefUse(block));
 
-            foreach (var block in blocks)
+            foreach (var block in newBlocks)
             {
                 generators.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
                 killers.Add(block, new EqualsBitArray(occToBitNumber.Count, false));
-                foreach (var ldur in localDefUses[block].defUses)
+                foreach (var ldur in localDefUses[block].useDefs)
                 {
                     foreach (var inOcc in ldur.Value)
                     {
