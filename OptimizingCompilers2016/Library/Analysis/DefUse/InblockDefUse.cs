@@ -211,12 +211,12 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
 
         public override string ToString()
         {
-            var defUseString = defUses.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var defUseString = defUses.Select(item => item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item2)) + "}");
             var sdu = "defUse: " + String.Join("\n", defUseString) + "\n";
-            var useDefString = useDefs.Select(item => item.Key + " => {" + String.Join(", ", item.Value) + "}");
+            var useDefString = useDefs.Select(item => item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item2)) + "}");
             var sud = "useDef: " + String.Join("\n", useDefString) + "\n";
 
-            return sud + sdu;
+            return block.Name + ": \n" + sud + sdu;
         }
     }
 }

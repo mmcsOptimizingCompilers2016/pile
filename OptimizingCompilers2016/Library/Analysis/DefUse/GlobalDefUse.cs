@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 // <номер строки, номер позиции в операторе, переменная>
 using Occurrence = System.Tuple<int, int, OptimizingCompilers2016.Library.ThreeAddressCode.Values.IdentificatorValue>;
@@ -19,8 +20,8 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
             foreach (var block in blocks)
             {
                 var inBlockDefUse = new InblockDefUse(block);
-                Console.WriteLine("Local def-uses: ");
-                Console.WriteLine(block.Name + " : " + inBlockDefUse.ToString());
+                //Console.WriteLine("Local def-uses: ");
+                //Console.WriteLine(block.Name + " : " + inBlockDefUse.ToString());
                 localDefUses.Add(block, inBlockDefUse);
             }
 
@@ -49,10 +50,10 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                         }
                     }
                 }
-                Console.WriteLine(block.Name);
-                Console.WriteLine(" Gen: " + generators[block].ToString());
-                PrintKillOfGen(generators[block]);
-                Console.WriteLine("Kill: " + killers[block].ToString());
+                //Console.WriteLine(block.Name);
+                //Console.WriteLine(" Gen: " + generators[block].ToString());
+                //PrintKillOfGen(generators[block]);
+                //Console.WriteLine("Kill: " + killers[block].ToString());
             }
         }
 
@@ -113,7 +114,7 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
                 //    defUses.Add(occ.Key, inOccHS);
                 //}
                 
-                Console.WriteLine(block.Name + " : " + inBlockDefUse.ToString());
+                ///Console.WriteLine(block.Name + " : " + inBlockDefUse.ToString());
             }
             //foreach (var res in outs)
             //{
@@ -148,15 +149,25 @@ namespace OptimizingCompilers2016.Library.Analysis.DefUse
             var res = "";
 
             var defUses = GetDefUses();
-            foreach (var occp in defUses)
-            {
-                res += occp.Key.Item1.Name + ": ";
-                foreach (var right in occp.Value)
-                {
-                    res += right.Item2.Item3.Value + ", ";
-                }
-                res += "\n---\n";
-            }
+            var useDefs = GetUseDefs();
+
+            var defUseString = defUses.Select(item => item.Key.Item1.Name + "#" + item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item1.Name + "#" + occ.Item2)) + "}");
+            var sdu = "defUse: " + String.Join("\n", defUseString) + "\n";
+            var useDefString = useDefs.Select(item => item.Key.Item1.Name + "#" + item.Key.Item2 + " => {" + String.Join(", ", item.Value.Select(occ => occ.Item1.Name + "#" + occ.Item2)) + "}");
+            var sud = "useDef: " + String.Join("\n", useDefString) + "\n";
+
+
+
+            //res += .Name + ": \n" + sud + sdu;
+            //foreach (var occp in defUses)
+            //{
+            //    //res += occp.Key.Item1.Name + ": ";
+            //    //foreach (var right in occp.Value)
+            //    //{
+            //    //    res += right.Item2.Item3.Value + ", ";
+            //    //}
+            //    //res += "\n---\n";
+            //}
 
             return res;
         }
