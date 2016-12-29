@@ -392,7 +392,7 @@ namespace OptimizingCompilers2016.GUI
         private void наОсновеАнализаАктивныхПеременныхToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             var AV = new ActiveVariables(new ControlFlowGraph(blocks));
-            AV.runAnalys();
+            AV.runAnalys(true);
             foreach (var block in blocks)
                 DeadCodeDeleting.optimizeDeadCode(block, AV.result[block.Name]);
             Result.Text = PrintBlocks();
@@ -412,7 +412,7 @@ namespace OptimizingCompilers2016.GUI
         {
             Result.Text = "";
             var AV = new ActiveVariables(new ControlFlowGraph(blocks));
-            AV.runAnalys();
+            AV.runAnalys(true);
             Result.Text = AV.ToString();
         }
 

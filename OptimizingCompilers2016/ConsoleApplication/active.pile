@@ -1,0 +1,117 @@
+{
+cycle 3
+{
+  a = -2;
+  b = 3;
+  c = -b;
+  d = b + 2;
+  e = a * b + c * d + 3;
+  n = 9;
+  if 1
+	b = 1;
+  else
+  {
+    b = 0;
+    yep = 2;
+  }
+
+  f = 3;
+  a = b * b;
+  
+  b = 5;
+  while a + x < b * c do
+  {
+  
+    if a
+ 	e = b * c;
+  
+    while x <= 10 do
+    {
+	f = f * d + 1;
+    }
+  
+
+    cycle 16
+    {
+      cycle 3
+      {
+        a = b + a;
+      }
+  
+      for i=1 to 10 do
+      {
+        cycle 9
+        {
+	  a = a * i;
+        }
+      }
+  
+      c = a + 3;
+      d = d + d;
+      b = a + 2;
+      d = a + 2;
+      e = 3 + a;
+
+    c = b + 2;
+  d = a * b + c * d + 3;
+  if 1
+	b = 1;
+  else
+  {
+    b = 0;
+    yep = 2;
+  }
+
+  a = 3;
+  a = b;
+  
+   x = 5;
+  
+  if a
+{
+	a = 1;
+  cycle 3
+  {
+    a = a + a;
+  }
+  for i=1 to 10 do
+  {
+    cycle 9
+    {
+	a = a + i;
+    }
+  }
+}
+else
+{
+  cycle 3
+  {
+    a = a + a;
+  }
+  for i=1 to 10 do
+  {
+    cycle 9
+    {
+	a = a + i;
+    }
+  }
+}  
+  while x <= 10 do
+  {
+	x = x + 1;
+  }
+}  
+  cycle 3
+  {
+  a = a + a;
+  }
+  for i=1 to 10 do
+	a = a + i;
+}  
+  c = a + 3;
+  d = d + d;
+  b = a + 2;
+  d = a + 2;
+  e = n + a;
+}
+}

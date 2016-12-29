@@ -11,6 +11,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 {
     public class ActiveVariables
     {
+        int count = 0;
         public Dictionary<string, HashSet<IdentificatorValue>> result = new Dictionary<string, HashSet<IdentificatorValue>>();
 
         private Dictionary<string, HashSet<IdentificatorValue>> IN = new Dictionary<string, HashSet<IdentificatorValue>>();
@@ -18,6 +19,8 @@ namespace OptimizingCompilers2016.Library.Analysis
         private Dictionary<string, HashSet<IdentificatorValue>> Def = new Dictionary<string, HashSet<IdentificatorValue>>();
         private Dictionary<string, HashSet<IdentificatorValue>> Use = new Dictionary<string, HashSet<IdentificatorValue>>();
         private List<BaseBlock> blocks;
+
+        private Dictionary<BaseBlock, List<BaseBlock>> domRelations;
 
         public ActiveVariables(ControlFlowGraph blocks)
         {
@@ -53,12 +56,18 @@ namespace OptimizingCompilers2016.Library.Analysis
             }
         }
 
-        public Dictionary<string, HashSet<IdentificatorValue>> runAnalys()
+        public Dictionary<string, HashSet<IdentificatorValue>> runAnalys(bool useImprovedAlgorithm)
         {
+            if (useImprovedAlgorithm) {
+                domRelations = DOM.DOM_CREAT(blocks, blocks[0]);
+                blocks.Sort((b1, b2) => CompareBlocks(b1, b2));
+            }
+      
             var oldIN = new Dictionary<string, HashSet<IdentificatorValue>>(IN);
 
             while (true)
             {
+                count++;
                 bool isChanged = false;
                 
                 for (int i = 0; i < blocks.Count; i++)
@@ -92,10 +101,19 @@ namespace OptimizingCompilers2016.Library.Analysis
                 oldIN = new Dictionary<string, HashSet<IdentificatorValue>>(IN);
             }
 
+            Console.WriteLine("COUNT OF ITERATIONS " + count);
+
             result = new Dictionary<string, HashSet<IdentificatorValue>>(IN);
 
             return result;
         }
+
+        private int CompareBlocks(BaseBlock b1, BaseBlock b2)
+        {
+            if (b1 == b2) return 0;
+            return domRelations[b1].Contains(b2) ? 1 : -1;
+        }
+
 
         public override string ToString()
         {
@@ -105,6 +123,8 @@ namespace OptimizingCompilers2016.Library.Analysis
             {
                 res += block.Key + ": " + string.Join(", ", block.Value) + "\r\n";
             }
+
+            res += "Count of iterations: " + count;
 
             return res;
         }
