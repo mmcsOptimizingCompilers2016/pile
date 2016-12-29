@@ -38,6 +38,8 @@
             this.глобальнаяToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.внутриБлоковToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализАктивныхПеременныхToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.обычныйToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.улучшенныйToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализДоступныхВыраженийToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.деревоДоминаторовToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -174,10 +176,26 @@
             // 
             // анализАктивныхПеременныхToolStripMenuItem
             // 
+            this.анализАктивныхПеременныхToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.обычныйToolStripMenuItem,
+            this.улучшенныйToolStripMenuItem});
             this.анализАктивныхПеременныхToolStripMenuItem.Name = "анализАктивныхПеременныхToolStripMenuItem";
             this.анализАктивныхПеременныхToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
             this.анализАктивныхПеременныхToolStripMenuItem.Text = "Анализ активных переменных";
-            this.анализАктивныхПеременныхToolStripMenuItem.Click += new System.EventHandler(this.анализАктивныхПеременныхToolStripMenuItem_Click);
+            // 
+            // обычныйToolStripMenuItem
+            // 
+            this.обычныйToolStripMenuItem.Name = "обычныйToolStripMenuItem";
+            this.обычныйToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.обычныйToolStripMenuItem.Text = "Обычный";
+            this.обычныйToolStripMenuItem.Click += new System.EventHandler(this.обычныйToolStripMenuItem_Click);
+            // 
+            // улучшенныйToolStripMenuItem
+            // 
+            this.улучшенныйToolStripMenuItem.Name = "улучшенныйToolStripMenuItem";
+            this.улучшенныйToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.улучшенныйToolStripMenuItem.Text = "Улучшенный";
+            this.улучшенныйToolStripMenuItem.Click += new System.EventHandler(this.улучшенныйToolStripMenuItem_Click);
             // 
             // анализДоступныхВыраженийToolStripMenuItem
             // 
@@ -400,6 +418,7 @@
             this.ResultCode.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.ResultCode.Location = new System.Drawing.Point(0, 0);
             this.ResultCode.Name = "ResultCode";
+            this.ResultCode.ReadOnly = true;
             this.ResultCode.Size = new System.Drawing.Size(328, 425);
             this.ResultCode.TabIndex = 0;
             this.ResultCode.Text = "";
@@ -420,6 +439,7 @@
             this.BaseBlocks.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.BaseBlocks.Location = new System.Drawing.Point(0, 0);
             this.BaseBlocks.Name = "BaseBlocks";
+            this.BaseBlocks.ReadOnly = true;
             this.BaseBlocks.Size = new System.Drawing.Size(328, 425);
             this.BaseBlocks.TabIndex = 0;
             this.BaseBlocks.Text = "";
@@ -452,6 +472,7 @@
             this.Result.Size = new System.Drawing.Size(596, 432);
             this.Result.TabIndex = 9;
             this.Result.Text = "";
+            this.Result.WordWrap = false;
             this.Result.VScroll += new System.EventHandler(this.Result_VScroll);
             // 
             // NewWindow2
@@ -566,6 +587,8 @@
         private System.Windows.Forms.ToolStripMenuItem обратныеРёбраToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem обычныйToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem улучшенныйToolStripMenuItem;
     }
 }
 

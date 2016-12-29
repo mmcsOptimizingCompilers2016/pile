@@ -410,7 +410,23 @@ namespace OptimizingCompilers2016.GUI
 
         //}
 
-        private void анализАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        //private void анализАктивныхПеременныхToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    //Result.Text = "";
+        //    //var AV = new ActiveVariables(new ControlFlowGraph(blocks));
+        //    //AV.runAnalys(true);
+        //    //Result.Text = AV.ToString();
+        //}
+
+        private void обычныйToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Result.Text = "";
+            var AV = new ActiveVariables(new ControlFlowGraph(blocks));
+            AV.runAnalys(false);
+            Result.Text = AV.ToString();
+        }
+
+        private void улучшенныйToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Result.Text = "";
             var AV = new ActiveVariables(new ControlFlowGraph(blocks));
@@ -480,11 +496,9 @@ namespace OptimizingCompilers2016.GUI
 
         private void обратныеРёбраToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Result.Text = "";
             ControlFlowGraph CFG = new ControlFlowGraph(blocks);
 
-            foreach (var backEdge in CFG.BackwardEdges)
-                Result.Text += backEdge.ToString();
+            Result.Text = CFG.GetBackwardsString();            
         }
 
         private void натуральныеЦиклыToolStripMenuItem_Click(object sender, EventArgs e)
@@ -524,6 +538,7 @@ namespace OptimizingCompilers2016.GUI
             if (tabControl2.SelectedTab == BaseBlock_TabPage)
                 Save.Enabled = true;
         }
+
 
     }
 }

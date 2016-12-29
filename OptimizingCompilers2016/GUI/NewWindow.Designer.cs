@@ -42,6 +42,7 @@
             this.ResultText.Size = new System.Drawing.Size(350, 500);
             this.ResultText.TabIndex = 1;
             this.ResultText.Text = "";
+            this.ResultText.WordWrap = false;
             // 
             // NewWindow
             // 
