@@ -4,6 +4,7 @@
 
 ## [Оценивание вклада](https://docs.google.com/spreadsheets/d/1Ui66lAvnLldoU0UEBgU_YNJIaAkaVxXfennvXmj0l0A/edit#gid=0)
 
+## [Анкета](https://docs.google.com/forms/d/e/1FAIpQLSewQuhaAIfBCZYcSnmd66_lK8M5Ye5LUdxux6Z9a-pA4SSvVA/viewform)
 
 ## Команды
 
