@@ -5,6 +5,7 @@
   c = b * a - aa * 0;
   d = a + 2 * b + 3 * c + 2;
   e = a * b + c * d + 3;
+  ee = a * b + c * d + aa;
   if d < e
 	b = 1;
   else
