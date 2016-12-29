@@ -344,9 +344,11 @@ namespace OptimizingCompilers2016.GUI
 
         private void внутриБлоковToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var opt = new ConstantPropagationOptimizator();
             foreach (var block in blocks)
+            {
+                var opt = new ConstantPropagationOptimizator();
                 opt.Optimize(block);
+            }
 
             Result.Text = PrintBlocks();
         }
