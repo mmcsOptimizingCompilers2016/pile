@@ -103,7 +103,7 @@ namespace OptimizingCompilers2016.Library.Analysis
 
             Console.WriteLine("COUNT OF ITERATIONS " + count);
 
-            result = new Dictionary<string, HashSet<IdentificatorValue>>(IN);
+            result = new Dictionary<string, HashSet<IdentificatorValue>>(OUT);
 
             return result;
         }
