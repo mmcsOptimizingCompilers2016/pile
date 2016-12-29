@@ -2,6 +2,9 @@
 
 ## [Таблица баллов за посещение курса](https://docs.google.com/spreadsheets/d/14uZ_s1XpKt8FU-2dekrb9LBQeggHc1HcXYyo2zh6Uao/edit?usp=sharing)
 
+## [Оценивание вклада](https://docs.google.com/spreadsheets/d/1Ui66lAvnLldoU0UEBgU_YNJIaAkaVxXfennvXmj0l0A/edit#gid=0)
+
+
 ## Команды
 
 1. __UniCo__ — Скапенко, Гордиенко
