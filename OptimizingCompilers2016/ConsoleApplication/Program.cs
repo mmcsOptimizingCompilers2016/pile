@@ -138,8 +138,8 @@ namespace OptimizingCompilers2016.ConsoleApplication
                 var linearCode = getLinearCode(parser);
                 var blocks = getBlocks(linearCode);
 
-                Console.WriteLine("Edge Types:");
-                Console.WriteLine(blocks.EdgeTypes);
+                //Console.WriteLine("Edge Types:");
+                //Console.WriteLine(blocks.EdgeTypes);
 
                 //var AV = new ActiveVariables(blocks);
 
@@ -243,12 +243,22 @@ namespace OptimizingCompilers2016.ConsoleApplication
 
                 //var graph = BaseBlockDivider.divide(linearCode);
 
-                
+
                 //Console.WriteLine("Before:");
                 //print(getListOfBB(graph));
                 //var optCode = opt.Optimize(graph);
                 //Console.WriteLine("After:");
                 //print(getListOfBB(graph));
+
+                var gd = new GlobalDefUse();
+                gd.RunAnalysis(blocks.ToList());
+                Console.WriteLine(gd.ToString());
+
+                //foreach (var block in blocks) {
+                //    InblockDefUse df = new InblockDefUse(block);
+                //    Console.WriteLine(df.ToString());
+
+                //}
             }
             catch (FileNotFoundException)
             {
