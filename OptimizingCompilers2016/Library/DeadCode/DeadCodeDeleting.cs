@@ -59,6 +59,8 @@ namespace OptimizingCompilers2016.Library.DeadCode
                 }
                 else
                 {
+                    //var elem = DU.defUses.ElementAt(i).Key.Item2.Item3;
+                    //if (!viewed.Contains(elem) && activeVars.Contains(elem))
                     if (DU.defUses[ordering[i]].Count == 0)
                     {
                         toDelete.Add(block.Commands[ordering[i].Item2.Item1]);
