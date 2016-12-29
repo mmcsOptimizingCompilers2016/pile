@@ -4,7 +4,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
 {
     public class AlgebraicIdentityOptimizator : IOptimizator
     {
-        bool IOptimizator.Optimize(BaseBlock baseBlock)
+        public bool Optimize(BaseBlock baseBlock)
         {
             var changed = false;
             for (var i = 0; i < baseBlock.Commands.Count; ++i)
@@ -45,7 +45,7 @@ namespace OptimizingCompilers2016.Library.Optimizators
                                 command.Operation = ThreeAddressCode.Operation.Assign;
                                 changed = true;
                             }
-                            else if (rightValue?.Value == leftValue?.Value)
+                            else if (rightValue != null && leftValue != null && rightValue.Value == leftValue.Value)
                             {
                                 command.RightOperand = null;
                                 command.LeftOperand = new NumericValue(0);
@@ -63,6 +63,18 @@ namespace OptimizingCompilers2016.Library.Optimizators
                             else if (rightValue?.Value == 1)
                             {
                                 command.RightOperand = null;
+                                command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
+                            }
+                            else if (leftValue?.Value == 0)
+                            {
+                                command.RightOperand = new NumericValue(0);
+                                command.Operation = ThreeAddressCode.Operation.Assign;
+                                changed = true;
+                            }
+                            else if (rightValue?.Value == 0)
+                            {
+                                command.LeftOperand = new NumericValue(0);
                                 command.Operation = ThreeAddressCode.Operation.Assign;
                                 changed = true;
                             }
